@@ -1,19 +1,56 @@
 #include "declarations.h"
 
-int KingPossibleSquares[8] = {-11, -10, -9, -1, 1, 9, 10, 11};
-
 char GetPieceSymbol(int piece_number){
     return PiecesSymbols[piece_number + SYMBOLS_OFFSET];
     //return '\0';
 }
 
-std::list<int>* GenerateKingMoves(int position, Node *node){
-    Board* board = node->GetBoardPtr();
-    std::list<int>* moves = new std::list<int>();
-    for(auto move : KingPossibleSquares){
-        if(board->GetSquareValue(position + move) != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position)){
-            moves->push_back(position + move);
-        }
+std::string Ind2Not(int index){
+    int column = index % 10 - 1;
+    int row = index / 10 - 1;
+    char col = (char)(column + 'a' - 1);
+    char roww = (char)(row + '0');
+    std::string result;
+    result += col;
+    result += roww;
+    return result;
+}
+int Not2Ind(std::string notation){
+    int row = notation[1] - '0' - 1;
+    int col = notation[0] - 'a' + 1;
+    int result = row * 10 + 20 + col + 1;
+    return result;    
+}
+
+bool NotationValid(std::string pos){
+    if(pos.length() != 2){
+        return false;
     }
-    return moves;
+    return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= 1 && pos[1] <= 8);
+}
+
+int h(std::string hashed){
+    long long sum = 0;
+    for(unsigned int i = 0; i < hashed.length(); i++){
+        sum = sum * 311;
+        sum += (int)(hashed[i]);
+        sum %= 1000000000 + 7;
+    }
+    return sum;
+}
+
+void init(MoveGenerator* gens[]){
+    gens[0] = new KingMoveGenerator();
+    gens[1] = new QueenMoveGenerator();
+    gens[2] = new BishopMoveGenerator();
+    gens[3] = new KnightMoveGenerator();
+    gens[4] = new RookMoveGenerator();
+    gens[5] = new BlackPawnMoveGenerator();
+    gens[6] = new EmptyMoveGenerator();
+    gens[7] = new WhitePawnMoveGenerator();
+    gens[8] = new RookMoveGenerator();
+    gens[9] = new KnightMoveGenerator();
+    gens[10] = new BishopMoveGenerator();
+    gens[11] = new QueenMoveGenerator();
+    gens[12] = new KingMoveGenerator();
 }

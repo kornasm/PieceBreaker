@@ -6,19 +6,23 @@ Board::Board(){
 
 void Board::ShowBoard(){
     std::cout << "showboard" << std::endl;
+    std::cout << "    a   b   c   d   e   f   g   h\n";
+    std::cout << "  +---+---+---+---+---+---+---+---+\n";
     for(int row = 8; row > 0; row--){
+        std::cout << row << " ";
         for(int col = 1; col <= 8; col++){
-            std::cout << GetPiece(col, row) << " ";
+            std::cout << "| " << GetPiece(col, row) << " ";
         }
-        std::cout << '\n';
+        std::cout << "|";
+        std::cout << "\n  +---+---+---+---+---+---+---+---+\n";
     }
-    std::cout << '\n';
+    /*std::cout << '\n';
     for(int row = 8; row > 0; row--){
         for(int col = 1; col <= 8; col++){
             std::cout << GetSquareColor(col, row) << " ";
         }
         std::cout << '\n';
-    }
+    }//*/
     return;
 }
 

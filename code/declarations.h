@@ -4,11 +4,14 @@
 #include "node.h"
 #include "board.h"
 #include "functions.h"
+#include "movegenerators.h"
 
 #include<string>
 #include<iostream>
 #include <list>
 #include<algorithm>
+
+#include<unistd.h>
 
 #define SYMBOLS_OFFSET 6
 
