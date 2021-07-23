@@ -37,15 +37,20 @@ int main(){
             case 40093753:{ // moves}
                 std::string notation;
                 std::cin >> notation;
+                std::cout << "notation   " << notation << '\n';
                 int position = Not2Ind(notation);
                 if(NotationValid(notation)){
-                    std::list<int>* movestemp = generators[newgame->GetBoardPtr()->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveList(position, newgame);
+                    std::cout << "notation valid,  position   " << position << '\n';
+                    std::list<int>* movestemp = generators[newgame->GetBoardPtr()->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListv(position, newgame);
                     auto itt = movestemp->begin();
                     while(itt != movestemp->end()){
                         std::cout << Ind2Not(*itt) << " ";
                         ++itt;
                     }
                     delete movestemp;
+                }
+                else{
+                    std::cout << "main    invalid notation\n";
                 }
             }
         }//*/

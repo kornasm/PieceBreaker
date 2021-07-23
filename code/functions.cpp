@@ -23,10 +23,14 @@ int Not2Ind(std::string notation){
 }
 
 bool NotationValid(std::string pos){
+    std::cout << '#' << pos << '#' << '\n';
     if(pos.length() != 2){
+        std::cout << "notation invalid,  length = " << pos.length() << '\n';
         return false;
     }
-    return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= 1 && pos[1] <= 8);
+    std:: cout << (int)('a') << " " << (int)(pos[0]) << " " << (int)('h') << " ";
+    std:: cout << (int)('1') << " " << (int)(pos[1]) << " " << (int)('8') << '\n';
+    return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
 }
 
 int h(std::string hashed){

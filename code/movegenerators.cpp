@@ -7,12 +7,11 @@ int BishopUpRightSquares[7] = {11, 22, 33, 44, 55, 66, 77};
 int BishopUpLeftSquares[7] = {9, 18, 27, 36, 45, 54, 63};
 int KnightSquares[8] = {-21, -19, -8, 12, 21, 19, 8, -12};
 
-std::list<int>* MoveGenerator::GenerateMoveList(int position, Node* node){
-    std::cout << "method is not virtual XDDD\n";
-    return new std::list<int>();
+std::list<int>* KingMoveGenerator::GenerateMoveListv(int position, Node* node){
+    return KingMoveGenerator::GenerateMoveList(position, node);
 }
-
 std::list<int>* KingMoveGenerator::GenerateMoveList(int position, Node* node){
+    std::cout << "king move generator   generate moves\n";
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
     for(auto move : KingPossibleSquares){
@@ -23,6 +22,9 @@ std::list<int>* KingMoveGenerator::GenerateMoveList(int position, Node* node){
     return moves;
 }
 
+std::list<int>* RookMoveGenerator::GenerateMoveListv(int position, Node* node){
+    return RookMoveGenerator::GenerateMoveList(position, node);
+}
 std::list<int>* RookMoveGenerator::GenerateMoveList(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
@@ -52,7 +54,9 @@ std::list<int>* RookMoveGenerator::GenerateMoveList(int position, Node* node){
     }
     return moves;
 }
-
+std::list<int>* BishopMoveGenerator::GenerateMoveListv(int position, Node* node){
+    return BishopMoveGenerator::GenerateMoveList(position, node);
+}
 std::list<int>* BishopMoveGenerator::GenerateMoveList(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
@@ -83,6 +87,9 @@ std::list<int>* BishopMoveGenerator::GenerateMoveList(int position, Node* node){
     return moves;
 }
 
+std::list<int>* QueenMoveGenerator::GenerateMoveListv(int position, Node* node){
+    return QueenMoveGenerator::GenerateMoveList(position, node);
+}
 std::list<int>* QueenMoveGenerator::GenerateMoveList(int position, Node* node){
     std::list<int>* rookmoves = RookMoveGenerator::GenerateMoveList(position, node);
     std::list<int>* bishmoves = BishopMoveGenerator::GenerateMoveList(position, node);
@@ -90,14 +97,38 @@ std::list<int>* QueenMoveGenerator::GenerateMoveList(int position, Node* node){
     return rookmoves;
 }
 
+std::list<int>* KnightMoveGenerator::GenerateMoveListv(int position, Node* node){
+    return KnightMoveGenerator::GenerateMoveList(position, node);
+}
+std::list<int>* KnightMoveGenerator::GenerateMoveList(int position, Node* node){
+    std::cout << "knight move generator   generate moves\n";
+    Board* board = node->GetBoardPtr();
+    std::list<int>* moves = new std::list<int>();
+    for(auto move : KnightSquares){
+        if(board->GetSquareValue(position + move) != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position)){
+            moves->push_back(position + move);
+        }
+    }
+    return moves;
+}
+
+std::list<int>* WhitePawnMoveGenerator::GenerateMoveListv(int position, Node* node){
+    return WhitePawnMoveGenerator::GenerateMoveList(position, node);
+}
 std::list<int>* WhitePawnMoveGenerator::GenerateMoveList(int position, Node* node){
     return NULL;
 }
 
+std::list<int>* BlackPawnMoveGenerator::GenerateMoveListv(int position, Node* node){
+    return BlackPawnMoveGenerator::GenerateMoveList(position, node);
+}
 std::list<int>* BlackPawnMoveGenerator::GenerateMoveList(int position, Node* node){
     return NULL;
 }
 
+std::list<int>* EmptyMoveGenerator::GenerateMoveListv(int position, Node* node){
+    return new std::list<int>();
+}
 std::list<int>* EmptyMoveGenerator::GenerateMoveList(int position, Node* node){
     return new std::list<int>();
 }
