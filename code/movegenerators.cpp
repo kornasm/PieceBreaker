@@ -7,11 +7,7 @@ int BishopUpRightSquares[7] = {11, 22, 33, 44, 55, 66, 77};
 int BishopUpLeftSquares[7] = {9, 18, 27, 36, 45, 54, 63};
 int KnightSquares[8] = {-21, -19, -8, 12, 21, 19, 8, -12};
 
-std::list<int>* KingMoveGenerator::GenerateMoveListv(int position, Node* node){
-    return KingMoveGenerator::GenerateMoveList(position, node);
-}
 std::list<int>* KingMoveGenerator::GenerateMoveList(int position, Node* node){
-    std::cout << "king move generator   generate moves\n";
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
     for(auto move : KingPossibleSquares){
@@ -22,9 +18,6 @@ std::list<int>* KingMoveGenerator::GenerateMoveList(int position, Node* node){
     return moves;
 }
 
-std::list<int>* RookMoveGenerator::GenerateMoveListv(int position, Node* node){
-    return RookMoveGenerator::GenerateMoveList(position, node);
-}
 std::list<int>* RookMoveGenerator::GenerateMoveList(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
@@ -54,9 +47,7 @@ std::list<int>* RookMoveGenerator::GenerateMoveList(int position, Node* node){
     }
     return moves;
 }
-std::list<int>* BishopMoveGenerator::GenerateMoveListv(int position, Node* node){
-    return BishopMoveGenerator::GenerateMoveList(position, node);
-}
+
 std::list<int>* BishopMoveGenerator::GenerateMoveList(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
@@ -87,9 +78,6 @@ std::list<int>* BishopMoveGenerator::GenerateMoveList(int position, Node* node){
     return moves;
 }
 
-std::list<int>* QueenMoveGenerator::GenerateMoveListv(int position, Node* node){
-    return QueenMoveGenerator::GenerateMoveList(position, node);
-}
 std::list<int>* QueenMoveGenerator::GenerateMoveList(int position, Node* node){
     std::list<int>* rookmoves = RookMoveGenerator::GenerateMoveList(position, node);
     std::list<int>* bishmoves = BishopMoveGenerator::GenerateMoveList(position, node);
@@ -97,11 +85,7 @@ std::list<int>* QueenMoveGenerator::GenerateMoveList(int position, Node* node){
     return rookmoves;
 }
 
-std::list<int>* KnightMoveGenerator::GenerateMoveListv(int position, Node* node){
-    return KnightMoveGenerator::GenerateMoveList(position, node);
-}
 std::list<int>* KnightMoveGenerator::GenerateMoveList(int position, Node* node){
-    std::cout << "knight move generator   generate moves\n";
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
     for(auto move : KnightSquares){
@@ -112,23 +96,38 @@ std::list<int>* KnightMoveGenerator::GenerateMoveList(int position, Node* node){
     return moves;
 }
 
-std::list<int>* WhitePawnMoveGenerator::GenerateMoveListv(int position, Node* node){
-    return WhitePawnMoveGenerator::GenerateMoveList(position, node);
-}
 std::list<int>* WhitePawnMoveGenerator::GenerateMoveList(int position, Node* node){
-    return NULL;
+    Board* board = node->GetBoardPtr();
+    std::list<int>* moves = new std::list<int>();
+    if(board->GetSquareColor(position + 10) == EMPTY_SQUARE){
+        moves->push_back(position + 10);
+        if(row(position) == 2 && board->GetSquareColor(position + 20) == EMPTY_SQUARE){
+            moves->push_back(position + 20);
+        }
+    }
+    if(board->GetSquareColor(position) == -(board->GetSquareColor(position + 9))){
+        moves->push_back(position + 9);
+    }
+    if(board->GetSquareColor(position) == -(board->GetSquareColor(position + 11))){
+        moves->push_back(position + 11);
+    }
+    return moves;
 }
 
-std::list<int>* BlackPawnMoveGenerator::GenerateMoveListv(int position, Node* node){
-    return BlackPawnMoveGenerator::GenerateMoveList(position, node);
-}
 std::list<int>* BlackPawnMoveGenerator::GenerateMoveList(int position, Node* node){
-    return NULL;
-}
-
-std::list<int>* EmptyMoveGenerator::GenerateMoveListv(int position, Node* node){
-    return new std::list<int>();
-}
-std::list<int>* EmptyMoveGenerator::GenerateMoveList(int position, Node* node){
-    return new std::list<int>();
+    Board* board = node->GetBoardPtr();
+    std::list<int>* moves = new std::list<int>();
+    if(board->GetSquareColor(position - 10) == EMPTY_SQUARE){
+        moves->push_back(position - 10);
+        if(row(position) == 7 && board->GetSquareColor(position - 20) == EMPTY_SQUARE){
+            moves->push_back(position - 20);
+        }
+    }
+    if(board->GetSquareColor(position) == -(board->GetSquareColor(position - 9))){
+        moves->push_back(position - 9);
+    }
+    if(board->GetSquareColor(position) == -(board->GetSquareColor(position - 11))){
+        moves->push_back(position - 11);
+    }
+    return moves;
 }

@@ -5,8 +5,7 @@ Board::Board(){
 }
 
 void Board::ShowBoard(){
-    std::cout << "showboard" << std::endl;
-    std::cout << "    a   b   c   d   e   f   g   h\n";
+    std::cout << std::endl;
     std::cout << "  +---+---+---+---+---+---+---+---+\n";
     for(int row = 8; row > 0; row--){
         std::cout << row << " ";
@@ -16,6 +15,7 @@ void Board::ShowBoard(){
         std::cout << "|";
         std::cout << "\n  +---+---+---+---+---+---+---+---+\n";
     }
+    std::cout << "    a   b   c   d   e   f   g   h\n\n";
     /*std::cout << '\n';
     for(int row = 8; row > 0; row--){
         for(int col = 1; col <= 8; col++){
@@ -53,5 +53,11 @@ int Board::GetSquareValue(int index){
     return _squares[index];
 }
 int Board::GetSquareColor(int index){
-    return sgn(_squares[index]);
+    int val = GetSquareValue(index);
+    if(val == OUTSIDE_BOARD){
+        return OUTSIDE_BOARD;
+    }
+    else{
+        return sgn(_squares[index]);
+    }
 }

@@ -14,10 +14,11 @@
 #include<unistd.h>
 
 #define SYMBOLS_OFFSET 6
+#define NO_PIECES 13
 
 #define OUTSIDE_BOARD 7
 #define WHITE 1
-#define EMPTY 0
+#define EMPTY_SQUARE 0
 #define BLACK -1
 
 #endif

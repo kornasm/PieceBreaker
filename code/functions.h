@@ -14,9 +14,12 @@ template <typename T> int sgn(T val) {
 
 std::string Ind2Not(int index);
 int Not2Ind(std::string notation);
+int row(int position);
+int column(int position);
 
 bool NotationValid(std::string pos);
 
 int h(std::string hashed);
 
 void init(MoveGenerator* gens[]);
+void cleanup(MoveGenerator* gens[]);

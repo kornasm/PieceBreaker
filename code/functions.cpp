@@ -2,7 +2,6 @@
 
 char GetPieceSymbol(int piece_number){
     return PiecesSymbols[piece_number + SYMBOLS_OFFSET];
-    //return '\0';
 }
 
 std::string Ind2Not(int index){
@@ -28,9 +27,16 @@ bool NotationValid(std::string pos){
         std::cout << "notation invalid,  length = " << pos.length() << '\n';
         return false;
     }
-    std:: cout << (int)('a') << " " << (int)(pos[0]) << " " << (int)('h') << " ";
-    std:: cout << (int)('1') << " " << (int)(pos[1]) << " " << (int)('8') << '\n';
+    //std:: cout << (int)('a') << " " << (int)(pos[0]) << " " << (int)('h') << " ";
+    //std:: cout << (int)('1') << " " << (int)(pos[1]) << " " << (int)('8') << '\n';
     return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
+}
+
+int row(int position){
+    return (position - 10) / 10;
+}
+int column(int position){
+    return position % 10 - 1;
 }
 
 int h(std::string hashed){
@@ -57,4 +63,12 @@ void init(MoveGenerator* gens[]){
     gens[10] = new BishopMoveGenerator();
     gens[11] = new QueenMoveGenerator();
     gens[12] = new KingMoveGenerator();
+    return;
+}
+
+void cleanup(MoveGenerator* gens[]){
+    for(int i = 0; i < NO_PIECES; i++){
+        delete gens[i];
+    }
+    return;
 }
