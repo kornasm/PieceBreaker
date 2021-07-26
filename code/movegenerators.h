@@ -1,4 +1,5 @@
 #include<list>
+#include<iostream>
 class Node;
 
 class MoveGenerator{
@@ -76,6 +77,7 @@ class BlackPawnMoveGenerator: public MoveGenerator{
 class EmptyMoveGenerator: public MoveGenerator{
     public:
         std::list<int>* GenerateMoveListv(int position, Node* node){
+            std::cout << "EmptyMoveGenerator::GenerateMoveList() executed (bad index typed)\n";
             return new std::list<int>();
         }
         static std::list<int>* GenerateMoveList(int position, Node* node){

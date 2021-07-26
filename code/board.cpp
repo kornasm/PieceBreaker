@@ -16,13 +16,6 @@ void Board::ShowBoard(){
         std::cout << "\n  +---+---+---+---+---+---+---+---+\n";
     }
     std::cout << "    a   b   c   d   e   f   g   h\n\n";
-    /*std::cout << '\n';
-    for(int row = 8; row > 0; row--){
-        for(int col = 1; col <= 8; col++){
-            std::cout << GetSquareColor(col, row) << " ";
-        }
-        std::cout << '\n';
-    }//*/
     return;
 }
 
@@ -60,4 +53,10 @@ int Board::GetSquareColor(int index){
     else{
         return sgn(_squares[index]);
     }
+}
+
+bool Board::MakeMove(int from, int to){
+    _squares[to] = _squares[from];
+    _squares[from] = 0;
+    return true;
 }

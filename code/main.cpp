@@ -1,7 +1,7 @@
 #include "declarations.h"
 
-char PiecesSymbols[13] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
-MoveGenerator* generators[13];
+char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
+MoveGenerator* generators[NO_PIECES + 1];
 int main(){
     init(generators);
     Node *newgame = new Node();
@@ -15,6 +15,17 @@ int main(){
         std::cin >> command;
         std::cout << h(command) << std::endl;
         switch(h(command)){
+            case 289517988:{ // "move"
+                std::string movestr;
+                std::cin >> movestr;
+                if(newgame->MakeMove(movestr)){
+                    std::cout << "ok\n";
+                }
+                else{
+                    std::cout << "not ok\n";
+                }
+                break;
+            }
             case 49742601:{ // "exit"
                 gamestate = 0;
                 break;
@@ -26,10 +37,8 @@ int main(){
             case 40093753:{ // moves}
                 std::string notation;
                 std::cin >> notation;
-                //std::cout << "notation   " << notation << '\n';
                 int position = Not2Ind(notation);
                 if(NotationValid(notation)){
-                    //std::cout << "notation valid,  position   " << position << '\n';
                     std::list<int>* movestemp = generators[newgame->GetBoardPtr()->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListv(position, newgame);
                     auto itt = movestemp->begin();
                     while(itt != movestemp->end()){

@@ -22,7 +22,6 @@ int Not2Ind(std::string notation){
 }
 
 bool NotationValid(std::string pos){
-    std::cout << '#' << pos << '#' << '\n';
     if(pos.length() != 2){
         std::cout << "notation invalid,  length = " << pos.length() << '\n';
         return false;
@@ -63,12 +62,23 @@ void init(MoveGenerator* gens[]){
     gens[10] = new BishopMoveGenerator();
     gens[11] = new QueenMoveGenerator();
     gens[12] = new KingMoveGenerator();
+    gens[13] = new EmptyMoveGenerator();
     return;
 }
 
 void cleanup(MoveGenerator* gens[]){
-    for(int i = 0; i < NO_PIECES; i++){
+    for(int i = 0; i <= NO_PIECES; i++){
         delete gens[i];
     }
     return;
+}
+
+void PrintMoveList(std::list<int>* moves){
+    auto it = moves->begin();
+    std::cout << "available places:  ";
+    while(it != moves->end()){
+        std::cout << Ind2Not(*it) << " ";
+        it++;
+    }
+    std::cout << '\n';
 }

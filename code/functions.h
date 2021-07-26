@@ -23,3 +23,5 @@ int h(std::string hashed);
 
 void init(MoveGenerator* gens[]);
 void cleanup(MoveGenerator* gens[]);
+
+void PrintMoveList(std::list<int>* moves);

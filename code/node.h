@@ -1,14 +1,16 @@
+#include<string>
+
 class Board;
 
 class Node{
     private:
         Board* _board;
-
     public:
         Node();
         ~Node();
         Board* GetBoardPtr();
         void ShowBoard();
+        bool MakeMove(std::string notation);
 };
 
 /*

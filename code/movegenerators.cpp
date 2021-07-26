@@ -22,25 +22,25 @@ std::list<int>* RookMoveGenerator::GenerateMoveList(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
     for(auto move : RookLeftSquares){
-        if(board->GetSquareValue(position + move != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position)))
+        if(board->GetSquareValue(position + move) != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position))
             moves->push_back(position + move);
         else
             break;
     }
     for(auto move : RookUpSquares){
-        if(board->GetSquareValue(position + move != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position)))
+        if(board->GetSquareValue(position + move) != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position))
             moves->push_back(position + move);
         else
             break;
     }
     for(auto move : RookLeftSquares){
-        if(board->GetSquareValue(position - move != OUTSIDE_BOARD && board->GetSquareColor(position - move) != board->GetSquareColor(position)))
+        if(board->GetSquareValue(position - move) != OUTSIDE_BOARD && board->GetSquareColor(position - move) != board->GetSquareColor(position))
             moves->push_back(position - move);
         else
             break;
     }
     for(auto move : RookUpSquares){
-        if(board->GetSquareValue(position - move != OUTSIDE_BOARD && board->GetSquareColor(position - move) != board->GetSquareColor(position)))
+        if(board->GetSquareValue(position - move) != OUTSIDE_BOARD && board->GetSquareColor(position - move) != board->GetSquareColor(position))
             moves->push_back(position - move);
         else
             break;
@@ -52,25 +52,25 @@ std::list<int>* BishopMoveGenerator::GenerateMoveList(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
     for(auto move : BishopUpRightSquares){
-        if(board->GetSquareValue(position + move != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position)))
+        if(board->GetSquareValue(position + move) != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position))
             moves->push_back(position + move);
         else
             break;
     }
     for(auto move : BishopUpLeftSquares){
-        if(board->GetSquareValue(position + move != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position)))
+        if(board->GetSquareValue(position + move) != OUTSIDE_BOARD && board->GetSquareColor(position + move) != board->GetSquareColor(position))
             moves->push_back(position + move);
         else
             break;
     }
     for(auto move : BishopUpRightSquares){
-        if(board->GetSquareValue(position - move != OUTSIDE_BOARD && board->GetSquareColor(position - move) != board->GetSquareColor(position)))
+        if(board->GetSquareValue(position - move) != OUTSIDE_BOARD && board->GetSquareColor(position - move) != board->GetSquareColor(position))
             moves->push_back(position - move);
         else
             break;
     }
     for(auto move : BishopUpLeftSquares){
-        if(board->GetSquareValue(position - move != OUTSIDE_BOARD && board->GetSquareColor(position - move) != board->GetSquareColor(position)))
+        if(board->GetSquareValue(position - move) != OUTSIDE_BOARD && board->GetSquareColor(position - move) != board->GetSquareColor(position))
             moves->push_back(position - move);
         else
             break;
@@ -97,6 +97,7 @@ std::list<int>* KnightMoveGenerator::GenerateMoveList(int position, Node* node){
 }
 
 std::list<int>* WhitePawnMoveGenerator::GenerateMoveList(int position, Node* node){
+    std::cout << "white pawn gen\n";
     Board* board = node->GetBoardPtr();
     std::list<int>* moves = new std::list<int>();
     if(board->GetSquareColor(position + 10) == EMPTY_SQUARE){
