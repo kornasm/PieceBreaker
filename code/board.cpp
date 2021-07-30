@@ -1,7 +1,14 @@
 #include "declarations.h"
 
-Board::Board(){
-    std::cout << "Board const\n";
+/*Board::Board(){
+    _whiteKingPos = 26;
+    _blackKingPos = 96;
+};//*/
+
+Board::Board(Node* nd){
+    _whiteKingPos = Not2Ind("e1");
+    _blackKingPos = Not2Ind("e8");
+    parent = nd;
 }
 
 void Board::ShowBoard(){
@@ -55,8 +62,31 @@ int Board::GetSquareColor(int index){
     }
 }
 
-bool Board::MakeMove(int from, int to){
-    _squares[to] = _squares[from];
-    _squares[from] = 0;
-    return true;
+bool Board::CheckMove(int from, int to){
+    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListv(from, parent);
+    PrintMoveList(moves);
+    Move* expected = new Move(from, to, REGULAR_MOVE);
+    bool available = false;
+    auto it = moves->begin();
+    while(it != moves->end()){
+        if(*expected == *it){
+            available = true;
+            break;
+        }
+        ++it;
+    }
+    delete moves;
+    delete expected;
+    if(available){
+        _squares[to] = _squares[from];
+        _squares[from] = 0;
+        if(_whiteKingPos == from){
+            _whiteKingPos = to;
+        }
+        if(_blackKingPos == from){
+            _blackKingPos = to;
+        }
+        return true;
+    }
+    return false;
 }

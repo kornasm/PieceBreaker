@@ -1,4 +1,8 @@
+class MoveGenerator;
+class Node;
+
 extern int PossibleMoves[13][28];
+extern MoveGenerator* generators[];
 
 class Board{
     private:
@@ -16,8 +20,12 @@ class Board{
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7
         };
+        Node* parent;
+        int _whiteKingPos;
+        int _blackKingPos;
     public:
-        Board();
+        //Board();
+        Board(Node* nd);
         void ShowBoard();
         char GetPiece(int column, int row);
         int GetSquareValue(int column, int row);
@@ -26,5 +34,5 @@ class Board{
         int GetSquareValue(int index);
         int GetSquareColor(int index);
 
-        bool MakeMove(int from, int to);
+        bool CheckMove(int from, int to);
 };

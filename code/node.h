@@ -5,12 +5,14 @@ class Board;
 class Node{
     private:
         Board* _board;
+        int _toMove;
+
     public:
         Node();
         ~Node();
         Board* GetBoardPtr();
         void ShowBoard();
-        bool MakeMove(std::string notation);
+        bool CheckMove(std::string notation);
 };
 
 /*

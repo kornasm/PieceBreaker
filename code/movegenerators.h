@@ -1,86 +1,82 @@
 #include<list>
 #include<iostream>
 class Node;
+class Move;
 
 class MoveGenerator{
     public:
-        virtual std::list<int>* GenerateMoveListv(int position, Node* node){
-            return new std::list<int>();
+        virtual std::list<Move>* GenerateMoveListv(int position, Node* node){
+            return new std::list<Move>();
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node){
-            return new std::list<int>();
+        static std::list<Move>* GenerateMoveList(int position, Node* node){
+            return new std::list<Move>();
         }
         virtual ~MoveGenerator(){};
 };
 
 class KingMoveGenerator: public MoveGenerator{
     public:
-        std::list<int>* GenerateMoveListv(int position, Node* node){
+        std::list<Move>* GenerateMoveListv(int position, Node* node){
             return GenerateMoveList(position, node);
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node);
-        //~KingMoveGenerator(){};
+        static std::list<Move>* GenerateMoveList(int position, Node* node);
 };
 
 class RookMoveGenerator: public MoveGenerator{
     public:
-        std::list<int>* GenerateMoveListv(int position, Node* node){
+        std::list<Move>* GenerateMoveListv(int position, Node* node){
             return GenerateMoveList(position, node);
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node);
-        //~RookMoveGenerator(){};
+        static std::list<Move>* GenerateMoveList(int position, Node* node);
 };
 
 class BishopMoveGenerator: public MoveGenerator{
     public:
-        std::list<int>* GenerateMoveListv(int position, Node* node){
+        std::list<Move>* GenerateMoveListv(int position, Node* node){
             return GenerateMoveList(position, node);
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node);
-        //~BishopMoveGenerator(){};
+        static std::list<Move>* GenerateMoveList(int position, Node* node);
 };
 
 class KnightMoveGenerator: public MoveGenerator{
     public:
-        std::list<int>* GenerateMoveListv(int position, Node* node){
+        std::list<Move>* GenerateMoveListv(int position, Node* node){
             return GenerateMoveList(position, node);
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node);
-        //~KnightMoveGenerator(){};
+        static std::list<Move>* GenerateMoveList(int position, Node* node);
 };
 
 class QueenMoveGenerator: public MoveGenerator{
     public:
-        std::list<int>* GenerateMoveListv(int position, Node* node){
+        std::list<Move>* GenerateMoveListv(int position, Node* node){
             return GenerateMoveList(position, node);
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node);
-        //~QueenMoveGenerator(){};
+        static std::list<Move>* GenerateMoveList(int position, Node* node);
 };
 
 class WhitePawnMoveGenerator: public MoveGenerator{
     public:
-        std::list<int>* GenerateMoveListv(int position, Node* node){
+        std::list<Move>* GenerateMoveListv(int position, Node* node){
             return GenerateMoveList(position, node);
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node);
+        static std::list<Move>* GenerateMoveList(int position, Node* node);
 };
 
 class BlackPawnMoveGenerator: public MoveGenerator{
     public:
-        std::list<int>* GenerateMoveListv(int position, Node* node){
+        std::list<Move>* GenerateMoveListv(int position, Node* node){
             return GenerateMoveList(position, node);
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node);
+        static std::list<Move>* GenerateMoveList(int position, Node* node);
 };
 
 class EmptyMoveGenerator: public MoveGenerator{
     public:
-        std::list<int>* GenerateMoveListv(int position, Node* node){
+        std::list<Move>* GenerateMoveListv(int position, Node* node){
             std::cout << "EmptyMoveGenerator::GenerateMoveList() executed (bad index typed)\n";
-            return new std::list<int>();
+            return new std::list<Move>();
         }
-        static std::list<int>* GenerateMoveList(int position, Node* node){
-            return new std::list<int>();
+        static std::list<Move>* GenerateMoveList(int position, Node* node){
+            return new std::list<Move>();
         }
 };

@@ -2,7 +2,7 @@
 #include<string>
 
 class MoveGenerator;
-
+class Move;
 
 extern char PiecesSymbols[13];
 
@@ -24,4 +24,4 @@ int h(std::string hashed);
 void init(MoveGenerator* gens[]);
 void cleanup(MoveGenerator* gens[]);
 
-void PrintMoveList(std::list<int>* moves);
+void PrintMoveList(std::list<Move>* moves);

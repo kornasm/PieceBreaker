@@ -73,11 +73,11 @@ void cleanup(MoveGenerator* gens[]){
     return;
 }
 
-void PrintMoveList(std::list<int>* moves){
+void PrintMoveList(std::list<Move>* moves){
     auto it = moves->begin();
     std::cout << "available places:  ";
     while(it != moves->end()){
-        std::cout << Ind2Not(*it) << " ";
+        std::cout << *it << " ";
         it++;
     }
     std::cout << '\n';

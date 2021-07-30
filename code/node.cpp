@@ -2,7 +2,8 @@
 
 extern MoveGenerator* generators[NO_PIECES + 1];
 Node::Node(){
-    _board = new Board();
+    _board = new Board(this);
+    _toMove = WHITE;
 }
 
 Node::~Node(){
@@ -16,28 +17,22 @@ Board* Node::GetBoardPtr(){
     return _board;
 }
 
-bool Node::MakeMove(std::string notation){
+bool Node::CheckMove(std::string notation){
     int from = Not2Ind(notation.substr(0, 2));
     int to = Not2Ind(notation.substr(2, 2));
-    if(from > 120){
+    if(from < 0 || from > 120){
         std::cout << "index out of range\n";
         return false;
     }
-    std::list<int>* moves = generators[_board->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListv(from, this);
-    PrintMoveList(moves);
-    bool available = false;
-    auto it = moves->begin();
-    while(it != moves->end()){
-        if(to == *it){
-            available = true;
-            break;
-        }
-        ++it;
+    int PieceColor = _board->GetSquareColor(from);
+    if(_toMove != PieceColor){
+        std::cout << "wrong piece chosen (wrong color)\n";
+        return false;
     }
-    if(available){
-        _board->MakeMove(from, to);
+    if(_board->CheckMove(from, to))
+    {
+        _toMove *= (-1);
+        return true;
     }
-    std::cout << '\n';
-    delete moves;
-    return true;
+    return false;
 }

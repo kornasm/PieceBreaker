@@ -1,5 +1,4 @@
 #include "declarations.h"
-
 char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
 MoveGenerator* generators[NO_PIECES + 1];
 int main(){
@@ -9,8 +8,7 @@ int main(){
     int gamestate = 1;
     while(gamestate){
         sleep(1);
-        std::cout << '\n';
-        std::cout << "Enter command" << std::endl;
+        std::cout << "Enter command:" << std::endl;
         std::string command;
         std::cin >> command;
         std::cout << h(command) << std::endl;
@@ -18,7 +16,7 @@ int main(){
             case 289517988:{ // "move"
                 std::string movestr;
                 std::cin >> movestr;
-                if(newgame->MakeMove(movestr)){
+                if(newgame->CheckMove(movestr)){
                     std::cout << "ok\n";
                 }
                 else{
@@ -39,10 +37,10 @@ int main(){
                 std::cin >> notation;
                 int position = Not2Ind(notation);
                 if(NotationValid(notation)){
-                    std::list<int>* movestemp = generators[newgame->GetBoardPtr()->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListv(position, newgame);
+                    std::list<Move>* movestemp = generators[newgame->GetBoardPtr()->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListv(position, newgame);
                     auto itt = movestemp->begin();
                     while(itt != movestemp->end()){
-                        std::cout << Ind2Not(*itt) << " ";
+                        std::cout << *itt;
                         ++itt;
                     }
                     delete movestemp;

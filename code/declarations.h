@@ -5,6 +5,7 @@
 #include "board.h"
 #include "functions.h"
 #include "movegenerators.h"
+#include "move.h"
 
 #include<string>
 #include<iostream>
@@ -16,9 +17,17 @@
 #define SYMBOLS_OFFSET 6
 #define NO_PIECES 13
 
+// colors
 #define OUTSIDE_BOARD 7
 #define WHITE 1
 #define EMPTY_SQUARE 0
 #define BLACK -1
 
+
+// move types
+#define REGULAR_MOVE 0
+#define CAPTURE_MOVE 1
+#define CASTLE_MOVE 2
+#define EN_PASSANT_MOVE 4
+#define PROMOTION_MOVE 8
 #endif
