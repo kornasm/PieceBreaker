@@ -4,6 +4,8 @@ extern MoveGenerator* generators[NO_PIECES + 1];
 Node::Node(){
     _board = new Board(this);
     _toMove = WHITE;
+    _whcstl = 3;
+    _blcstl = 3;
 }
 
 Node::~Node(){

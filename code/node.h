@@ -6,8 +6,10 @@ class Node{
     private:
         Board* _board;
         int _toMove;
-
     public:
+        int _whcstl; // % 2 short, % 4 long
+        int _blcstl;
+
         Node();
         ~Node();
         Board* GetBoardPtr();

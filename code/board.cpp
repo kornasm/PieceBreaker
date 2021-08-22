@@ -1,5 +1,7 @@
 #include "declarations.h"
 
+extern int mailbox[64];
+extern MoveGenerator* generators[NO_PIECES + 1];
 /*Board::Board(){
     _whiteKingPos = 26;
     _blackKingPos = 96;
@@ -8,7 +10,7 @@
 Board::Board(Node* nd){
     _whiteKingPos = Not2Ind("e1");
     _blackKingPos = Not2Ind("e8");
-    parent = nd;
+    parentnode = nd;
 }
 
 void Board::ShowBoard(){
@@ -63,20 +65,37 @@ int Board::GetSquareColor(int index){
 }
 
 bool Board::CheckMove(int from, int to){
-    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListv(from, parent);
+    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListv(from, parentnode);
     PrintMoveList(moves);
+    std::cout << Move::count << '\n';
+    std::cout << "expected before\n";
     Move* expected = new Move(from, to, REGULAR_MOVE);
+    std::cout << "expected after\n";
     bool available = false;
-    auto it = moves->begin();
-    while(it != moves->end()){
+    //auto it = moves->begin();
+    std::cout << "itit\n\n";
+    /*while(it != moves->end()){
+        std::cout << "loop\n";
         if(*expected == *it){
+            std::cout << *it;
+            std::cout << "ifif\n";
             available = true;
             break;
         }
         ++it;
+    }//*/
+    for(auto m : *moves){
+        std::cout << "loop\n";
+        if(m == *expected){
+            available = true;
+            break;
+        }
     }
+    std::cout << "deleting move list\n\n";
     delete moves;
+    std::cout << "deleted move list\n";
     delete expected;
+    std::cout << "deleted expected move\n\n";
     if(available){
         _squares[to] = _squares[from];
         _squares[from] = 0;
@@ -89,4 +108,22 @@ bool Board::CheckMove(int from, int to){
         return true;
     }
     return false;
+}
+
+bool Board::IsPlaceAttacked(int attackedplace, int attackingcolor){
+    bool answer = false;
+    for(int i = 0; i < 64 && answer == false; i++){
+        int ind = mailbox[i];
+        if(GetSquareColor(ind) == attackingcolor){
+            std::list<Move>* moves = generators[_squares[ind]]->GenerateMoveList(ind, parentnode);
+            auto it = moves->begin();
+            while(it != moves->end()){
+                if(it->To() == attackedplace){
+                    answer = true;
+                }
+            }
+            delete moves;
+        }
+    }
+    return answer;
 }

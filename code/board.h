@@ -20,7 +20,7 @@ class Board{
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7
         };
-        Node* parent;
+        Node* parentnode;
         int _whiteKingPos;
         int _blackKingPos;
     public:
@@ -33,6 +33,8 @@ class Board{
         char GetPiece(int index);
         int GetSquareValue(int index);
         int GetSquareColor(int index);
+
+        bool IsPlaceAttacked(int attackedplace, int atackingcolor);
 
         bool CheckMove(int from, int to);
 };

@@ -27,7 +27,9 @@
 // move types
 #define REGULAR_MOVE 0
 #define CAPTURE_MOVE 1
-#define CASTLE_MOVE 2
-#define EN_PASSANT_MOVE 4
-#define PROMOTION_MOVE 8
+#define SHORT_CASTLE_MOVE 2
+#define LONG_CASTLE_MOVE 4
+#define EN_PASSANT_MOVE 8
+#define PROMOTION_MOVE 16
+
 #endif
