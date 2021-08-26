@@ -1,5 +1,8 @@
 #include<string>
+#include<list>
+#include<memory>
 
+class Move;
 class Board;
 
 class Node{
@@ -9,8 +12,13 @@ class Node{
     public:
         int _whcstl; // % 2 short, % 4 long
         int _blcstl;
+        int _enPassant;
+        Node *prev;
+        std::list<Node*> children;
 
         Node();
+        Node(Node *prev, Board* b, Move *m);
+        Node(const Node& node) = delete;
         ~Node();
         Board* GetBoardPtr();
         void ShowBoard();

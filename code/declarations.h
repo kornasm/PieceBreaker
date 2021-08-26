@@ -29,7 +29,8 @@
 #define CAPTURE_MOVE 1
 #define SHORT_CASTLE_MOVE 2
 #define LONG_CASTLE_MOVE 4
-#define EN_PASSANT_MOVE 8
-#define PROMOTION_MOVE 16
+#define PAWN_DOUBLE_MOVE 8
+#define EN_PASSANT_MOVE 16
+#define PROMOTION_MOVE 32
 
 #endif

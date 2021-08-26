@@ -13,7 +13,7 @@ MoveGenerator* generators[NO_PIECES + 1];
 int main(){
     init(generators);
     Node *newgame = new Node();
-    std::cout << "move count   " << Move::count << '\n';
+    Node *current = newgame;
     int gamestate = 1;
     while(gamestate){
         std::cout << "Enter command:" << std::endl;
@@ -24,11 +24,17 @@ int main(){
             case 289517988:{ // "move"
                 std::string movestr;
                 std::cin >> movestr;
-                if(newgame->CheckMove(movestr)){
-                    std::cout << "ok\n";
+                if(movestr.length() >= 4){
+                    if(current->CheckMove(movestr)){
+                        std::cout << "ok\n";
+                        current = current->children.back();
+                    }
+                    else{
+                        std::cout << "not ok\n";
+                    }
                 }
                 else{
-                    std::cout << "not ok\n";
+                    std::cout << "incorrect move syntax\n";
                 }
                 break;
             }
@@ -37,7 +43,7 @@ int main(){
                 break;
             }
             case 133597110:{ // "board"
-                newgame->ShowBoard();
+                current->ShowBoard();
                 break;
             }
             case 40093753:{ // moves}
@@ -45,7 +51,7 @@ int main(){
                 std::cin >> notation;
                 int position = Not2Ind(notation);
                 if(NotationValid(notation)){
-                    std::list<Move>* movestemp = generators[newgame->GetBoardPtr()->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListv(position, newgame);
+                    std::list<Move>* movestemp = generators[current->GetBoardPtr()->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(position, newgame);
                     auto itt = movestemp->begin();
                     while(itt != movestemp->end()){
                         std::cout << *itt;
@@ -59,7 +65,7 @@ int main(){
             }
         }//*/
     }
+    std::cout << "exit game\n\n";
     delete newgame;
     cleanup(generators);
-    std::cout << "move count:   " << Move::count << '\n';
 }

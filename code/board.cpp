@@ -13,6 +13,43 @@ Board::Board(Node* nd){
     parentnode = nd;
 }
 
+Board::Board(Board* b, Move *m, int promo){
+    parentnode = NULL;
+    std::copy(b->_squares, b->_squares + 122, _squares);
+    _whiteKingPos = b->_whiteKingPos;
+    _blackKingPos = b->_blackKingPos;
+
+    _squares[m->To()] = _squares[m->From()];
+    _squares[m->From()] = EMPTY_SQUARE;
+    if(m->Type() == EN_PASSANT_MOVE){
+        if(column(m->From()) < column(m->To())){
+            _squares[m->From() + 1] = 0;
+        }
+        else{
+            _squares[m->From() - 1] = 0;
+        }
+    }
+    if(m->Type() == SHORT_CASTLE_MOVE){
+        _squares[m->To() - 1] = _squares[m->To() + 1];
+        _squares[m->To() + 1] = EMPTY_SQUARE;
+    }
+    if(m->Type() == LONG_CASTLE_MOVE){
+        _squares[m->To() + 1] = _squares[m->To() - 2];
+        _squares[m->To() - 2] = EMPTY_SQUARE;
+    }
+    if(m->Type() == PROMOTION_MOVE){
+        std::cout << "promo move update symbol" << std::endl;
+        if(_squares[m->To() < 0]){
+            _squares[m->To()] = -promo;
+        }
+        else{
+            _squares[m->To()] = promo;
+        }
+    }
+}
+
+Board::~Board(){}
+
 void Board::ShowBoard(){
     std::cout << std::endl;
     std::cout << "  +---+---+---+---+---+---+---+---+\n";
@@ -64,66 +101,43 @@ int Board::GetSquareColor(int index){
     }
 }
 
-bool Board::CheckMove(int from, int to){
-    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListv(from, parentnode);
-    PrintMoveList(moves);
-    std::cout << Move::count << '\n';
-    std::cout << "expected before\n";
-    Move* expected = new Move(from, to, REGULAR_MOVE);
-    std::cout << "expected after\n";
+Move* Board::CheckMove(int from, int to){
+    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(from, parentnode);
+
+    Move *expected = new Move(from, to, REGULAR_MOVE);
     bool available = false;
-    //auto it = moves->begin();
-    std::cout << "itit\n\n";
-    /*while(it != moves->end()){
-        std::cout << "loop\n";
-        if(*expected == *it){
-            std::cout << *it;
-            std::cout << "ifif\n";
-            available = true;
-            break;
-        }
-        ++it;
-    }//*/
     for(auto m : *moves){
-        std::cout << "loop\n";
-        if(m == *expected){
+        if(m == *expected){ 
             available = true;
+            *expected = m;
             break;
         }
     }
-    std::cout << "deleting move list\n\n";
     delete moves;
-    std::cout << "deleted move list\n";
-    delete expected;
-    std::cout << "deleted expected move\n\n";
     if(available){
-        _squares[to] = _squares[from];
-        _squares[from] = 0;
-        if(_whiteKingPos == from){
-            _whiteKingPos = to;
-        }
-        if(_blackKingPos == from){
-            _blackKingPos = to;
-        }
-        return true;
+        return expected;
     }
-    return false;
+    delete expected;
+    return NULL;
 }
 
 bool Board::IsPlaceAttacked(int attackedplace, int attackingcolor){
     bool answer = false;
+    //std::cout << "is king attacked:    " << attackedplace << "  " << attackingcolor << '\n';
     for(int i = 0; i < 64 && answer == false; i++){
         int ind = mailbox[i];
         if(GetSquareColor(ind) == attackingcolor){
-            std::list<Move>* moves = generators[_squares[ind]]->GenerateMoveList(ind, parentnode);
+            std::list<Move>* moves = generators[_squares[ind] + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, parentnode);
             auto it = moves->begin();
             while(it != moves->end()){
                 if(it->To() == attackedplace){
                     answer = true;
                 }
+                ++it;
             }
             delete moves;
         }
     }
+    std::cout << "is place attacked end\n\n";
     return answer;
 }

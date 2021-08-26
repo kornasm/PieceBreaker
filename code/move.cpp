@@ -1,16 +1,8 @@
 #include "declarations.h"
 
-int Move::count = 0;
+Move::Move(int f, int t, int tp) :from(f), to(t), type(tp) {}
 
-Move::Move(int f, int t, int tp) :from(f), to(t), type(tp) {
-    std::cout << "Move constructor22         " << *this << '\n';
-    count++;
-};
-
-Move::Move(const Move& m) :from(m.from), to(m.to), type(m.type) {
-    std::cout << "Move constructor copy333   " <<  *this << '\n';
-    count++;
-}
+Move::Move(const Move& m) :from(m.from), to(m.to), type(m.type) {}
  
 bool Move::operator ==(Move o) const{
     return (from == o.from && to == o.to);

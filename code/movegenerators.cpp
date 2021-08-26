@@ -7,8 +7,9 @@ int BishopUpRightSquares[7] = {11, 22, 33, 44, 55, 66, 77};
 int BishopUpLeftSquares[7] = {9, 18, 27, 36, 45, 54, 63};
 int KnightSquares[8] = {-21, -19, -8, 12, 21, 19, 8, -12};
 extern int mailbox[64];
+extern MoveGenerator* generators[NO_PIECES + 1];
 
-std::list<Move>* KingMoveGenerator::GenerateMoveList(int position, Node* node){
+std::list<Move>* KingMoveGenerator::GenerateMoveListStatic(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<Move>* moves = new std::list<Move>();
     for(auto move : KingPossibleSquares){
@@ -53,7 +54,7 @@ std::list<Move>* KingMoveGenerator::GenerateMoveList(int position, Node* node){
     return moves;
 }
 
-std::list<Move>* RookMoveGenerator::GenerateMoveList(int position, Node* node){
+std::list<Move>* RookMoveGenerator::GenerateMoveListStatic(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<Move>* moves = new std::list<Move>();
     for(auto move : RookLeftSquares){
@@ -96,10 +97,10 @@ std::list<Move>* RookMoveGenerator::GenerateMoveList(int position, Node* node){
         else
             break;
     }
-    return moves;
+    return moves; 
 }
 
-std::list<Move>* BishopMoveGenerator::GenerateMoveList(int position, Node* node){
+std::list<Move>* BishopMoveGenerator::GenerateMoveListStatic(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<Move> *moves = new std::list<Move>();
     for(auto move : BishopUpRightSquares){
@@ -145,15 +146,15 @@ std::list<Move>* BishopMoveGenerator::GenerateMoveList(int position, Node* node)
     return moves;
 }
 
-std::list<Move>* QueenMoveGenerator::GenerateMoveList(int position, Node* node){
-    std::list<Move>* rookmoves = RookMoveGenerator::GenerateMoveList(position, node);
-    std::list<Move>* bishmoves = BishopMoveGenerator::GenerateMoveList(position, node);
+std::list<Move>* QueenMoveGenerator::GenerateMoveListStatic(int position, Node* node){
+    std::list<Move>* rookmoves = RookMoveGenerator::GenerateMoveListStatic(position, node);
+    std::list<Move>* bishmoves = BishopMoveGenerator::GenerateMoveListStatic(position, node);
     rookmoves->splice(rookmoves->end(), *bishmoves);
     delete bishmoves;
     return rookmoves;
 }
 
-std::list<Move>* KnightMoveGenerator::GenerateMoveList(int position, Node* node){
+std::list<Move>* KnightMoveGenerator::GenerateMoveListStatic(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<Move>* moves = new std::list<Move>();
     for(auto move : KnightSquares){
@@ -164,70 +165,79 @@ std::list<Move>* KnightMoveGenerator::GenerateMoveList(int position, Node* node)
     return moves;
 }
 
-std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int position, Node* node){
-    std::cout << "white pawn gen\n";
+std::list<Move>* WhitePawnMoveGenerator::GenerateMoveListStatic(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<Move>* moves = new std::list<Move>();
     if(board->GetSquareColor(position + 10) == EMPTY_SQUARE){
-        Move *m = new Move(position, position + 10, board->GetSquareColor(position + 10) != EMPTY_SQUARE);
+        Move m(position, position + 10, board->GetSquareColor(position + 10) != EMPTY_SQUARE);
         if(row(position) == 7){
-            m->IncreaseType(PROMOTION_MOVE);
+            m.IncreaseType(PROMOTION_MOVE);
         }
-        moves->push_back(*m);
+        moves->push_back(m);
+        
         if(row(position) == 2 && board->GetSquareColor(position + 20) == EMPTY_SQUARE){
-            moves->push_back(Move(position, position + 20, board->GetSquareColor(position + 20) != EMPTY_SQUARE));
+            moves->push_back(Move(position, position + 20, PAWN_DOUBLE_MOVE));
         }
-        delete m;
     }
     if(board->GetSquareColor(position) == -(board->GetSquareColor(position + 9))){
-        Move *m = new Move(position, position + 9, CAPTURE_MOVE);
+        Move m(position, position + 9, CAPTURE_MOVE);
         if(row(position) == 7){
-            m->IncreaseType(PROMOTION_MOVE);
+            m.IncreaseType(PROMOTION_MOVE);
         }
-        moves->push_back(*m);
-        delete m;
+        moves->push_back(m);
+        
+    }
+    if(node->_enPassant == (position + 9) && board->GetSquareColor(position + 9) == EMPTY_SQUARE){
+        moves->push_back(Move(position, position + 9, EN_PASSANT_MOVE));
     }
     if(board->GetSquareColor(position) == -(board->GetSquareColor(position + 11))){
-        Move *m = new Move(position, position + 11, CAPTURE_MOVE);
+        Move m(position, position + 11, CAPTURE_MOVE);
         if(row(position) == 7){
-            m->IncreaseType(PROMOTION_MOVE);
+            m.IncreaseType(PROMOTION_MOVE);
         }
-        moves->push_back(*m);
-        delete m;
+        moves->push_back(m);
+        
+    }
+    if(node->_enPassant == (position + 11) && board->GetSquareColor(position + 11) == EMPTY_SQUARE){
+        moves->push_back(Move(position, position + 11, EN_PASSANT_MOVE));
     }
     std::cout << "white pawn gen end\n";
     return moves;
 }
 
-std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int position, Node* node){
+std::list<Move>* BlackPawnMoveGenerator::GenerateMoveListStatic(int position, Node* node){
     Board* board = node->GetBoardPtr();
     std::list<Move>* moves = new std::list<Move>();
     if(board->GetSquareColor(position - 10) == EMPTY_SQUARE){
-        Move *m = new Move(position, position - 10, board->GetSquareColor(position - 10) != EMPTY_SQUARE);
+        Move m(position, position - 10, board->GetSquareColor(position - 10) != EMPTY_SQUARE);
         if(row(position) == 2){
-            m->IncreaseType(PROMOTION_MOVE);
+            m.IncreaseType(PROMOTION_MOVE);
         }
-        moves->push_back(*m);
+        moves->push_back(m);
         if(row(position) == 7 && board->GetSquareColor(position - 20) == EMPTY_SQUARE){
             moves->push_back(Move(position, position - 20, board->GetSquareColor(position - 20) != EMPTY_SQUARE));
         }
-        delete m;
+        
     }
     if(board->GetSquareColor(position) == -(board->GetSquareColor(position - 9))){
-        Move *m = new Move(position, position - 9, CAPTURE_MOVE);
+        Move m(position, position - 9, CAPTURE_MOVE);
         if(row(position) == 2){
-            m->IncreaseType(PROMOTION_MOVE);
+            m.IncreaseType(PROMOTION_MOVE);
         }
-        moves->push_back(*m);
-        delete m;
+        moves->push_back(m);   
+    }
+    if(node->_enPassant == (position - 9) && board->GetSquareColor(position - 9) == EMPTY_SQUARE){
+        moves->push_back(Move(position, position - 9, EN_PASSANT_MOVE));
     }
     if(board->GetSquareColor(position) == -(board->GetSquareColor(position - 11))){
-        Move *m = new Move(position, position - 11, CAPTURE_MOVE);
+        Move m(position, position - 11, CAPTURE_MOVE);
         if(row(position) == 2){
-            m->IncreaseType(PROMOTION_MOVE);
+            m.IncreaseType(PROMOTION_MOVE);
         }
-        moves->push_back(*m);
-        delete m;
+        moves->push_back(m);
+    }
+    if(node->_enPassant == (position - 11) && board->GetSquareColor(position - 11) == EMPTY_SQUARE){
+        moves->push_back(Move(position, position - 11, EN_PASSANT_MOVE));
     }
     return moves;
 }

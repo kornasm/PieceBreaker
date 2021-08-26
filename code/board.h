@@ -1,11 +1,12 @@
 class MoveGenerator;
 class Node;
+class Move;
 
 extern int PossibleMoves[13][28];
 extern MoveGenerator* generators[];
 
 class Board{
-    private:
+    public:
         int _squares[121] = {7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
@@ -23,9 +24,13 @@ class Board{
         Node* parentnode;
         int _whiteKingPos;
         int _blackKingPos;
-    public:
+
         //Board();
         Board(Node* nd);
+        Board(const Board&) = delete;
+        Board& operator=(Board&) = delete;
+        Board(Board* b, Move* m, int promo=0);
+        ~Board();
         void ShowBoard();
         char GetPiece(int column, int row);
         int GetSquareValue(int column, int row);
@@ -36,5 +41,5 @@ class Board{
 
         bool IsPlaceAttacked(int attackedplace, int atackingcolor);
 
-        bool CheckMove(int from, int to);
+        Move* CheckMove(int from, int to); // only checks pseudo-legality
 };
