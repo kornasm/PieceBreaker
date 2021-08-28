@@ -25,12 +25,16 @@ int main(){
                 std::string movestr;
                 std::cin >> movestr;
                 if(movestr.length() >= 4){
-                    if(current->CheckMove(movestr)){
-                        std::cout << "ok\n";
-                        current = current->children.back();
-                    }
-                    else{
-                        std::cout << "not ok\n";
+                    Move *insertedmove = Move::String2Move(movestr);
+                    if(insertedmove != NULL){
+                        if(current->CheckMove(insertedmove)){
+                            std::cout << "ok\n";
+                            current = current->children.back();
+                        }
+                        else{
+                            std::cout << "not ok\n";
+                        }
+                        delete insertedmove;
                     }
                 }
                 else{
@@ -47,6 +51,10 @@ int main(){
                 break;
             }
             case 40093753:{ // moves}
+                std::list<Move> *moves = current->GenerateAllLegalMoves();
+                PrintMoveList(moves);
+                std::cout << "\n\n";
+                delete moves;
                 std::string notation;
                 std::cin >> notation;
                 int position = Not2Ind(notation);
@@ -65,7 +73,6 @@ int main(){
             }
         }//*/
     }
-    std::cout << "exit game\n\n";
     delete newgame;
     cleanup(generators);
 }

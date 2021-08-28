@@ -2,17 +2,19 @@
 #include<list>
 #include<memory>
 
+enum GameResult{NO_ENDING, WHITE_WIN, DRAW, BLACK_WIN};
 class Move;
 class Board;
 
 class Node{
     private:
         Board* _board;
-        int _toMove;
     public:
+        int _toMove;
         int _whcstl; // % 2 short, % 4 long
         int _blcstl;
         int _enPassant;
+        bool underCheck;
         Node *prev;
         std::list<Node*> children;
 
@@ -22,7 +24,13 @@ class Node{
         ~Node();
         Board* GetBoardPtr();
         void ShowBoard();
-        bool CheckMove(std::string notation);
+        bool CheckMove(Move* checkedmove, bool execute = true);
+        void ExecuteMove(Move move);
+
+        void CheckCheck();
+        std::list<Move>* GenerateAllLegalMoves();
+        bool CheckIfMoveLegal(Move move);
+        GameResult CheckEndings();
 };
 
 /*

@@ -48,7 +48,10 @@ Board::Board(Board* b, Move *m, int promo){
     }
 }
 
-Board::~Board(){}
+Board::~Board(){
+    //std::cout << "   board   " << this << "  destr   " << parentnode << '\n';
+    parentnode = NULL;
+}
 
 void Board::ShowBoard(){
     std::cout << std::endl;

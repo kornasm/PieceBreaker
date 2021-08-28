@@ -241,3 +241,17 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveListStatic(int position, No
     }
     return moves;
 }
+
+std::list<Move>* AllMovesGenerator::GenerateMoves(Node *node){
+    Board *board = node->GetBoardPtr();
+    std::list<Move> *moves = new std::list<Move>();
+    for(int i = 0; i < 64; i++){
+        int ind = mailbox[i];
+        if(board->GetSquareColor(ind) == node->_toMove){
+            std::list<Move> *m = generators[board->GetSquareValue(ind) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, node);
+            moves->splice(moves->end(), *m);
+            delete m;
+        }
+    }
+    return moves;
+}

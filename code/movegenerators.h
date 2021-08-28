@@ -77,3 +77,8 @@ class EmptyMoveGenerator: public MoveGenerator{
             return new std::list<Move>();
         }
 };
+
+class AllMovesGenerator{
+    public:
+        static std::list<Move>* GenerateMoves(Node *node);
+};

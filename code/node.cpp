@@ -1,8 +1,5 @@
 #include "declarations.h"
 
-char PromotionSymbols[4] = {'R', 'N', 'B', 'Q'};
-int  PromotionAnswers[4] = { 2 ,  3 ,  4 ,  5 };
-
 extern MoveGenerator* generators[NO_PIECES + 1];
 Node::Node(){
     _board = new Board(this);
@@ -50,13 +47,21 @@ Node::Node(Node *pr, Board* b, Move *m){
     else{
         _enPassant = -1;
     }//*/
+    if(m->From() == b->_whiteKingPos){
+        b->_whiteKingPos = m->To();
+    }
+    if(m->From() == b->_blackKingPos){
+        b->_blackKingPos = m->To();
+    }
 }
 
 Node::~Node(){
+    //std::cout << "node  " << this << "  destr   " << _board << '\n';
     delete _board;
     for(auto nd : children){
         delete nd;   
     }//*/
+    //std::cout << "node  " << this << "  destr\n"; 
 }
 void Node::ShowBoard(){
     _board->ShowBoard();
@@ -66,59 +71,82 @@ Board* Node::GetBoardPtr(){
     return _board;
 }
 
-bool Node::CheckMove(std::string notation){
-    int from = Not2Ind(notation.substr(0, 2));
-    int to = Not2Ind(notation.substr(2, 2));
-    int promo(EMPTY_SQUARE);
-    if(notation.length() == 5){
-        char promosymbol = notation[4];
-        for(int i = 0; i < 4; i++){
-            if(promosymbol == PromotionSymbols[i]){
-                promo = PromotionAnswers[i];
-            }
-        }
-    }
-    std::cout << promo << "\n";
-    if(from < 0 || from > 120){
-        std::cout << "index out of range\n";
-        return false;
-    }
-    int PieceColor = _board->GetSquareColor(from);
+
+bool Node::CheckMove(Move *checkedmove, bool execute){
+    int PieceColor = _board->GetSquareColor(checkedmove->From());
     if(_toMove != PieceColor){
         std::cout << "wrong piece chosen (wrong color)\n";
         return false;
     }
-    Move *expectedmove = _board->CheckMove(from, to);
+    Move *expectedmove = _board->CheckMove(checkedmove->From(), checkedmove->To());
     if(NULL != expectedmove)
     {
-        std::cout << "expected move found\n\n";
-        if(((expectedmove->Type() & PROMOTION_MOVE) == PROMOTION_MOVE) && promo == EMPTY_SQUARE){
+        //std::cout << "expected move found\n\n";
+        if(((expectedmove->Type() & PROMOTION_MOVE) == PROMOTION_MOVE) && checkedmove->Promo() == EMPTY_SQUARE){
             std::cout << "No promo char entered\n";
             delete expectedmove;
             return false;
         } 
-        std::cout << "creating new board\n";
-        Board *newboard = new Board(_board, expectedmove, promo);
+        //std::cout << "creating new board\n";
+        Board *newboard = new Board(_board, expectedmove, checkedmove->Promo());
         Node *newnode = new Node(this, newboard, expectedmove);
-        std::cout << "new board created\n";
-        if(newboard->IsPlaceAttacked(newboard->_whiteKingPos, newnode->_toMove)){
-            std::cout << "king attacked after the move\n";
-            delete newnode;
-            delete expectedmove;
-            return false;
+        if(_toMove == WHITE){
+            if(newboard->IsPlaceAttacked(newboard->_whiteKingPos, newnode->_toMove)){
+                std::cout << "king attacked after the move\n";
+                delete newnode;
+                delete expectedmove;
+                return false;
+            }
         }
         else{
-            std::cout << "inserting node to list\n";
-            //children.push_back(Node(this, newboard, expectedmove));
-            //children.push_back(std::make_shared<Node>(this, newboard, expectedmove));
-            children.push_back(newnode);
-            std::cout << "inserted\n";
-            //newboard->ShowBoard();
-            std::cout << "board shown\n";
+            if(newboard->IsPlaceAttacked(newboard->_blackKingPos, newnode->_toMove)){
+                std::cout << "king attacked after the move\n";
+                delete newnode;
+                delete expectedmove;
+                return false;
+            }
         }
-        //*/
+        if(execute == true){
+            children.push_back(newnode);
+        }
+        else{
+            delete newnode;
+        }
         delete expectedmove;
         return true;
     }
     return false;
+}
+
+void Node::CheckCheck(){
+    if(_toMove == WHITE){
+        if(_board->IsPlaceAttacked(_board->_whiteKingPos, -_toMove)){
+            underCheck = true;
+        }
+        else{
+            underCheck = false;
+        }
+    }
+    else{
+        if(_board->IsPlaceAttacked(_board->_blackKingPos, -_toMove)){
+            underCheck = true;
+        }
+        else{
+            underCheck = false;
+        }
+    }
+}
+
+std::list<Move>* Node::GenerateAllLegalMoves(){
+    std::list<Move>* moves = AllMovesGenerator::GenerateMoves(this);
+    std::list<Move>* result = new std::list<Move>();
+    auto it = moves->begin();
+    while(it != moves->end()){
+        if(CheckMove(&(*it), false)){
+            result->push_back(*it);
+        }
+        ++it;
+    }
+    delete moves;
+    return result;
 }
