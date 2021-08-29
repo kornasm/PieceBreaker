@@ -1,4 +1,4 @@
-FLAGS= -Wall -std=c++17
+FLAGS= -Wall -std=c++17 -Wshadow
 
 all: main board node functions generators move
 	g++ ${FLAGS} -o main.out main.o node.o board.o functions.o generators.o move.o

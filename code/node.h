@@ -2,7 +2,7 @@
 #include<list>
 #include<memory>
 
-enum GameResult{NO_ENDING, WHITE_WIN, DRAW, BLACK_WIN};
+enum GameResult{ONGOING, WHITE_WIN, DRAW, BLACK_WIN};
 class Move;
 class Board;
 
@@ -17,10 +17,16 @@ class Node{
         bool underCheck;
         Node *prev;
         std::list<Node*> children;
+        GameResult result;
+        long long positionHash;
+        bool searchBackRepetitions;
+        int halfMoveClock;
+        int fullMoveCounter;
 
         Node();
-        Node(Node *prev, Board* b, Move *m);
+        Node(Node *prev, Board* b, Move *m, bool realnode);
         Node(const Node& node) = delete;
+        Node operator=(const Node& node) = delete;
         ~Node();
         Board* GetBoardPtr();
         void ShowBoard();
@@ -30,7 +36,9 @@ class Node{
         void CheckCheck();
         std::list<Move>* GenerateAllLegalMoves();
         bool CheckIfMoveLegal(Move move);
-        GameResult CheckEndings();
+        void CheckEndings();
+
+        void CalculatePositionHash();
 };
 
 /*

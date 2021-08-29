@@ -169,18 +169,18 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveListStatic(int position, No
     Board* board = node->GetBoardPtr();
     std::list<Move>* moves = new std::list<Move>();
     if(board->GetSquareColor(position + 10) == EMPTY_SQUARE){
-        Move m(position, position + 10, board->GetSquareColor(position + 10) != EMPTY_SQUARE);
+        Move m(position, position + 10, PAWN_MOVE | (board->GetSquareColor(position + 10) != EMPTY_SQUARE));
         if(row(position) == 7){
             m.IncreaseType(PROMOTION_MOVE);
         }
         moves->push_back(m);
         
         if(row(position) == 2 && board->GetSquareColor(position + 20) == EMPTY_SQUARE){
-            moves->push_back(Move(position, position + 20, PAWN_DOUBLE_MOVE));
+            moves->push_back(Move(position, position + 20, PAWN_MOVE | PAWN_DOUBLE_MOVE));
         }
     }
     if(board->GetSquareColor(position) == -(board->GetSquareColor(position + 9))){
-        Move m(position, position + 9, CAPTURE_MOVE);
+        Move m(position, position + 9, PAWN_MOVE | CAPTURE_MOVE);
         if(row(position) == 7){
             m.IncreaseType(PROMOTION_MOVE);
         }
@@ -188,10 +188,10 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveListStatic(int position, No
         
     }
     if(node->_enPassant == (position + 9) && board->GetSquareColor(position + 9) == EMPTY_SQUARE){
-        moves->push_back(Move(position, position + 9, EN_PASSANT_MOVE));
+        moves->push_back(Move(position, position + 9, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     if(board->GetSquareColor(position) == -(board->GetSquareColor(position + 11))){
-        Move m(position, position + 11, CAPTURE_MOVE);
+        Move m(position, position + 11, PAWN_MOVE | CAPTURE_MOVE);
         if(row(position) == 7){
             m.IncreaseType(PROMOTION_MOVE);
         }
@@ -199,9 +199,8 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveListStatic(int position, No
         
     }
     if(node->_enPassant == (position + 11) && board->GetSquareColor(position + 11) == EMPTY_SQUARE){
-        moves->push_back(Move(position, position + 11, EN_PASSANT_MOVE));
+        moves->push_back(Move(position, position + 11, PAWN_MOVE | EN_PASSANT_MOVE));
     }
-    std::cout << "white pawn gen end\n";
     return moves;
 }
 
@@ -209,35 +208,35 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveListStatic(int position, No
     Board* board = node->GetBoardPtr();
     std::list<Move>* moves = new std::list<Move>();
     if(board->GetSquareColor(position - 10) == EMPTY_SQUARE){
-        Move m(position, position - 10, board->GetSquareColor(position - 10) != EMPTY_SQUARE);
+        Move m(position, position - 10, PAWN_MOVE | (board->GetSquareColor(position - 10) != EMPTY_SQUARE));
         if(row(position) == 2){
             m.IncreaseType(PROMOTION_MOVE);
         }
         moves->push_back(m);
         if(row(position) == 7 && board->GetSquareColor(position - 20) == EMPTY_SQUARE){
-            moves->push_back(Move(position, position - 20, board->GetSquareColor(position - 20) != EMPTY_SQUARE));
+            moves->push_back(Move(position, position - 20, PAWN_MOVE | PAWN_DOUBLE_MOVE));
         }
         
     }
     if(board->GetSquareColor(position) == -(board->GetSquareColor(position - 9))){
-        Move m(position, position - 9, CAPTURE_MOVE);
+        Move m(position, position - 9, PAWN_MOVE | CAPTURE_MOVE);
         if(row(position) == 2){
             m.IncreaseType(PROMOTION_MOVE);
         }
         moves->push_back(m);   
     }
     if(node->_enPassant == (position - 9) && board->GetSquareColor(position - 9) == EMPTY_SQUARE){
-        moves->push_back(Move(position, position - 9, EN_PASSANT_MOVE));
+        moves->push_back(Move(position, position - 9, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     if(board->GetSquareColor(position) == -(board->GetSquareColor(position - 11))){
-        Move m(position, position - 11, CAPTURE_MOVE);
+        Move m(position, position - 11, PAWN_MOVE | CAPTURE_MOVE);
         if(row(position) == 2){
             m.IncreaseType(PROMOTION_MOVE);
         }
         moves->push_back(m);
     }
     if(node->_enPassant == (position - 11) && board->GetSquareColor(position - 11) == EMPTY_SQUARE){
-        moves->push_back(Move(position, position - 11, EN_PASSANT_MOVE));
+        moves->push_back(Move(position, position - 11, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     return moves;
 }

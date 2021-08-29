@@ -141,6 +141,6 @@ bool Board::IsPlaceAttacked(int attackedplace, int attackingcolor){
             delete moves;
         }
     }
-    std::cout << "is place attacked end\n\n";
+    //std::cout << "is place attacked end\n\n";
     return answer;
 }
