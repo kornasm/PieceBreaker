@@ -14,8 +14,7 @@ Node::Node(){
     underCheck = false;
     halfMoveClock = 0;
     fullMoveCounter = 1;
-    CalculatePositionHash();
-    searchBackRepetitions = false;
+    OnNodeInit();
 }
 
 Node::Node(Node *pr, Board* b, Move *m, bool realnode){
@@ -70,11 +69,131 @@ Node::Node(Node *pr, Board* b, Move *m, bool realnode){
     else{
         halfMoveClock = 0;
     }
-    CalculatePositionHash();
-    searchBackRepetitions = true;
+    OnNodeInit();
     if(realnode){
         CheckEndings();
     }
+}
+
+Node::Node(std::string fen){
+    std::cout << '\n' << '\n';
+    _board = new Board(this);
+    fen.erase(0, 1);
+    std::cout << "full fen    #" << fen << '#' << '\n';
+    int ind = fen.find(' ');
+    std::cout << ind << '\n';
+    std::string fentemp = fen.substr(0, ind);
+    fen.erase(0, ind + 1);
+    std::cout << "first cut   #" << fentemp << '#' << '\n';
+    std::cout << "Board const 1\n";
+    
+    unsigned int index = 0;
+    for(int i = 7; i >= 0; i--){
+        int j = 0;
+        while(fentemp[index] != '/' && index < fentemp.length()){
+            switch(fentemp[index]){
+                case 'K':
+                    _board->_squares[mailbox[8 * i + j]] = WHITE_KING;
+                    _board->_whiteKingPos = mailbox[8 * i + j];
+                    break;
+                case 'k':
+                    _board->_squares[mailbox[8 * i + j]] = BLACK_KING;
+                    _board->_blackKingPos = 8 * i + j;
+                    break;
+                case 'Q':
+                    _board->_squares[mailbox[8 * i + j]] = WHITE_QUEEN;
+                    break;
+                case 'q':
+                    _board->_squares[mailbox[8 * i + j]] = BLACK_QUEEN;
+                    break;
+                case 'R':
+                    _board->_squares[mailbox[8 * i + j]] = WHITE_ROOK;
+                    break;
+                case 'r':
+                    _board->_squares[mailbox[8 * i + j]] = BLACK_ROOK;
+                    break;
+                case 'B':
+                    _board->_squares[mailbox[8 * i + j]] = WHITE_BISHOP;
+                    break;
+                case 'b':
+                    _board->_squares[mailbox[8 * i + j]] = BLACK_BISHOP;
+                    break;
+                case 'N':
+                    _board->_squares[mailbox[8 * i + j]] = WHITE_KNIGHT;
+                    break;
+                case 'n':
+                    _board->_squares[mailbox[8 * i + j]] = BLACK_KNIGHT;
+                    break;
+                case 'P':
+                    _board->_squares[mailbox[8 * i + j]] = WHITE_PAWN;
+                    break;
+                case 'p':
+                    _board->_squares[mailbox[8 * i + j]] = BLACK_PAWN;
+                    break;
+                default:;
+            }
+            if(isdigit(fentemp[index])){
+                int x = (int)(fentemp[index]) - '0';
+                for(; x > 0; x--){
+                    _board->_squares[mailbox[8 * i + j]] = EMPTY_SQUARE;
+                    j++;
+                }
+            }
+            else{
+                j++;
+            }
+            index++;
+        }
+        index++;
+    }
+
+    std::cout << "Board const 2\n";
+    std::cout << fen << '\n';
+    if(fen[0] == 'w'){
+         _toMove = WHITE;
+    }
+    else{
+        _toMove = BLACK;
+    } 
+    fen.erase(0, 2);
+    std::cout << fen << "!\n";
+    fentemp = fen.substr(0, fen.find(' '));
+    _whcstl = 0;
+    _blcstl = 0;
+    if(fentemp.find('K') != std::string::npos) _whcstl |= SHORT_CASTLE_MOVE;
+    if(fentemp.find('Q') == std::string::npos) _whcstl |= LONG_CASTLE_MOVE;
+    if(fentemp.find('k') == std::string::npos) _blcstl |= SHORT_CASTLE_MOVE;
+    if(fentemp.find('q') == std::string::npos) _blcstl |= LONG_CASTLE_MOVE;
+    fen.erase(0, fentemp.length() + 1);
+    std::cout << fen << "!\n";
+    if(fen[0] == '-'){
+        _enPassant = -1;
+    }
+    else{
+        _enPassant = Not2Ind(fen.substr(0, 2));
+    }
+    fen.erase(0,fen.find(' ') + 1);
+    std::cout << fen << "!\n";
+    if(fen[1] != ' '){
+        halfMoveClock = 10 * ((int)(fen[0]) - '0') + (int)(fen[1]) - '0';
+    }
+    else{
+        halfMoveClock = (int)(fen[0]) - '0';
+    }
+    fen.erase(0, fen.find(' ') + 1);
+    std::cout << fen << "!\n";
+    fullMoveCounter = 1;
+    for(uint i = 0; i < fen.length(); i++){
+        fullMoveCounter *= 10;
+        fullMoveCounter += (int)(fen[i]) - '0';
+    }
+    OnNodeInit();
+    std::cout << "fen reading finished" << std::endl;
+}
+
+void Node::OnNodeInit(){
+    CalculatePositionHash();
+    searchBackRepetitions = false;
 }
 
 Node::~Node(){

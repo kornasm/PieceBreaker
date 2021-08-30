@@ -25,6 +25,8 @@ class Node{
 
         Node();
         Node(Node *prev, Board* b, Move *m, bool realnode);
+        Node(std::string fen);
+        void OnNodeInit();
         Node(const Node& node) = delete;
         Node operator=(const Node& node) = delete;
         ~Node();

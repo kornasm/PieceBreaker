@@ -71,6 +71,13 @@ int main(){
                     std::cout << "main    invalid notation\n";
                 }
             }
+            case 9897063:{ //fen
+                std::string fen;
+                std::getline(std::cin, fen);
+                delete newgame;
+                newgame = new Node(fen);
+                current = newgame;
+            }
         }//*/
     }
     delete newgame;

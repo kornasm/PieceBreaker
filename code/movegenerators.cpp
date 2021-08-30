@@ -19,7 +19,7 @@ std::list<Move>* KingMoveGenerator::GenerateMoveListStatic(int position, Node* n
     }
     int col = board->GetSquareColor(position);
     if(col == WHITE){
-        if(node->_whcstl % 2 == 1){
+        if((node->_whcstl & SHORT_CASTLE_MOVE) != 0){
             if(board->GetSquareColor(position + 1) == EMPTY_SQUARE && board->GetSquareColor(position + 2) == EMPTY_SQUARE){
                 std::cout << Ind2Not(position + 1) << "  " << PiecesSymbols[board->GetSquareValue(position + 1) + SYMBOLS_OFFSET] << '\n';
                 if(board->IsPlaceAttacked(position, -col) == false && board->IsPlaceAttacked(position + 1, -col) == false && board->IsPlaceAttacked(position + 2, -col) == false){
@@ -27,7 +27,7 @@ std::list<Move>* KingMoveGenerator::GenerateMoveListStatic(int position, Node* n
                 }
             }
         }
-        if(node->_whcstl % 4 >= 2){
+        if((node->_whcstl & LONG_CASTLE_MOVE) != 0){
             if(board->GetSquareColor(position - 1) == EMPTY_SQUARE && board->GetSquareColor(position - 2) == EMPTY_SQUARE){
                 if(board->IsPlaceAttacked(position, -col) == false && board->IsPlaceAttacked(position - 1, -col) == false && board->IsPlaceAttacked(position - 2, -col) == false){
                     moves->push_back(Move(position, position - 2, LONG_CASTLE_MOVE));
@@ -36,14 +36,14 @@ std::list<Move>* KingMoveGenerator::GenerateMoveListStatic(int position, Node* n
         }
     }
     if(col == BLACK){
-        if(node->_blcstl % 2 == 1){
+        if((node->_blcstl & SHORT_CASTLE_MOVE) != 0){
             if(board->GetSquareColor(position + 1) == EMPTY_SQUARE && board->GetSquareColor(position + 2) == EMPTY_SQUARE){
                 if(board->IsPlaceAttacked(position, -col) == false && board->IsPlaceAttacked(position + 1, -col) == false && board->IsPlaceAttacked(position + 2, -col) == false){
                     moves->push_back(Move(position, position + 2, SHORT_CASTLE_MOVE));
                 }
             }
         }
-        if(node->_blcstl % 4 >= 2){
+        if((node->_blcstl & LONG_CASTLE_MOVE) != 0){
             if(board->GetSquareColor(position - 1) == EMPTY_SQUARE && board->GetSquareColor(position - 2) == EMPTY_SQUARE){
                 if(board->IsPlaceAttacked(position, -col) == false && board->IsPlaceAttacked(position - 1, -col) == false && board->IsPlaceAttacked(position - 2, -col) == false){
                     moves->push_back(Move(position, position - 2, LONG_CASTLE_MOVE));
