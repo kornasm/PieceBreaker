@@ -1,5 +1,5 @@
-#ifndef declarations
-#define declarations
+#ifndef DECLARATIONS_H_
+#define DECLARATIONS_H_
 
 #include "node.h"
 #include "board.h"
@@ -11,8 +11,6 @@
 #include<iostream>
 #include <list>
 #include<algorithm>
-
-#include<unistd.h>
 
 #define SYMBOLS_OFFSET 6
 #define NO_PIECES 13

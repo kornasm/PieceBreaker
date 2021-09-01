@@ -3,12 +3,8 @@
 char PromotionSymbols[4] = {'R', 'N', 'B', 'Q'};
 int  PromotionAnswers[4] = { 2 ,  3 ,  4 ,  5 };
 
-Move::Move(int f, int t, int tp, int pr) :from(f), to(t), type(tp), promo(pr){
-}
+Move::Move(int f, int t, int tp, int pr) :from(f), to(t), type(tp), promo(pr){}
 
-/*Move::Move(const Move& m) :from(m.from), to(m.to), type(m.type) {
-
-}//*/
 Move* Move::String2Move(std::string notation){
     int from = Not2Ind(notation.substr(0, 2));
     int to = Not2Ind(notation.substr(2, 2));
@@ -42,6 +38,7 @@ void Move::IncreaseType(int i){
 }
 
 std::ostream& operator <<(std::ostream& out, Move& move){
-    out << "move from   " << Ind2Not(move.from) << "  to  " << Ind2Not(move.to) << "     type   " << move.type << '\n';
+    out << "move from   " << Ind2Not(move.from) << "  to  " << Ind2Not(move.to);
+    out << "     type   " << move.type << '\n';
     return out;
 }

@@ -1,141 +1,152 @@
 #include "declarations.h"
 
-extern int mailbox[64];
+int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
+                   32, 33, 34, 35, 36, 37, 38, 39,
+                   42, 43, 44, 45, 46, 47, 48, 49,
+                   52, 53, 54, 55, 56, 57, 58, 59,
+                   62, 63, 64, 65, 66, 67, 68, 69,
+                   72, 73, 74, 75, 76, 77, 78, 79,
+                   82, 83, 84, 85, 86, 87, 88, 89,
+                   92, 93, 94, 95, 96, 97, 98, 99};
 extern MoveGenerator* generators[NO_PIECES + 1];
 int drawMaterial[NO_PIECES] = {0, -10, -1, -1, -10, -10, 0, 10, 10, 1, 1, 10, 0};
+
 Node::Node(){
-    _board = new Board(this);
-    _toMove = WHITE;
-    _whcstl = 3;
-    _blcstl = 3;
-    _enPassant = -1;
+    board = new Board(this);
+    toMove = WHITE;
+    whcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
+    blcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
+    enPassant = -1;
     prev = NULL;
     result = ONGOING;
     underCheck = false;
     halfMoveClock = 0;
     fullMoveCounter = 1;
-    OnNodeInit();
+    searchBackRepetitions = false;
+    CalculatePositionHash();
 }
 
 Node::Node(Node *pr, Board* b, Move *m, bool realnode){
     prev = pr;
-    _board = b;
+    board = b;
     b->parentnode = this;
-    _toMove = prev->_toMove * (-1);
-    _whcstl = prev->_whcstl;
-    _blcstl = prev->_blcstl;
-    if(pr->_toMove == WHITE){
-        if(_whcstl % SHORT_CASTLE_MOVE != 0){
+    toMove = prev->toMove * (-1);
+    whcstl = prev->whcstl;
+    blcstl = prev->blcstl;
+    if(pr->toMove == WHITE){
+        if(whcstl % SHORT_CASTLE_MOVE != 0){
             if(m->From() == Not2Ind("e1") || m->From() == Not2Ind("h1")){
-                _whcstl -= SHORT_CASTLE_MOVE / 2;
+                whcstl -= SHORT_CASTLE_MOVE / 2;
             }
         }
-        if(_whcstl % LONG_CASTLE_MOVE != 0){
+        if(whcstl % LONG_CASTLE_MOVE != 0){
             if(m->From() == Not2Ind("e1") || m->From() == Not2Ind("a1")){
-                _whcstl -= LONG_CASTLE_MOVE / 2;
+                whcstl -= LONG_CASTLE_MOVE / 2;
             }
         }
     }
     else{
-        if(_blcstl % SHORT_CASTLE_MOVE != 0){
+        if(blcstl % SHORT_CASTLE_MOVE != 0){
             if(m->From() == Not2Ind("e8") || m->From() == Not2Ind("h8")){
-                _blcstl -= SHORT_CASTLE_MOVE / 2;
+                blcstl -= SHORT_CASTLE_MOVE / 2;
             }
         }
-        if(_blcstl % LONG_CASTLE_MOVE != 0){
+        if(blcstl % LONG_CASTLE_MOVE != 0){
             if(m->From() == Not2Ind("e8") || m->From() == Not2Ind("a8")){
-                _blcstl -= LONG_CASTLE_MOVE / 2;
+                blcstl -= LONG_CASTLE_MOVE / 2;
             }
         }
     }
     if(m->Type() == PAWN_DOUBLE_MOVE){
-        _enPassant = (m->From() + m->To()) / 2;
+        enPassant = (m->From() + m->To()) / 2;
     }
     else{
-        _enPassant = -1;
+        enPassant = -1;
     }//*/
-    if(m->From() == b->_whiteKingPos){
-        b->_whiteKingPos = m->To();
+    if(m->From() == b->whiteKingPos){
+        b->whiteKingPos = m->To();
     }
-    if(m->From() == b->_blackKingPos){
-        b->_blackKingPos = m->To();
+    if(m->From() == b->blackKingPos){
+        b->blackKingPos = m->To();
     }
-    if(_toMove == WHITE){
+    if(toMove == WHITE){
         fullMoveCounter++;
     }
     if(m->Type() < PAWN_MOVE){ // only regular moves and castles (no captures)
         halfMoveClock++;
+        searchBackRepetitions = true;
     }
     else{
         halfMoveClock = 0;
+        searchBackRepetitions = false;
     }
-    OnNodeInit();
     if(realnode){
+        CalculatePositionHash();
         CheckEndings();
     }
 }
 
 Node::Node(std::string fen){
-    std::cout << '\n' << '\n';
-    _board = new Board(this);
-    fen.erase(0, 1);
-    std::cout << "full fen    #" << fen << '#' << '\n';
+    board = new Board(this);
+    while(fen[0] == ' '){
+        fen.erase(0, 1);
+    }
+    //std::cout << "full fen    #" << fen << '#' << '\n';
     int ind = fen.find(' ');
-    std::cout << ind << '\n';
+    //std::cout << ind << '\n';
     std::string fentemp = fen.substr(0, ind);
     fen.erase(0, ind + 1);
-    std::cout << "first cut   #" << fentemp << '#' << '\n';
-    std::cout << "Board const 1\n";
+    //std::cout << "first cut   #" << fentemp << '#' << '\n';
     
     unsigned int index = 0;
-    for(int i = 7; i >= 0; i--){
+    for(int i = 7; i>= 0; i--){
         int j = 0;
         while(fentemp[index] != '/' && index < fentemp.length()){
             switch(fentemp[index]){
                 case 'K':
-                    _board->_squares[mailbox[8 * i + j]] = WHITE_KING;
-                    _board->_whiteKingPos = mailbox[8 * i + j];
+                    board->squares[mailbox[8 * i + j]] = WHITE_KING;
+                    board->whiteKingPos = mailbox[8 * i + j];
                     break;
                 case 'k':
-                    _board->_squares[mailbox[8 * i + j]] = BLACK_KING;
-                    _board->_blackKingPos = 8 * i + j;
+                    board->squares[mailbox[8 * i + j]] = BLACK_KING;
+                    board->blackKingPos = 8 * i + j;
                     break;
                 case 'Q':
-                    _board->_squares[mailbox[8 * i + j]] = WHITE_QUEEN;
+                    board->squares[mailbox[8 * i + j]] = WHITE_QUEEN;
                     break;
                 case 'q':
-                    _board->_squares[mailbox[8 * i + j]] = BLACK_QUEEN;
+                    board->squares[mailbox[8 * i + j]] = BLACK_QUEEN;
                     break;
                 case 'R':
-                    _board->_squares[mailbox[8 * i + j]] = WHITE_ROOK;
+                    board->squares[mailbox[8 * i + j]] = WHITE_ROOK;
                     break;
                 case 'r':
-                    _board->_squares[mailbox[8 * i + j]] = BLACK_ROOK;
+                    board->squares[mailbox[8 * i + j]] = BLACK_ROOK;
                     break;
                 case 'B':
-                    _board->_squares[mailbox[8 * i + j]] = WHITE_BISHOP;
+                    board->squares[mailbox[8 * i + j]] = WHITE_BISHOP;
                     break;
                 case 'b':
-                    _board->_squares[mailbox[8 * i + j]] = BLACK_BISHOP;
+                    board->squares[mailbox[8 * i + j]] = BLACK_BISHOP;
                     break;
                 case 'N':
-                    _board->_squares[mailbox[8 * i + j]] = WHITE_KNIGHT;
+                    board->squares[mailbox[8 * i + j]] = WHITE_KNIGHT;
                     break;
                 case 'n':
-                    _board->_squares[mailbox[8 * i + j]] = BLACK_KNIGHT;
+                    board->squares[mailbox[8 * i + j]] = BLACK_KNIGHT;
                     break;
                 case 'P':
-                    _board->_squares[mailbox[8 * i + j]] = WHITE_PAWN;
+                    board->squares[mailbox[8 * i + j]] = WHITE_PAWN;
                     break;
                 case 'p':
-                    _board->_squares[mailbox[8 * i + j]] = BLACK_PAWN;
+                    board->squares[mailbox[8 * i + j]] = BLACK_PAWN;
                     break;
                 default:;
             }
             if(isdigit(fentemp[index])){
                 int x = (int)(fentemp[index]) - '0';
-                for(; x > 0; x--){
-                    _board->_squares[mailbox[8 * i + j]] = EMPTY_SQUARE;
+                for(; x> 0; x--){
+                    board->squares[mailbox[8 * i + j]] = EMPTY_SQUARE;
                     j++;
                 }
             }
@@ -146,34 +157,25 @@ Node::Node(std::string fen){
         }
         index++;
     }
-
-    std::cout << "Board const 2\n";
-    std::cout << fen << '\n';
-    if(fen[0] == 'w'){
-         _toMove = WHITE;
-    }
-    else{
-        _toMove = BLACK;
-    } 
+    //std::cout << fen << '\n';
+    fen[0] == 'w'? toMove = WHITE : toMove = BLACK;
     fen.erase(0, 2);
-    std::cout << fen << "!\n";
+    //std::cout << fen << "!\n";
     fentemp = fen.substr(0, fen.find(' '));
-    _whcstl = 0;
-    _blcstl = 0;
-    if(fentemp.find('K') != std::string::npos) _whcstl |= SHORT_CASTLE_MOVE;
-    if(fentemp.find('Q') == std::string::npos) _whcstl |= LONG_CASTLE_MOVE;
-    if(fentemp.find('k') == std::string::npos) _blcstl |= SHORT_CASTLE_MOVE;
-    if(fentemp.find('q') == std::string::npos) _blcstl |= LONG_CASTLE_MOVE;
+    whcstl = 0;
+    blcstl = 0;
+    if(fentemp.find('K') != std::string::npos) 
+        whcstl |= SHORT_CASTLE_MOVE;
+    if(fentemp.find('Q') != std::string::npos) 
+        whcstl |= LONG_CASTLE_MOVE;
+    if(fentemp.find('k') != std::string::npos) 
+        blcstl |= SHORT_CASTLE_MOVE;
+    if(fentemp.find('q') != std::string::npos) 
+        blcstl |= LONG_CASTLE_MOVE;
     fen.erase(0, fentemp.length() + 1);
-    std::cout << fen << "!\n";
-    if(fen[0] == '-'){
-        _enPassant = -1;
-    }
-    else{
-        _enPassant = Not2Ind(fen.substr(0, 2));
-    }
+    //std::cout << fen << "!\n";
+    fen[0] == '-' ? enPassant = -1 : enPassant = Not2Ind(fen.substr(0, 2));
     fen.erase(0,fen.find(' ') + 1);
-    std::cout << fen << "!\n";
     if(fen[1] != ' '){
         halfMoveClock = 10 * ((int)(fen[0]) - '0') + (int)(fen[1]) - '0';
     }
@@ -181,57 +183,54 @@ Node::Node(std::string fen){
         halfMoveClock = (int)(fen[0]) - '0';
     }
     fen.erase(0, fen.find(' ') + 1);
-    std::cout << fen << "!\n";
+    //std::cout << fen << "!\n";
     fullMoveCounter = 1;
     for(uint i = 0; i < fen.length(); i++){
         fullMoveCounter *= 10;
         fullMoveCounter += (int)(fen[i]) - '0';
     }
-    OnNodeInit();
-    std::cout << "fen reading finished" << std::endl;
-}
-
-void Node::OnNodeInit(){
-    CalculatePositionHash();
     searchBackRepetitions = false;
+    CalculatePositionHash();
+    CheckCheck();
+    prev = NULL;
+    result = GameResult::ONGOING;
 }
 
 Node::~Node(){
-    delete _board;
+    delete board;
     for(auto nd : children){
         delete nd;   
     }
 }
-void Node::ShowBoard(){
-    _board->ShowBoard();
+void Node::ShowBoard() const{
+    board->ShowBoard();
 }
 
 Board* Node::GetBoardPtr(){
-    return _board;
+    return board;
 }
 
 
 bool Node::CheckMove(Move *checkedmove, bool execute){
-    int PieceColor = _board->GetSquareColor(checkedmove->From());
-    if(_toMove != PieceColor){
+    int PieceColor = board->GetSquareColor(checkedmove->From());
+    if(toMove != PieceColor){
         std::cout << "wrong piece chosen (wrong color)\n";
         return false;
     }
-    Move *expectedmove = _board->CheckMove(checkedmove->From(), checkedmove->To());
+    Move *expectedmove = board->CheckMove(checkedmove->From(), checkedmove->To());
     if(NULL != expectedmove)
     {
         //std::cout << "expected move found\n\n";
         if(((expectedmove->Type() & PROMOTION_MOVE) == PROMOTION_MOVE) && checkedmove->Promo() == EMPTY_SQUARE){
             std::cout << "No promo char entered\n";
-            sleep(1);
             delete expectedmove;
             return false;
         } 
         //std::cout << "creating new board\n";
-        Board *newboard = new Board(_board, expectedmove, checkedmove->Promo());
+        Board *newboard = new Board(board, expectedmove, checkedmove->Promo());
         Node *newnode = new Node(this, newboard, expectedmove, execute);
-        if(_toMove == WHITE){
-            if(newboard->IsPlaceAttacked(newboard->_whiteKingPos, newnode->_toMove)){
+        if(toMove == WHITE){
+            if(newboard->IsPlaceAttacked(newboard->whiteKingPos, newnode->toMove)){
                 std::cout << "king attacked after the move\n";
                 delete newnode;
                 delete expectedmove;
@@ -239,7 +238,7 @@ bool Node::CheckMove(Move *checkedmove, bool execute){
             }
         }
         else{
-            if(newboard->IsPlaceAttacked(newboard->_blackKingPos, newnode->_toMove)){
+            if(newboard->IsPlaceAttacked(newboard->blackKingPos, newnode->toMove)){
                 std::cout << "king attacked after the move\n";
                 delete newnode;
                 delete expectedmove;
@@ -259,8 +258,8 @@ bool Node::CheckMove(Move *checkedmove, bool execute){
 }
 
 void Node::CheckCheck(){
-    if(_toMove == WHITE){
-        if(_board->IsPlaceAttacked(_board->_whiteKingPos, -_toMove)){
+    if(toMove == WHITE){
+        if(board->IsPlaceAttacked(board->whiteKingPos, -toMove)){
             underCheck = true;
         }
         else{
@@ -268,7 +267,7 @@ void Node::CheckCheck(){
         }
     }
     else{
-        if(_board->IsPlaceAttacked(_board->_blackKingPos, -_toMove)){
+        if(board->IsPlaceAttacked(board->blackKingPos, -toMove)){
             underCheck = true;
         }
         else{
@@ -292,19 +291,18 @@ std::list<Move>* Node::GenerateAllLegalMoves(){
 }
 
 void Node::CheckEndings(){
-    if(halfMoveClock >= 50){
+    if(halfMoveClock>= 50){
         result = GameResult::DRAW;
         return;
     }
     result = GameResult::ONGOING;
     int count = 0; // repetition draw
-    std::cout << "checking repetition draw  " << positionHash << '\n';
+    //std::cout << "checking repetition draw  " << positionHash << '\n';
     Node *current = this;
     while(true){
-        std::cout << "  " << current->positionHash << '\n';
         if(current->positionHash == this->positionHash){
             count++;
-            if(count >= 3){
+            if(count>= 3){
                 result = GameResult::DRAW;
                 std::cout << "repetition draw\n";
                 return;
@@ -323,7 +321,7 @@ void Node::CheckEndings(){
     std::list<Move>* possiblemoves = GenerateAllLegalMoves();
     if(possiblemoves->size() == 0){
         if(underCheck){
-            if(_toMove == WHITE){
+            if(toMove == WHITE){
                 result = GameResult::BLACK_WIN;
             }
             else{
@@ -342,9 +340,9 @@ void Node::CheckEndings(){
     int colmaterial[3] = {0, 0, 0};
     for(int i = 0; i < 64; i++){
         int ind = mailbox[i];
-        sqmaterial[ind & 1] += std::abs(drawMaterial[_board->_squares[ind] + SYMBOLS_OFFSET]);
-        colmaterial[_board->GetSquareColor(ind) + 1] += drawMaterial[_board->_squares[ind] + SYMBOLS_OFFSET];
-        //std::cout << "on   " << (ind & 1) << "   added  " << drawMaterial[_board->_squares[ind] + SYMBOLS_OFFSET] << "   by   " << _board->_squares[ind] <<  "   which is    "  <<  PiecesSymbols[_board->_squares[ind] + SYMBOLS_OFFSET] << "   on place   " << Ind2Not(ind) << '\n';
+        sqmaterial[ind & 1] += std::abs(drawMaterial[board->squares[ind] + SYMBOLS_OFFSET]);
+        colmaterial[board->GetSquareColor(ind) + 1] += drawMaterial[board->squares[ind] + SYMBOLS_OFFSET];
+        //std::cout << "on   " << (ind & 1) << "   added  " << drawMaterial[_board->squares[ind] + SYMBOLS_OFFSET] << "   by   " << board->squares[ind] <<  "   which is    "  <<  PiecesSymbols[_board->squares[ind] + SYMBOLS_OFFSET] << "   on place   " << Ind2Not(ind) << '\n';
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
         result = DRAW;
@@ -355,7 +353,7 @@ void Node::CheckEndings(){
             bool isknight = false;
             for(int i = 0; i < 64; i++){
                 int ind = mailbox[i];
-                if(_board->_squares[ind] == WHITE_KNIGHT || _board->_squares[ind] == BLACK_KNIGHT){
+                if(board->squares[ind] == WHITE_KNIGHT || board->squares[ind] == BLACK_KNIGHT){
                     isknight = true;
                 }
             }
@@ -367,10 +365,10 @@ void Node::CheckEndings(){
 }
 
 void Node::CalculatePositionHash(){
-    long long value = _toMove + 313;
+    long long value = toMove + 313;
     for(int i = 0; i < 64; i++){
         value *= 313;
-        value += _board->GetSquareValue(mailbox[i]) + NO_PIECES;
+        value += board->GetSquareValue(mailbox[i]) + NO_PIECES;
         value %= 1000000009 + 7;
     }
     positionHash = value;

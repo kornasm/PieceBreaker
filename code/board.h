@@ -7,7 +7,7 @@ extern MoveGenerator* generators[];
 
 class Board{
     public:
-        int _squares[121] = {7,
+        int squares[121] = {7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
                              7, 2, 3, 4, 5, 6, 4, 3, 2, 7,
@@ -22,22 +22,21 @@ class Board{
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7
         };
         Node* parentnode;
-        int _whiteKingPos;
-        int _blackKingPos;
+        int whiteKingPos;
+        int blackKingPos;
 
-        //Board();
         Board(Node* nd);
         Board(const Board&) = delete;
         Board& operator=(Board&) = delete;
         Board(Board* b, Move* m, int promo=0);
         ~Board();
-        void ShowBoard();
-        char GetPiece(int column, int row);
-        int GetSquareValue(int column, int row);
-        int GetSquareColor(int column, int row);
-        char GetPiece(int index);
-        int GetSquareValue(int index);
-        int GetSquareColor(int index);
+        void ShowBoard() const;
+        char GetPiece(int column, int row) const;
+        int GetSquareValue(int column, int row) const;
+        int GetSquareColor(int column, int row) const;
+        char GetPiece(int index) const;
+        int GetSquareValue(int index) const;
+        int GetSquareColor(int index) const;
 
         bool IsPlaceAttacked(int attackedplace, int atackingcolor);
 

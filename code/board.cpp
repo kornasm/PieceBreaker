@@ -2,58 +2,53 @@
 
 extern int mailbox[64];
 extern MoveGenerator* generators[NO_PIECES + 1];
-/*Board::Board(){
-    _whiteKingPos = 26;
-    _blackKingPos = 96;
-};//*/
 
 Board::Board(Node* nd){
-    _whiteKingPos = Not2Ind("e1");
-    _blackKingPos = Not2Ind("e8");
+    whiteKingPos = Not2Ind("e1");
+    blackKingPos = Not2Ind("e8");
     parentnode = nd;
 }
 
 Board::Board(Board* b, Move *m, int promo){
     parentnode = NULL;
-    std::copy(b->_squares, b->_squares + 122, _squares);
-    _whiteKingPos = b->_whiteKingPos;
-    _blackKingPos = b->_blackKingPos;
+    std::copy(b->squares, b->squares + 122, squares);
+    whiteKingPos = b->whiteKingPos;
+    blackKingPos = b->blackKingPos;
 
-    _squares[m->To()] = _squares[m->From()];
-    _squares[m->From()] = EMPTY_SQUARE;
+    squares[m->To()] = squares[m->From()];
+    squares[m->From()] = EMPTY_SQUARE;
     if(m->Type() == EN_PASSANT_MOVE){
         if(column(m->From()) < column(m->To())){
-            _squares[m->From() + 1] = 0;
+            squares[m->From() + 1] = 0;
         }
         else{
-            _squares[m->From() - 1] = 0;
+            squares[m->From() - 1] = 0;
         }
     }
     if(m->Type() == SHORT_CASTLE_MOVE){
-        _squares[m->To() - 1] = _squares[m->To() + 1];
-        _squares[m->To() + 1] = EMPTY_SQUARE;
+        squares[m->To() - 1] = squares[m->To() + 1];
+        squares[m->To() + 1] = EMPTY_SQUARE;
     }
     if(m->Type() == LONG_CASTLE_MOVE){
-        _squares[m->To() + 1] = _squares[m->To() - 2];
-        _squares[m->To() - 2] = EMPTY_SQUARE;
+        squares[m->To() + 1] = squares[m->To() - 2];
+        squares[m->To() - 2] = EMPTY_SQUARE;
     }
     if(m->Type() == PROMOTION_MOVE){
         std::cout << "promo move update symbol" << std::endl;
-        if(_squares[m->To() < 0]){
-            _squares[m->To()] = -promo;
+        if(squares[m->To() < 0]){
+            squares[m->To()] = -promo;
         }
         else{
-            _squares[m->To()] = promo;
+            squares[m->To()] = promo;
         }
     }
 }
 
 Board::~Board(){
-    //std::cout << "   board   " << this << "  destr   " << parentnode << '\n';
     parentnode = NULL;
 }
 
-void Board::ShowBoard(){
+void Board::ShowBoard() const{
     std::cout << std::endl;
     std::cout << "  +---+---+---+---+---+---+---+---+\n";
     for(int row = 8; row > 0; row--){
@@ -68,17 +63,17 @@ void Board::ShowBoard(){
     return;
 }
 
-char Board::GetPiece(int column, int row){
+char Board::GetPiece(int column, int row) const{
     return GetPieceSymbol(GetSquareValue(column, row));
 }
 
-int Board::GetSquareValue(int column, int row){
+int Board::GetSquareValue(int column, int row) const{
     if(column < 1 || column > 8 || row < 1 || row > 8){
         std::cout << "Wrong argument passed to Node::GetPiece:  column = " << column << "   row = " << row << std::endl;
     }
-    return _squares[11 + 10 * row + column];
+    return squares[11 + 10 * row + column];
 }
-int Board::GetSquareColor(int column, int row){
+int Board::GetSquareColor(int column, int row) const{
     int val = GetSquareValue(column, row);
     if(val == OUTSIDE_BOARD){
         return OUTSIDE_BOARD;
@@ -88,19 +83,19 @@ int Board::GetSquareColor(int column, int row){
     }
 }
 
-char Board::GetPiece(int index){
-    return GetPieceSymbol(_squares[index]);
+char Board::GetPiece(int index) const{
+    return GetPieceSymbol(squares[index]);
 }
-int Board::GetSquareValue(int index){
-    return _squares[index];
+int Board::GetSquareValue(int index) const{
+    return squares[index];
 }
-int Board::GetSquareColor(int index){
+int Board::GetSquareColor(int index) const{
     int val = GetSquareValue(index);
     if(val == OUTSIDE_BOARD){
         return OUTSIDE_BOARD;
     }
     else{
-        return sgn(_squares[index]);
+        return sgn(squares[index]);
     }
 }
 
@@ -130,7 +125,7 @@ bool Board::IsPlaceAttacked(int attackedplace, int attackingcolor){
     for(int i = 0; i < 64 && answer == false; i++){
         int ind = mailbox[i];
         if(GetSquareColor(ind) == attackingcolor){
-            std::list<Move>* moves = generators[_squares[ind] + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, parentnode);
+            std::list<Move>* moves = generators[squares[ind] + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, parentnode);
             auto it = moves->begin();
             while(it != moves->end()){
                 if(it->To() == attackedplace){

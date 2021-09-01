@@ -8,12 +8,12 @@ class Board;
 
 class Node{
     private:
-        Board* _board;
+        Board* board;
     public:
-        int _toMove;
-        int _whcstl; // % 2 short, % 4 long
-        int _blcstl;
-        int _enPassant;
+        int toMove;
+        int whcstl; // % 2 short, % 4 long
+        int blcstl;
+        int enPassant;
         bool underCheck;
         Node *prev;
         std::list<Node*> children;
@@ -26,12 +26,13 @@ class Node{
         Node();
         Node(Node *prev, Board* b, Move *m, bool realnode);
         Node(std::string fen);
-        void OnNodeInit();
+        ~Node();
+
         Node(const Node& node) = delete;
         Node operator=(const Node& node) = delete;
-        ~Node();
+        
         Board* GetBoardPtr();
-        void ShowBoard();
+        void ShowBoard() const;
         bool CheckMove(Move* checkedmove, bool execute = true);
         void ExecuteMove(Move move);
 

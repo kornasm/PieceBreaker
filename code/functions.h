@@ -4,8 +4,6 @@
 class MoveGenerator;
 class Move;
 
-extern char PiecesSymbols[13];
-
 char GetPieceSymbol(int piece_number);
 
 template <typename T> int sgn(T val) {

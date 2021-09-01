@@ -1,5 +1,7 @@
 #include "declarations.h"
 
+char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
+
 char GetPieceSymbol(int piece_number){
     return PiecesSymbols[piece_number + SYMBOLS_OFFSET];
 }
@@ -23,11 +25,8 @@ int Not2Ind(std::string notation){
 
 bool NotationValid(std::string pos){
     if(pos.length() != 2){
-        std::cout << "notation invalid,  length = " << pos.length() << '\n';
         return false;
     }
-    //std:: cout << (int)('a') << " " << (int)(pos[0]) << " " << (int)('h') << " ";
-    //std:: cout << (int)('1') << " " << (int)(pos[1]) << " " << (int)('8') << '\n';
     return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
 }
 
