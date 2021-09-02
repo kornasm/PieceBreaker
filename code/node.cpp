@@ -12,8 +12,9 @@ extern MoveGenerator* generators[NO_PIECES + 1];
 int drawMaterial[NO_PIECES] = {0, -10, -1, -1, -10, -10, 0, 10, 10, 1, 1, 10, 0};
 
 Node::Node(){
-    board = new Board(this);
     toMove = WHITE;
+    whiteKingPos = Not2Ind("e1");
+    blackKingPos = Not2Ind("e8");
     whcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
     blcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
     enPassant = -1;
@@ -26,60 +27,88 @@ Node::Node(){
     CalculatePositionHash();
 }
 
-Node::Node(Node *pr, Board* b, Move *m, bool realnode){
+Node::Node(Node *pr, Move *m, int promo, bool realnode){
     prev = pr;
-    board = b;
-    b->parentnode = this;
+
+    std::copy(pr->squares, pr->squares + 122, squares);
+    whiteKingPos = pr->whiteKingPos;
+    blackKingPos = pr->blackKingPos;
+
+    squares[m->To()] = squares[m->From()];
+    squares[m->From()] = EMPTY_SQUARE;
+    if(m->Type() == EN_PASSANT_MOVE){
+        if(column(m->From()) < column(m->To())){
+            squares[m->From() + 1] = 0;
+        }
+        else{
+            squares[m->From() - 1] = 0;
+        }
+    }
+    if(m->Type() == SHORT_CASTLE_MOVE){
+        squares[m->To() - 1] = squares[m->To() + 1];
+        squares[m->To() + 1] = EMPTY_SQUARE;
+    }
+    if(m->Type() == LONG_CASTLE_MOVE){
+        squares[m->To() + 1] = squares[m->To() - 2];
+        squares[m->To() - 2] = EMPTY_SQUARE;
+    }
+    if(m->Type() == PROMOTION_MOVE){
+        std::cout << "promo move update symbol" << std::endl;
+        if(squares[m->To() < 0]){
+            squares[m->To()] = -promo;
+        }
+        else{
+            squares[m->To()] = promo;
+        }
+    }
+
     toMove = prev->toMove * (-1);
     whcstl = prev->whcstl;
     blcstl = prev->blcstl;
     if(pr->toMove == WHITE){
-        if(whcstl % SHORT_CASTLE_MOVE != 0){
+        if((whcstl & SHORT_CASTLE_MOVE) != 0){
             if(m->From() == Not2Ind("e1") || m->From() == Not2Ind("h1")){
-                whcstl -= SHORT_CASTLE_MOVE / 2;
+                whcstl -= SHORT_CASTLE_MOVE;
             }
         }
-        if(whcstl % LONG_CASTLE_MOVE != 0){
+        if((whcstl & LONG_CASTLE_MOVE) != 0){
             if(m->From() == Not2Ind("e1") || m->From() == Not2Ind("a1")){
-                whcstl -= LONG_CASTLE_MOVE / 2;
+                whcstl -= LONG_CASTLE_MOVE;
             }
         }
     }
     else{
-        if(blcstl % SHORT_CASTLE_MOVE != 0){
+        if((blcstl & SHORT_CASTLE_MOVE) != 0){
             if(m->From() == Not2Ind("e8") || m->From() == Not2Ind("h8")){
-                blcstl -= SHORT_CASTLE_MOVE / 2;
+                blcstl -= SHORT_CASTLE_MOVE;
             }
         }
-        if(blcstl % LONG_CASTLE_MOVE != 0){
+        if((blcstl & LONG_CASTLE_MOVE) != 0){
             if(m->From() == Not2Ind("e8") || m->From() == Not2Ind("a8")){
-                blcstl -= LONG_CASTLE_MOVE / 2;
+                blcstl -= LONG_CASTLE_MOVE;
             }
         }
     }
-    if(m->Type() == PAWN_DOUBLE_MOVE){
-        enPassant = (m->From() + m->To()) / 2;
+    m->Type() == PAWN_DOUBLE_MOVE ? enPassant = (m->From() + m->To()) / 2 : enPassant = -1;
+    if(m->From() == whiteKingPos){
+        whiteKingPos = m->To();
     }
-    else{
-        enPassant = -1;
-    }//*/
-    if(m->From() == b->whiteKingPos){
-        b->whiteKingPos = m->To();
+    if(m->From() == blackKingPos){
+        blackKingPos = m->To();
     }
-    if(m->From() == b->blackKingPos){
-        b->blackKingPos = m->To();
-    }
+    fullMoveCounter = pr->fullMoveCounter;
     if(toMove == WHITE){
         fullMoveCounter++;
     }
     if(m->Type() < PAWN_MOVE){ // only regular moves and castles (no captures)
-        halfMoveClock++;
+        halfMoveClock = pr->halfMoveClock;
         searchBackRepetitions = true;
     }
     else{
         halfMoveClock = 0;
         searchBackRepetitions = false;
     }
+    CheckCheck();
     if(realnode){
         CalculatePositionHash();
         CheckEndings();
@@ -87,7 +116,6 @@ Node::Node(Node *pr, Board* b, Move *m, bool realnode){
 }
 
 Node::Node(std::string fen){
-    board = new Board(this);
     while(fen[0] == ' '){
         fen.erase(0, 1);
     }
@@ -104,49 +132,49 @@ Node::Node(std::string fen){
         while(fentemp[index] != '/' && index < fentemp.length()){
             switch(fentemp[index]){
                 case 'K':
-                    board->squares[mailbox[8 * i + j]] = WHITE_KING;
-                    board->whiteKingPos = mailbox[8 * i + j];
+                    squares[mailbox[8 * i + j]] = WHITE_KING;
+                    whiteKingPos = mailbox[8 * i + j];
                     break;
                 case 'k':
-                    board->squares[mailbox[8 * i + j]] = BLACK_KING;
-                    board->blackKingPos = 8 * i + j;
+                    squares[mailbox[8 * i + j]] = BLACK_KING;
+                    blackKingPos = 8 * i + j;
                     break;
                 case 'Q':
-                    board->squares[mailbox[8 * i + j]] = WHITE_QUEEN;
+                    squares[mailbox[8 * i + j]] = WHITE_QUEEN;
                     break;
                 case 'q':
-                    board->squares[mailbox[8 * i + j]] = BLACK_QUEEN;
+                    squares[mailbox[8 * i + j]] = BLACK_QUEEN;
                     break;
                 case 'R':
-                    board->squares[mailbox[8 * i + j]] = WHITE_ROOK;
+                    squares[mailbox[8 * i + j]] = WHITE_ROOK;
                     break;
                 case 'r':
-                    board->squares[mailbox[8 * i + j]] = BLACK_ROOK;
+                    squares[mailbox[8 * i + j]] = BLACK_ROOK;
                     break;
                 case 'B':
-                    board->squares[mailbox[8 * i + j]] = WHITE_BISHOP;
+                    squares[mailbox[8 * i + j]] = WHITE_BISHOP;
                     break;
                 case 'b':
-                    board->squares[mailbox[8 * i + j]] = BLACK_BISHOP;
+                    squares[mailbox[8 * i + j]] = BLACK_BISHOP;
                     break;
                 case 'N':
-                    board->squares[mailbox[8 * i + j]] = WHITE_KNIGHT;
+                    squares[mailbox[8 * i + j]] = WHITE_KNIGHT;
                     break;
                 case 'n':
-                    board->squares[mailbox[8 * i + j]] = BLACK_KNIGHT;
+                    squares[mailbox[8 * i + j]] = BLACK_KNIGHT;
                     break;
                 case 'P':
-                    board->squares[mailbox[8 * i + j]] = WHITE_PAWN;
+                    squares[mailbox[8 * i + j]] = WHITE_PAWN;
                     break;
                 case 'p':
-                    board->squares[mailbox[8 * i + j]] = BLACK_PAWN;
+                    squares[mailbox[8 * i + j]] = BLACK_PAWN;
                     break;
                 default:;
             }
             if(isdigit(fentemp[index])){
                 int x = (int)(fentemp[index]) - '0';
                 for(; x> 0; x--){
-                    board->squares[mailbox[8 * i + j]] = EMPTY_SQUARE;
+                    squares[mailbox[8 * i + j]] = EMPTY_SQUARE;
                     j++;
                 }
             }
@@ -197,27 +225,32 @@ Node::Node(std::string fen){
 }
 
 Node::~Node(){
-    delete board;
     for(auto nd : children){
         delete nd;   
     }
 }
 void Node::ShowBoard() const{
-    board->ShowBoard();
+    std::cout << std::endl;
+    std::cout << "  +---+---+---+---+---+---+---+---+\n";
+    for(int row = 8; row > 0; row--){
+        std::cout << row << " ";
+        for(int col = 1; col <= 8; col++){
+            std::cout << "| " << GetPiece(col, row) << " ";
+        }
+        std::cout << "|";
+        std::cout << "\n  +---+---+---+---+---+---+---+---+\n";
+    }
+    std::cout << "    a   b   c   d   e   f   g   h\n\n";
+    return;
 }
-
-Board* Node::GetBoardPtr(){
-    return board;
-}
-
 
 bool Node::CheckMove(Move *checkedmove, bool execute){
-    int PieceColor = board->GetSquareColor(checkedmove->From());
+    int PieceColor = GetSquareColor(checkedmove->From());
     if(toMove != PieceColor){
         std::cout << "wrong piece chosen (wrong color)\n";
         return false;
     }
-    Move *expectedmove = board->CheckMove(checkedmove->From(), checkedmove->To());
+    Move *expectedmove = CheckMove(checkedmove->From(), checkedmove->To());
     if(NULL != expectedmove)
     {
         //std::cout << "expected move found\n\n";
@@ -226,11 +259,9 @@ bool Node::CheckMove(Move *checkedmove, bool execute){
             delete expectedmove;
             return false;
         } 
-        //std::cout << "creating new board\n";
-        Board *newboard = new Board(board, expectedmove, checkedmove->Promo());
-        Node *newnode = new Node(this, newboard, expectedmove, execute);
+        Node *newnode = new Node(this, expectedmove, checkedmove->Promo(), execute);
         if(toMove == WHITE){
-            if(newboard->IsPlaceAttacked(newboard->whiteKingPos, newnode->toMove)){
+            if(newnode->IsPlaceAttacked(newnode->whiteKingPos, newnode->toMove)){
                 std::cout << "king attacked after the move\n";
                 delete newnode;
                 delete expectedmove;
@@ -238,7 +269,7 @@ bool Node::CheckMove(Move *checkedmove, bool execute){
             }
         }
         else{
-            if(newboard->IsPlaceAttacked(newboard->blackKingPos, newnode->toMove)){
+            if(newnode->IsPlaceAttacked(newnode->blackKingPos, newnode->toMove)){
                 std::cout << "king attacked after the move\n";
                 delete newnode;
                 delete expectedmove;
@@ -259,7 +290,7 @@ bool Node::CheckMove(Move *checkedmove, bool execute){
 
 void Node::CheckCheck(){
     if(toMove == WHITE){
-        if(board->IsPlaceAttacked(board->whiteKingPos, -toMove)){
+        if(IsPlaceAttacked(whiteKingPos, -toMove)){
             underCheck = true;
         }
         else{
@@ -267,7 +298,7 @@ void Node::CheckCheck(){
         }
     }
     else{
-        if(board->IsPlaceAttacked(board->blackKingPos, -toMove)){
+        if(IsPlaceAttacked(blackKingPos, -toMove)){
             underCheck = true;
         }
         else{
@@ -291,13 +322,15 @@ std::list<Move>* Node::GenerateAllLegalMoves(){
 }
 
 void Node::CheckEndings(){
+    // 50-move rule
     if(halfMoveClock>= 50){
         result = GameResult::DRAW;
         return;
     }
     result = GameResult::ONGOING;
-    int count = 0; // repetition draw
-    //std::cout << "checking repetition draw  " << positionHash << '\n';
+
+    // Repetition draw
+    int count = 0;
     Node *current = this;
     while(true){
         if(current->positionHash == this->positionHash){
@@ -318,9 +351,10 @@ void Node::CheckEndings(){
             current = current->prev;
         }
     }
+
     std::list<Move>* possiblemoves = GenerateAllLegalMoves();
     if(possiblemoves->size() == 0){
-        if(underCheck){
+        if(underCheck){ // Checkmate
             if(toMove == WHITE){
                 result = GameResult::BLACK_WIN;
             }
@@ -328,7 +362,7 @@ void Node::CheckEndings(){
                 result = GameResult::WHITE_WIN;
             }
         }
-        else{
+        else{ // Stalemate
             result = GameResult::DRAW;
         }
     }
@@ -336,13 +370,15 @@ void Node::CheckEndings(){
     if(result != GameResult::ONGOING){
         return;
     }
+
+    //
     int sqmaterial[2] = {0, 0}; // on white and black squares
     int colmaterial[3] = {0, 0, 0};
     for(int i = 0; i < 64; i++){
         int ind = mailbox[i];
-        sqmaterial[ind & 1] += std::abs(drawMaterial[board->squares[ind] + SYMBOLS_OFFSET]);
-        colmaterial[board->GetSquareColor(ind) + 1] += drawMaterial[board->squares[ind] + SYMBOLS_OFFSET];
-        //std::cout << "on   " << (ind & 1) << "   added  " << drawMaterial[_board->squares[ind] + SYMBOLS_OFFSET] << "   by   " << board->squares[ind] <<  "   which is    "  <<  PiecesSymbols[_board->squares[ind] + SYMBOLS_OFFSET] << "   on place   " << Ind2Not(ind) << '\n';
+        sqmaterial[ind & 1] += std::abs(drawMaterial[squares[ind] + SYMBOLS_OFFSET]);
+        colmaterial[GetSquareColor(ind) + 1] += drawMaterial[squares[ind] + SYMBOLS_OFFSET];
+        //std::cout << "on   " << (ind & 1) << "   added  " << drawMaterial[_squares[ind] + SYMBOLS_OFFSET] << "   by   " << squares[ind] <<  "   which is    "  <<  PiecesSymbols[_squares[ind] + SYMBOLS_OFFSET] << "   on place   " << Ind2Not(ind) << '\n';
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
         result = DRAW;
@@ -353,7 +389,7 @@ void Node::CheckEndings(){
             bool isknight = false;
             for(int i = 0; i < 64; i++){
                 int ind = mailbox[i];
-                if(board->squares[ind] == WHITE_KNIGHT || board->squares[ind] == BLACK_KNIGHT){
+                if(squares[ind] == WHITE_KNIGHT || squares[ind] == BLACK_KNIGHT){
                     isknight = true;
                 }
             }
@@ -368,8 +404,85 @@ void Node::CalculatePositionHash(){
     long long value = toMove + 313;
     for(int i = 0; i < 64; i++){
         value *= 313;
-        value += board->GetSquareValue(mailbox[i]) + NO_PIECES;
+        value += GetSquareValue(mailbox[i]) + NO_PIECES;
         value %= 1000000009 + 7;
     }
     positionHash = value;
+}
+
+char Node::GetPiece(int column, int row) const{
+    return GetPieceSymbol(GetSquareValue(column, row));
+}
+
+int Node::GetSquareValue(int column, int row) const{
+    if(column < 1 || column > 8 || row < 1 || row > 8){
+        std::cout << "Wrong argument passed to Node::GetPiece:  column = " << column << "   row = " << row << std::endl;
+    }
+    return squares[11 + 10 * row + column];
+}
+int Node::GetSquareColor(int column, int row) const{
+    int val = GetSquareValue(column, row);
+    if(val == OUTSIDE_BOARD){
+        return OUTSIDE_BOARD;
+    }
+    else{
+        return sgn(val);
+    }
+}
+
+char Node::GetPiece(int index) const{
+    return GetPieceSymbol(squares[index]);
+}
+int Node::GetSquareValue(int index) const{
+    return squares[index];
+}
+int Node::GetSquareColor(int index) const{
+    int val = GetSquareValue(index);
+    if(val == OUTSIDE_BOARD){
+        return OUTSIDE_BOARD;
+    }
+    else{
+        return sgn(squares[index]);
+    }
+}
+
+Move* Node::CheckMove(int from, int to){
+    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(from, this);
+
+    Move *expected = new Move(from, to, REGULAR_MOVE);
+    bool available = false;
+    for(auto m : *moves){
+        if(m == *expected){ 
+            available = true;
+            *expected = m;
+            break;
+        }
+    }
+    delete moves;
+    if(available){
+        return expected;
+    }
+    delete expected;
+    return NULL;
+}
+
+bool Node::IsPlaceAttacked(int attackedplace, int attackingcolor){
+    bool answer = false;
+    //std::cout << "is king attacked:    " << attackedplace << "  " << attackingcolor << '\n';
+    for(int i = 0; i < 64 && answer == false; i++){
+        int ind = mailbox[i];
+        if(GetSquareColor(ind) == attackingcolor){
+            std::list<Move>* moves = generators[squares[ind] + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, this);
+            auto it = moves->begin();
+            while(it != moves->end()){
+                if(it->To() == attackedplace){
+                    answer = true;
+                }
+                ++it;
+            }
+            delete moves;
+        }
+    }
+    //std::cout << "is place attacked end\n\n";
+    return answer;
 }

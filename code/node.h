@@ -7,9 +7,21 @@ class Move;
 class Board;
 
 class Node{
-    private:
-        Board* board;
     public:
+        int squares[121] = {7,
+                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                             7, 2, 3, 4, 5, 6, 4, 3, 2, 7,
+                             7, 1, 1, 1, 1, 1, 1, 1, 1, 7,
+                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                             7, -1, -1, -1, -1, -1, -1, -1, -1, 7,
+                             7, -2, -3, -4, -5, -6, -4, -3, -2, 7,
+                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7
+        };
         int toMove;
         int whcstl; // % 2 short, % 4 long
         int blcstl;
@@ -22,18 +34,20 @@ class Node{
         bool searchBackRepetitions;
         int halfMoveClock;
         int fullMoveCounter;
+        int whiteKingPos;
+        int blackKingPos;
 
         Node();
-        Node(Node *prev, Board* b, Move *m, bool realnode);
+        Node(Node *prev, Move *m, int promo = 0, bool realnode = true);
         Node(std::string fen);
         ~Node();
 
         Node(const Node& node) = delete;
         Node operator=(const Node& node) = delete;
         
-        Board* GetBoardPtr();
         void ShowBoard() const;
         bool CheckMove(Move* checkedmove, bool execute = true);
+        Move* CheckMove(int from, int to); // only checks pseudo-legality
         void ExecuteMove(Move move);
 
         void CheckCheck();
@@ -42,6 +56,16 @@ class Node{
         void CheckEndings();
 
         void CalculatePositionHash();
+
+
+        char GetPiece(int column, int row) const;
+        int GetSquareValue(int column, int row) const;
+        int GetSquareColor(int column, int row) const;
+        char GetPiece(int index) const;
+        int GetSquareValue(int index) const;
+        int GetSquareColor(int index) const;
+
+        bool IsPlaceAttacked(int attackedplace, int atackingcolor);
 };
 
 /*

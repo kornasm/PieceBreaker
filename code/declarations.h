@@ -2,7 +2,6 @@
 #define DECLARATIONS_H_
 
 #include "node.h"
-#include "board.h"
 #include "functions.h"
 #include "movegenerators.h"
 #include "move.h"

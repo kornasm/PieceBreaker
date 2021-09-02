@@ -1,13 +1,13 @@
 FLAGS= -Wall -std=c++17 -Wshadow
 
-all: main board node functions generators move
-	g++ ${FLAGS} -o main.out main.o node.o board.o functions.o generators.o move.o
+all: main node functions generators move
+	g++ ${FLAGS} -o main.out main.o node.o functions.o generators.o move.o
 
 main: main.cpp
 	g++ ${FLAGS} -o main.o -c main.cpp
 
-board: board.cpp
-	g++ ${FLAGS} -o board.o -c board.cpp
+#board: board.cpp
+#	g++ ${FLAGS} -o board.o -c board.cpp
 
 node: node.cpp
 	g++ ${FLAGS} -o node.o -c node.cpp

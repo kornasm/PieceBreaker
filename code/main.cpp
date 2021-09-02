@@ -50,7 +50,7 @@ int main(){
                 std::cin >> notation;
                 int position = Not2Ind(notation);
                 if(NotationValid(notation)){
-                    std::list<Move>* movestemp = generators[current->GetBoardPtr()->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(position, newgame);
+                    std::list<Move>* movestemp = generators[current->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(position, newgame);
                     auto itt = movestemp->begin();
                     while(itt != movestemp->end()){
                         std::cout << *itt;
@@ -68,6 +68,18 @@ int main(){
                 delete newgame;
                 newgame = new Node(fen);
                 current = newgame;
+                break;
+            }
+            case 169095377:{ // info
+                std::cout << "white king           " << Ind2Not(current->whiteKingPos) << '\n';
+                std::cout << "black king           " << Ind2Not(current->blackKingPos) << '\n';
+                std::cout << "white castl          " << current->whcstl << '\n';
+                std::cout << "black castl          " << current->blcstl << '\n';
+                std::cout << "en passant           " << current->enPassant << '\n';
+                std::cout << "is check             " << current->underCheck << '\n';
+                std::cout << "half move clock      " << current->halfMoveClock << '\n';
+                std::cout << "pos hash             " << current->positionHash << '\n';
+                break;
             }
         }//*/
     }
