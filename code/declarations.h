@@ -1,7 +1,7 @@
 #ifndef DECLARATIONS_H_
 #define DECLARATIONS_H_
 
-#include "node.h"
+#include "position.h"
 #include "functions.h"
 #include "movegenerators.h"
 #include "move.h"

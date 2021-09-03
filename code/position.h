@@ -1,12 +1,14 @@
+#ifndef POSITION_H_
+#define POSITION_H_
+
 #include<string>
 #include<list>
 #include<memory>
 
 enum GameResult{ONGOING, WHITE_WIN, DRAW, BLACK_WIN};
 class Move;
-class Board;
 
-class Node{
+class Position{
     public:
         int squares[121] = {7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
@@ -27,8 +29,8 @@ class Node{
         int blcstl;
         int enPassant;
         bool underCheck;
-        Node *prev;
-        std::list<Node*> children;
+        Position *prev;
+        std::list<Position*> children;
         GameResult result;
         long long positionHash;
         bool searchBackRepetitions;
@@ -37,13 +39,13 @@ class Node{
         int whiteKingPos;
         int blackKingPos;
 
-        Node();
-        Node(Node *prev, Move *m, int promo = 0, bool realnode = true);
-        Node(std::string fen);
-        ~Node();
+        Position();
+        Position(Position *prev, Move *m, int promo = 0, bool execute = true);
+        Position(std::string fen);
+        ~Position();
 
-        Node(const Node& node) = delete;
-        Node operator=(const Node& node) = delete;
+        Position(const Position& position) = delete;
+        Position operator=(const Position& position) = delete;
         
         void ShowBoard() const;
         bool CheckMove(Move* checkedmove, bool execute = true);
@@ -67,6 +69,8 @@ class Node{
 
         bool IsPlaceAttacked(int attackedplace, int atackingcolor);
 };
+
+#endif
 
 /*
 

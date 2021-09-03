@@ -30,10 +30,13 @@ bool Move::operator ==(Move o) const{
 }
 
 void Move::IncreaseType(int i){
-    int typetemp = type % (2 * i);
+    /*int typetemp = type % (2 * i);
 
     if(typetemp < i){
         type += i;
+    }//*/
+    if((type & i) == 0){
+        type |= i;
     }
 }
 

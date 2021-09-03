@@ -1,3 +1,6 @@
+#ifndef FUNCTIONS_H_
+#define FUNCTIONS_H_
+
 #include<list>
 #include<string>
 
@@ -23,3 +26,5 @@ void init(MoveGenerator* gens[]);
 void cleanup(MoveGenerator* gens[]);
 
 void PrintMoveList(std::list<Move>* moves);
+
+#endif

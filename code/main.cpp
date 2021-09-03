@@ -3,8 +3,8 @@
 MoveGenerator* generators[NO_PIECES + 1];
 int main(){
     init(generators);
-    Node *newgame = new Node();
-    Node *current = newgame;
+    Position *newgame = new Position();
+    Position *current = newgame;
     int gamestate = 1;
     while(gamestate){
         std::cout << "Enter command:" << std::endl;
@@ -61,12 +61,13 @@ int main(){
                 else{
                     std::cout << "main    invalid notation\n";
                 }
+                break;
             }
             case 9897063:{ //fen
                 std::string fen;
                 std::getline(std::cin, fen);
                 delete newgame;
-                newgame = new Node(fen);
+                newgame = new Position(fen);
                 current = newgame;
                 break;
             }

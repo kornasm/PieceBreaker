@@ -1,5 +1,7 @@
-#include<iostream>
+#ifndef MOVE_H_
+#define MOVE_H_
 
+#include<iostream>
 
 class Move{
     private:
@@ -25,3 +27,5 @@ class Move{
 };
 
 std::ostream& operator <<(std::ostream& out, Move& move);
+
+#endif
