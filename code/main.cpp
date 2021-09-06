@@ -3,8 +3,8 @@
 MoveGenerator* generators[NO_PIECES + 1];
 int main(){
     init(generators);
-    Position *newgame = new Position();
-    Position *current = newgame;
+    Node *newgame = new Node();
+    Node *current = newgame;
     int gamestate = 1;
     while(gamestate){
         std::cout << "Enter command:" << std::endl;
@@ -38,19 +38,19 @@ int main(){
                 break;
             }
             case 133597110:{ // "board"
-                current->ShowBoard();
+                current->position->ShowBoard();
                 break;
             }
             case 40093753:{ // moves}
-                std::list<Move> *moves = current->GenerateAllLegalMoves();
+                std::list<Move> *moves = current->position->GenerateAllLegalMoves();
                 PrintMoveList(moves);
                 std::cout << "\n\n";
                 delete moves;
                 std::string notation;
                 std::cin >> notation;
-                int position = Not2Ind(notation);
+                int square = Not2Ind(notation);
                 if(NotationValid(notation)){
-                    std::list<Move>* movestemp = generators[current->GetSquareValue(position) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(position, newgame);
+                    std::list<Move>* movestemp = generators[current->position->GetSquareValue(square) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(square, newgame->position);
                     auto itt = movestemp->begin();
                     while(itt != movestemp->end()){
                         std::cout << *itt;
@@ -67,19 +67,19 @@ int main(){
                 std::string fen;
                 std::getline(std::cin, fen);
                 delete newgame;
-                newgame = new Position(fen);
+                newgame = new Node(fen);
                 current = newgame;
                 break;
             }
             case 169095377:{ // info
-                std::cout << "white king           " << Ind2Not(current->whiteKingPos) << '\n';
-                std::cout << "black king           " << Ind2Not(current->blackKingPos) << '\n';
-                std::cout << "white castl          " << current->whcstl << '\n';
-                std::cout << "black castl          " << current->blcstl << '\n';
-                std::cout << "en passant           " << current->enPassant << '\n';
-                std::cout << "is check             " << current->underCheck << '\n';
-                std::cout << "half move clock      " << current->halfMoveClock << '\n';
-                std::cout << "pos hash             " << current->positionHash << '\n';
+                std::cout << "white king           " << Ind2Not(current->position->whiteKingPos) << '\n';
+                std::cout << "black king           " << Ind2Not(current->position->blackKingPos) << '\n';
+                std::cout << "white castl          " << current->position->whcstl << '\n';
+                std::cout << "black castl          " << current->position->blcstl << '\n';
+                std::cout << "en passant           " << current->position->enPassant << '\n';
+                std::cout << "is check             " << current->position->underCheck << '\n';
+                std::cout << "half move clock      " << current->position->halfMoveClock << '\n';
+                std::cout << "pos hash             " << current->position->positionHash << '\n';
                 break;
             }
         }//*/

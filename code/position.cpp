@@ -228,11 +228,8 @@ Position::Position(std::string fen){
     result = GameResult::ONGOING;
 }
 
-Position::~Position(){
-    for(auto nd : children){
-        delete nd;   
-    }
-}
+Position::~Position(){}
+
 void Position::ShowBoard() const{
     std::cout << std::endl;
     std::cout << "  +---+---+---+---+---+---+---+---+\n";
@@ -248,11 +245,11 @@ void Position::ShowBoard() const{
     return;
 }
 
-bool Position::CheckMove(Move *checkedmove, bool execute){
+Position* Position::CheckMove(Move *checkedmove, bool execute){
     int PieceColor = GetSquareColor(checkedmove->From());
     if(toMove != PieceColor){
         std::cout << "wrong piece chosen (wrong color)\n";
-        return false;
+        return NULL;
     }
     Move *expectedmove = CheckMove(checkedmove->From(), checkedmove->To());
     if(NULL != expectedmove)
@@ -260,33 +257,27 @@ bool Position::CheckMove(Move *checkedmove, bool execute){
         if((expectedmove->Type() & PROMOTION_MOVE) && checkedmove->Promo() == EMPTY_SQUARE){
             std::cout << "No promo char entered\n";
             delete expectedmove;
-            return false;
+            return NULL;
         } 
         Position *newposition = new Position(this, expectedmove, checkedmove->Promo(), execute);
         if(toMove == WHITE){
             if(newposition->IsPlaceAttacked(newposition->whiteKingPos, newposition->toMove)){
                 delete newposition;
                 delete expectedmove;
-                return false;
+                return NULL;
             }
         }
         else{
             if(newposition->IsPlaceAttacked(newposition->blackKingPos, newposition->toMove)){
                 delete newposition;
                 delete expectedmove;
-                return false;
+                return NULL;
             }
         }
-        if(execute == true){
-            children.push_back(newposition);
-        }
-        else{
-            delete newposition;
-        }
         delete expectedmove;
-        return true;
+        return newposition;
     }
-    return false;
+    return NULL;
 }
 
 void Position::CheckCheck(){
@@ -311,9 +302,11 @@ void Position::CheckCheck(){
 std::list<Move>* Position::GenerateAllLegalMoves(){
     std::list<Move>* moves = AllMovesGenerator::GenerateMoves(this);
     std::list<Move>* results = new std::list<Move>();
+    Position *temp;
     auto it = moves->begin();
     while(it != moves->end()){
-        if(CheckMove(&(*it), false)){
+        if((temp = CheckMove(&(*it), false))){
+            delete temp;
             results->push_back(*it);
         }
         ++it;

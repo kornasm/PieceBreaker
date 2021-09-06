@@ -5,6 +5,7 @@
 #include "functions.h"
 #include "movegenerators.h"
 #include "move.h"
+#include "node.h"
 
 #include<string>
 #include<iostream>

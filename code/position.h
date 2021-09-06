@@ -30,7 +30,6 @@ class Position{
         int enPassant;
         bool underCheck;
         Position *prev;
-        std::list<Position*> children;
         GameResult result;
         long long positionHash;
         bool searchBackRepetitions;
@@ -48,7 +47,7 @@ class Position{
         Position operator=(const Position& position) = delete;
         
         void ShowBoard() const;
-        bool CheckMove(Move* checkedmove, bool execute = true);
+        Position* CheckMove(Move* checkedmove, bool execute = true);
         Move* CheckMove(int from, int to); // only checks pseudo-legality
         void ExecuteMove(Move move);
 
