@@ -20,7 +20,7 @@ Node::~Node(){
 }
 
 bool Node::CheckMove(Move *move){
-    Position *newposition = position->CheckMove(move);
+    Position *newposition = position->MakeMove(move);
     if(newposition){
         children.push_back(new Node(newposition));
         return true;

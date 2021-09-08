@@ -47,10 +47,13 @@ class Position{
         Position operator=(const Position& position) = delete;
         
         void ShowBoard() const;
-        Position* CheckMove(Move* checkedmove, bool execute = true);
-        Move* CheckMove(int from, int to); // only checks pseudo-legality
-        void ExecuteMove(Move move);
-
+        Position* MakeMove(Move* checkedmove, bool execute = true);
+        Move* CheckIfMoveFullLegal(Move* checkedmove);
+        Move* CheckIfMovePseudoLegal(int from, int to);
+        int MakeSoftMove(Move *toExecute);
+        void MakeSoftBack(Move *toExecute, int takenPiece);
+        
+        
         void CheckCheck();
         std::list<Move>* GenerateAllLegalMoves();
         bool CheckIfMoveLegal(Move move);

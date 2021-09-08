@@ -131,7 +131,7 @@ Position::Position(std::string fen){
     //std::cout << "first cut   #" << fentemp << '#' << '\n';
     
     unsigned int index = 0;
-    for(int i = 7; i>= 0; i--){
+    for(int i = 7; i >= 0; i--){
         int j = 0;
         while(fentemp[index] != '/' && index < fentemp.length()){
             switch(fentemp[index]){
@@ -245,38 +245,85 @@ void Position::ShowBoard() const{
     return;
 }
 
-Position* Position::CheckMove(Move *checkedmove, bool execute){
+Position* Position::MakeMove(Move *checkedmove, bool execute){
+    Move *expectedmove = CheckIfMoveFullLegal(checkedmove);
+    if(NULL != expectedmove)
+    {
+        Position *newposition = new Position(this, expectedmove, checkedmove->Promo(), execute);
+        std::cout << "created new position   " << newposition << '\n';
+        delete expectedmove;
+        return newposition;
+    }
+    return NULL;
+}
+
+int Position::MakeSoftMove(Move *toExecute){
+    int takenPiece = squares[toExecute->To()];
+    squares[toExecute->To()] = squares[toExecute->From()];
+    squares[toExecute->From()] = EMPTY_SQUARE;
+    if(toExecute->Type() & EN_PASSANT_MOVE){
+        if(toMove == WHITE){
+            squares[enPassant - 10] = EMPTY_SQUARE;
+        }
+        else{
+            squares[enPassant + 10] = EMPTY_SQUARE;
+        }
+    }
+    return takenPiece;
+}
+
+void Position::MakeSoftBack(Move *toExecute, int takenPiece){
+    squares[toExecute->From()] = squares[toExecute->To()];
+    squares[toExecute->To()] = takenPiece;
+    if(toExecute->Type() & EN_PASSANT_MOVE){
+        if(toMove == WHITE){
+            squares[enPassant - 10] = BLACK_PAWN;
+        }
+        else{
+            squares[enPassant + 10] = WHITE_PAWN;
+        }
+    }
+}
+Move* Position::CheckIfMoveFullLegal(Move* checkedmove){
     int PieceColor = GetSquareColor(checkedmove->From());
     if(toMove != PieceColor){
         std::cout << "wrong piece chosen (wrong color)\n";
         return NULL;
     }
-    Move *expectedmove = CheckMove(checkedmove->From(), checkedmove->To());
+    Move *expectedmove = CheckIfMovePseudoLegal(checkedmove->From(), checkedmove->To());
     if(NULL != expectedmove)
     {
-        if((expectedmove->Type() & PROMOTION_MOVE) && checkedmove->Promo() == EMPTY_SQUARE){
-            std::cout << "No promo char entered\n";
+        int takenPiece = MakeSoftMove(expectedmove);
+        int kingPos = 0;
+        toMove == WHITE ? kingPos = whiteKingPos : kingPos = blackKingPos;
+        bool ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
+        MakeSoftBack(expectedmove, takenPiece);
+        if(ownCheckAfter){
             delete expectedmove;
             return NULL;
-        } 
-        Position *newposition = new Position(this, expectedmove, checkedmove->Promo(), execute);
-        if(toMove == WHITE){
-            if(newposition->IsPlaceAttacked(newposition->whiteKingPos, newposition->toMove)){
-                delete newposition;
-                delete expectedmove;
-                return NULL;
-            }
         }
-        else{
-            if(newposition->IsPlaceAttacked(newposition->blackKingPos, newposition->toMove)){
-                delete newposition;
-                delete expectedmove;
-                return NULL;
-            }
-        }
-        delete expectedmove;
-        return newposition;
+        return expectedmove;
     }
+    return NULL;
+}
+
+Move* Position::CheckIfMovePseudoLegal(int from, int to){
+    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(from, this);
+
+    Move *expected = new Move(from, to, REGULAR_MOVE);
+    bool available = false;
+    for(auto m : *moves){
+        if(m == *expected){ 
+            available = true;
+            *expected = m;
+            break;
+        }
+    }
+    delete moves;
+    if(available){
+        return expected;
+    }
+    delete expected;
     return NULL;
 }
 
@@ -302,10 +349,10 @@ void Position::CheckCheck(){
 std::list<Move>* Position::GenerateAllLegalMoves(){
     std::list<Move>* moves = AllMovesGenerator::GenerateMoves(this);
     std::list<Move>* results = new std::list<Move>();
-    Position *temp;
+    Move *temp;
     auto it = moves->begin();
     while(it != moves->end()){
-        if((temp = CheckMove(&(*it), false))){
+        if((temp = CheckIfMoveFullLegal(&(*it)))){
             delete temp;
             results->push_back(*it);
         }
@@ -412,6 +459,7 @@ int Position::GetSquareValue(int column, int row) const{
     }
     return squares[11 + 10 * row + column];
 }
+
 int Position::GetSquareColor(int column, int row) const{
     int val = GetSquareValue(column, row);
     if(val == OUTSIDE_BOARD){
@@ -425,9 +473,11 @@ int Position::GetSquareColor(int column, int row) const{
 char Position::GetPiece(int index) const{
     return GetPieceSymbol(squares[index]);
 }
+
 int Position::GetSquareValue(int index) const{
     return squares[index];
 }
+
 int Position::GetSquareColor(int index) const{
     int val = GetSquareValue(index);
     if(val == OUTSIDE_BOARD){
@@ -436,26 +486,6 @@ int Position::GetSquareColor(int index) const{
     else{
         return sgn(squares[index]);
     }
-}
-
-Move* Position::CheckMove(int from, int to){
-    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(from, this);
-
-    Move *expected = new Move(from, to, REGULAR_MOVE);
-    bool available = false;
-    for(auto m : *moves){
-        if(m == *expected){ 
-            available = true;
-            *expected = m;
-            break;
-        }
-    }
-    delete moves;
-    if(available){
-        return expected;
-    }
-    delete expected;
-    return NULL;
 }
 
 bool Position::IsPlaceAttacked(int attackedplace, int attackingcolor){

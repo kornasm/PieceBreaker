@@ -23,13 +23,6 @@ int Not2Ind(std::string notation){
     return result;    
 }
 
-bool NotationValid(std::string pos){
-    if(pos.length() != 2){
-        return false;
-    }
-    return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
-}
-
 int row(int position){
     return (position - 10) / 10;
 }
@@ -37,6 +30,17 @@ int column(int position){
     return position % 10 - 1;
 }
 
+int ColRow2Ind(int column, int row){
+    return 11 + 10 * row + column;
+}
+
+
+bool NotationValid(std::string pos){
+    if(pos.length() != 2){
+        return false;
+    }
+    return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
+}
 int h(std::string hashed){
     long long sum = 0;
     for(unsigned int i = 0; i < hashed.length(); i++){

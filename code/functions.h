@@ -18,6 +18,8 @@ int Not2Ind(std::string notation);
 int row(int position);
 int column(int position);
 
+int ColRow2Ind(int column, int row);
+
 bool NotationValid(std::string pos);
 
 int h(std::string hashed);
