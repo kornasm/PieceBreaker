@@ -33,6 +33,9 @@ Position::Position(Position *pr, Move *m, int promo, bool execute){
     std::copy(pr->squares, pr->squares + 122, squares);
     whiteKingPos = pr->whiteKingPos;
     blackKingPos = pr->blackKingPos;
+    toMove = prev->toMove * (-1);
+    whcstl = prev->whcstl;
+    blcstl = prev->blcstl;
 
     squares[m->To()] = squares[m->From()];
     squares[m->From()] = EMPTY_SQUARE;
@@ -53,8 +56,7 @@ Position::Position(Position *pr, Move *m, int promo, bool execute){
         squares[m->To() - 2] = EMPTY_SQUARE;
     }
     if(m->Type() & PROMOTION_MOVE){
-        std::cout << "promo move update symbol" << std::endl;
-        if(squares[m->To() < 0]){
+        if(squares[m->To()] < 0){
             squares[m->To()] = -promo;
         }
         else{
@@ -62,9 +64,7 @@ Position::Position(Position *pr, Move *m, int promo, bool execute){
         }
     }
 
-    toMove = prev->toMove * (-1);
-    whcstl = prev->whcstl;
-    blcstl = prev->blcstl;
+    
     if(pr->toMove == WHITE){
         if(whcstl & SHORT_CASTLE_MOVE){
             if(m->From() == Not2Ind("e1") || m->From() == Not2Ind("h1")){
@@ -141,7 +141,7 @@ Position::Position(std::string fen){
                     break;
                 case 'k':
                     squares[mailbox[8 * i + j]] = BLACK_KING;
-                    blackKingPos = 8 * i + j;
+                    blackKingPos = mailbox[8 * i + j];
                     break;
                 case 'Q':
                     squares[mailbox[8 * i + j]] = WHITE_QUEEN;

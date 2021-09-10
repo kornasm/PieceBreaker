@@ -1,7 +1,7 @@
 #include "declarations.h"
 
-char PromotionSymbols[4] = {'R', 'N', 'B', 'Q'};
-int  PromotionAnswers[4] = { 2 ,  3 ,  4 ,  5 };
+char PromotionSymbols[4] = {'Q', 'R', 'N', 'B'};
+int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP};
 
 Move::Move(int f, int t, int tp, int pr) :from(f), to(t), type(tp), promo(pr){}
 
@@ -14,6 +14,7 @@ Move* Move::String2Move(std::string notation){
         for(int i = 0; i < 4; i++){
             if(promosymbol == PromotionSymbols[i]){
                 promo = PromotionAnswers[i];
+                break;
             }
         }
     }
@@ -42,6 +43,10 @@ void Move::IncreaseType(int i){
 
 std::ostream& operator <<(std::ostream& out, Move& move){
     out << "move from   " << Ind2Not(move.from) << "  to  " << Ind2Not(move.to);
-    out << "     type   " << move.type << '\n';
+    out << "     type   " << move.type;
+    if(move.promo != EMPTY_SQUARE){
+        out << "     promo    " << GetPieceSymbol(move.promo);
+    }
+    out << '\n';
     return out;
 }

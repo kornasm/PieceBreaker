@@ -86,4 +86,6 @@ class AllMovesGenerator{
         static std::list<Move>* GenerateMoves(Position *position);
 };
 
+void AddPromoMoves(std::list<Move>* list, Move baseMove, int color);
+
 #endif
