@@ -1,6 +1,9 @@
 #include "declarations.h"
+#include "functions.h"
+#include "movegenerators.h"
+#include "move.h"
 
-char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
+const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
 
 char GetPieceSymbol(int piece_number){
     return PiecesSymbols[piece_number + SYMBOLS_OFFSET];

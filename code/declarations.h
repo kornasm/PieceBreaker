@@ -1,17 +1,6 @@
 #ifndef DECLARATIONS_H_
 #define DECLARATIONS_H_
 
-#include "position.h"
-#include "functions.h"
-#include "movegenerators.h"
-#include "move.h"
-#include "node.h"
-
-#include<string>
-#include<iostream>
-#include <list>
-#include<algorithm>
-
 #define SYMBOLS_OFFSET 6
 #define NO_PIECES 13
 
@@ -44,5 +33,6 @@
 #define CAPTURE_MOVE 16
 #define EN_PASSANT_MOVE 32
 #define PROMOTION_MOVE 64
+
 
 #endif

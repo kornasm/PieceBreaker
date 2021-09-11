@@ -6,9 +6,11 @@
 class Position;
 class Move;
 
+extern const int mailbox[64];
+
 class MoveGenerator{
     public:
-        virtual std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        virtual std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             return new std::list<Move>();
         }
         static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position){
@@ -19,7 +21,8 @@ class MoveGenerator{
 
 class KingMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        static const int KingPossibleSquares[8];
+        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             return GenerateMoveListStatic(originSquare, position);
         }
         static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
@@ -27,7 +30,9 @@ class KingMoveGenerator: public MoveGenerator{
 
 class RookMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        static const int RookLeftSquares[7];
+        static const int RookUpSquares[7];
+        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             return GenerateMoveListStatic(originSquare, position);
         }
         static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
@@ -35,7 +40,9 @@ class RookMoveGenerator: public MoveGenerator{
 
 class BishopMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        static const int BishopUpRightSquares[7];
+        static const int BishopUpLeftSquares[7];
+        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             return GenerateMoveListStatic(originSquare, position);
         }
         static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
@@ -43,7 +50,8 @@ class BishopMoveGenerator: public MoveGenerator{
 
 class KnightMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        static const int KnightSquares[8];
+        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             return GenerateMoveListStatic(originSquare, position);
         }
         static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
@@ -51,7 +59,7 @@ class KnightMoveGenerator: public MoveGenerator{
 
 class QueenMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             return GenerateMoveListStatic(originSquare, position);
         }
         static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
@@ -59,7 +67,7 @@ class QueenMoveGenerator: public MoveGenerator{
 
 class WhitePawnMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             return GenerateMoveListStatic(originSquare, position);
         }
         static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
@@ -67,7 +75,7 @@ class WhitePawnMoveGenerator: public MoveGenerator{
 
 class BlackPawnMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             return GenerateMoveListStatic(originSquare, position);
         }
         static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
@@ -75,7 +83,7 @@ class BlackPawnMoveGenerator: public MoveGenerator{
 
 class EmptyMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position){
+        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
             //std::cout << "EmptyMoveGenerator::GenerateMoveListStatic() executed (bad index typed)\n";
             return new std::list<Move>();
         }

@@ -2,6 +2,7 @@
 #define MOVE_H_
 
 #include<iostream>
+#include<string>
 
 class Move{
     private:

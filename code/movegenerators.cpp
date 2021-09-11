@@ -1,14 +1,26 @@
+#include "movegenerators.h"
 #include "declarations.h"
+#include "position.h"
+#include "move.h"
+#include "functions.h"
+#include <array>
 
-int KingPossibleSquares[8] = {-11, -10, -9, -1, 1, 9, 10, 11};
-int RookLeftSquares[7] = {-1, -2, -3, -4, -5, -6, -7};
-int RookUpSquares[7] = {10, 20, 30, 40, 50, 60, 70};
-int BishopUpRightSquares[7] = {11, 22, 33, 44, 55, 66, 77};
-int BishopUpLeftSquares[7] = {9, 18, 27, 36, 45, 54, 63};
-int KnightSquares[8] = {-21, -19, -8, 12, 21, 19, 8, -12};
-extern int mailbox[64];
-extern MoveGenerator* generators[NO_PIECES + 1];
-extern char PiecesSymbols[NO_PIECES];
+/*MoveGenerator* gens[NO_PIECES + 1] = {new KingMoveGenerator(),new QueenMoveGenerator(),
+                                              new BishopMoveGenerator(),new KnightMoveGenerator(),
+                                              new RookMoveGenerator(),new BlackPawnMoveGenerator(),
+                                              new EmptyMoveGenerator(),new WhitePawnMoveGenerator(),
+                                              new RookMoveGenerator(),new KnightMoveGenerator(),
+                                              new BishopMoveGenerator(),new QueenMoveGenerator(),
+                                              new KingMoveGenerator(),new EmptyMoveGenerator()};//*/
+
+MoveGenerator* generators[NO_PIECES + 1];
+
+const int KingMoveGenerator::KingPossibleSquares[] = {-11, -10, -9, -1, 1, 9, 10, 11};
+const int RookMoveGenerator::RookLeftSquares[] = {-1, -2, -3, -4, -5, -6, -7};
+const int RookMoveGenerator::RookUpSquares[] = {10, 20, 30, 40, 50, 60, 70};
+const int BishopMoveGenerator::BishopUpRightSquares[] = {11, 22, 33, 44, 55, 66, 77};
+const int BishopMoveGenerator::BishopUpLeftSquares[] = {9, 18, 27, 36, 45, 54, 63};
+const int KnightMoveGenerator::KnightSquares[] = {-21, -19, -8, 12, 21, 19, 8, -12};
 
 std::list<Move>* KingMoveGenerator::GenerateMoveListStatic(int originSquare, Position* position){
     std::list<Move>* moves = new std::list<Move>();

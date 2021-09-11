@@ -3,10 +3,12 @@
 
 #include<string>
 #include<list>
-#include<memory>
+#include"declarations.h"
 
 enum GameResult{ONGOING, WHITE_WIN, DRAW, BLACK_WIN};
 class Move;
+class MoveGenerator;
+extern MoveGenerator* generators[NO_PIECES + 1];
 
 class Position{
     public:
@@ -25,7 +27,7 @@ class Position{
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7
         };
         int toMove;
-        int whcstl; // % 2 short, % 4 long
+        int whcstl;
         int blcstl;
         int enPassant;
         bool underCheck;

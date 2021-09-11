@@ -1,6 +1,10 @@
+#include "position.h"
+#include "movegenerators.h"
+#include "functions.h"
+#include "node.h"
 #include "declarations.h"
+#include "move.h"
 
-MoveGenerator* generators[NO_PIECES + 1];
 int main(){
     init(generators);
     Node *newgame = new Node();
