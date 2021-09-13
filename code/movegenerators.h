@@ -91,7 +91,7 @@ class EmptyMoveGenerator: public MoveGenerator{
 
 class AllMovesGenerator{
     public:
-        static std::list<Move>* GenerateMoves(Position *position);
+        static std::list<Move>* GenerateMoves(Position *position, bool inverted = false);
 };
 
 void AddPromoMoves(std::list<Move>* list, Move baseMove, int color);

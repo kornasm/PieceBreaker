@@ -11,9 +11,10 @@ class Move{
         int type;
         int promo;
     public:
+        static int count;
         Move(){}
         Move(int f, int t, int tp, int pr = 0);
-        ~Move(){}
+        ~Move(){count++;}
 
         static Move* String2Move(std::string);
 

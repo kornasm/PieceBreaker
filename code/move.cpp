@@ -1,7 +1,7 @@
 #include "declarations.h"
 #include "move.h"
 #include "functions.h"
-
+int Move::count = 0;
 const char PromotionSymbols[4] = {'Q', 'R', 'N', 'B'};
 const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP};
 

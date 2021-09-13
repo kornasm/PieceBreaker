@@ -1,7 +1,7 @@
 FLAGS= -Wall -std=c++17 -Wshadow
 
-all: main position functions generators move node
-	g++ ${FLAGS} -o PieceBreaker main.o position.o functions.o generators.o move.o node.o
+all: main position functions movegen move node movecheck
+	g++ ${FLAGS} -o PieceBreaker main.o position.o functions.o generators.o move.o node.o movecheck.o
 
 main: main.cpp
 	g++ ${FLAGS} -o main.o -c main.cpp
@@ -12,7 +12,7 @@ position: position.cpp
 functions: functions.cpp
 	g++ ${FLAGS} -o functions.o -c functions.cpp
 
-generators: movegenerators.cpp
+movegen: movegenerators.cpp
 	g++ ${FLAGS} -o generators.o -c movegenerators.cpp
 
 move: move.cpp
@@ -20,6 +20,9 @@ move: move.cpp
 
 node: node.cpp
 	g++ ${FLAGS} -o node.o -c node.cpp
+
+movecheck: movecheck.cpp
+	g++ ${FLAGS} -o movecheck.o -c movecheck.cpp
 
 .PHONY: clean
 

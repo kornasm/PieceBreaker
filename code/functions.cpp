@@ -2,6 +2,8 @@
 #include "functions.h"
 #include "movegenerators.h"
 #include "move.h"
+#include "movecheck.h"
+#include "position.h"
 
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
 
@@ -55,6 +57,7 @@ int h(std::string hashed){
 }
 
 void init(MoveGenerator* gens[]){
+    MoveCheckHandler::Init();
     gens[0] = new KingMoveGenerator();
     gens[1] = new QueenMoveGenerator();
     gens[2] = new BishopMoveGenerator();
@@ -76,6 +79,7 @@ void cleanup(MoveGenerator* gens[]){
     for(int i = 0; i <= NO_PIECES; i++){
         delete gens[i];
     }
+    MoveCheckHandler::cleanup();
     return;
 }
 
@@ -87,4 +91,36 @@ void PrintMoveList(std::list<Move>* moves){
         it++;
     }
     std::cout << '\n';
+}
+
+bool InBetweenEmpty(Position* pos, int from, int to, bool checkForRook, bool checkForBishop){
+    if(from == to){
+        return false;
+    }
+    int colfrom = column(from), colto = column(to);
+    int rowfrom = row(from), rowto = row(to);
+    int coldiff = column(to) - column(from);
+    int rowdiff = row(to) - row(from);
+    if(checkForRook == false){
+        if(coldiff == 0 || rowdiff == 0){
+            return false;
+        }
+    }
+    if(checkForBishop == false){
+        if(std::abs(coldiff) == std::abs(rowdiff)){
+            return false;
+        }
+    }
+    int coltemp = colfrom, rowtemp = rowfrom;
+    int dircol = sgn(coldiff), dirrow = sgn(rowdiff);
+    while(true){
+        coltemp += dircol;
+        rowtemp += dirrow;
+        if(coltemp == colto && rowtemp == rowto){
+            return true;
+        }
+        if(pos->GetSquareColor(coltemp, rowtemp) != EMPTY_SQUARE){
+            return false;
+        }
+    }
 }

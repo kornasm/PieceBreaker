@@ -50,7 +50,7 @@ class Position{
         
         void ShowBoard() const;
         Position* MakeMove(Move* checkedmove, bool execute = true);
-        Move* CheckIfMoveFullLegal(Move* checkedmove);
+        Move* CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty = false);
         Move* CheckIfMovePseudoLegal(int from, int to);
         int MakeSoftMove(Move *toExecute);
         void MakeSoftBack(Move *toExecute, int takenPiece);

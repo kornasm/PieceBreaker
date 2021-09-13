@@ -6,6 +6,7 @@
 
 class MoveGenerator;
 class Move;
+class Position;
 
 char GetPieceSymbol(int piece_number);
 
@@ -28,5 +29,7 @@ void init(MoveGenerator* gens[]);
 void cleanup(MoveGenerator* gens[]);
 
 void PrintMoveList(std::list<Move>* moves);
+
+bool InBetweenEmpty(Position* pos, int from, int to, bool checkForRook = false, bool checkForBishop = false);
 
 #endif

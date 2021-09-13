@@ -273,11 +273,15 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveListStatic(int originSquare
     return moves;
 }
 
-std::list<Move>* AllMovesGenerator::GenerateMoves(Position *position){
+std::list<Move>* AllMovesGenerator::GenerateMoves(Position *position, bool inverted){
     std::list<Move> *moves = new std::list<Move>();
     for(int i = 0; i < 64; i++){
         int ind = mailbox[i];
-        if(position->GetSquareColor(ind) == position->toMove){
+        int movingColor = position->toMove;
+        if(inverted){
+            movingColor *= (-1);
+        }
+        if(position->GetSquareColor(ind) == movingColor){
             std::list<Move> *m = generators[position->GetSquareValue(ind) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, position);
             moves->splice(moves->end(), *m);
             delete m;

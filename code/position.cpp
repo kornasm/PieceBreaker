@@ -2,6 +2,7 @@
 #include "movegenerators.h"
 #include "functions.h"
 #include "move.h"
+#include "movecheck.h"
 
 const int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
                          32, 33, 34, 35, 36, 37, 38, 39,
@@ -248,11 +249,13 @@ void Position::ShowBoard() const{
     return;
 }
 
-Position* Position::MakeMove(Move *checkedmove, bool execute){
-    Move *expectedmove = CheckIfMoveFullLegal(checkedmove);
+Position* Position::MakeMove(Move *toExecute, bool execute){
+    std::cout << "before move    " << Move::count << '\n';
+    Move *expectedmove = CheckIfMoveFullLegal(toExecute);
+    std::cout << "checkpoint3    " << Move::count << '\n';
     if(NULL != expectedmove)
     {
-        Position *newposition = new Position(this, expectedmove, checkedmove->Promo(), execute);
+        Position *newposition = new Position(this, expectedmove, toExecute->Promo(), execute);
         std::cout << "created new position   " << newposition << '\n';
         delete expectedmove;
         return newposition;
@@ -287,19 +290,28 @@ void Position::MakeSoftBack(Move *toExecute, int takenPiece){
         }
     }
 }
-Move* Position::CheckIfMoveFullLegal(Move* checkedmove){
+Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty){
     int PieceColor = GetSquareColor(checkedmove->From());
     if(toMove != PieceColor){
         std::cout << "wrong piece chosen (wrong color)\n";
         return NULL;
     }
-    Move *expectedmove = CheckIfMovePseudoLegal(checkedmove->From(), checkedmove->To());
+    Move *expectedmove = NULL;
+    if(pseudoLegalWarranty){
+        expectedmove = new Move(*checkedmove);
+    }
+    else{
+        expectedmove = CheckIfMovePseudoLegal(checkedmove->From(), checkedmove->To());
+    }
+    std::cout << "checkpoint1    " << Move::count << '\n';
     if(NULL != expectedmove)
     {
         int takenPiece = MakeSoftMove(expectedmove);
         int kingPos = 0;
         toMove == WHITE ? kingPos = whiteKingPos : kingPos = blackKingPos;
+        std::cout << "own check check\n";
         bool ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
+        std::cout << "checkpoint2    " << Move::count << '\n';
         MakeSoftBack(expectedmove, takenPiece);
         if(ownCheckAfter){
             delete expectedmove;
@@ -311,10 +323,11 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove){
 }
 
 Move* Position::CheckIfMovePseudoLegal(int from, int to){
-    std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(from, this);
+    //std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(from, this);
+    Move *expected = MoveCheckHandler::CheckMove(this, from, to);
 
-    Move *expected = new Move(from, to, REGULAR_MOVE);
-    bool available = false;
+    //Move *expected = new Move(from, to, REGULAR_MOVE);
+    /*bool available = false;
     for(auto m : *moves){
         if(m == *expected){ 
             available = true;
@@ -327,7 +340,8 @@ Move* Position::CheckIfMovePseudoLegal(int from, int to){
         return expected;
     }
     delete expected;
-    return NULL;
+    return NULL;//*/
+    return expected;
 }
 
 void Position::CheckCheck(){
@@ -355,7 +369,8 @@ std::list<Move>* Position::GenerateAllLegalMoves(){
     Move *temp;
     auto it = moves->begin();
     while(it != moves->end()){
-        if((temp = CheckIfMoveFullLegal(&(*it)))){
+        if((temp = CheckIfMoveFullLegal(&(*it), false))){
+            std::cout << "checkpoint GenerateLegal   " << Move::count << '\n';
             delete temp;
             results->push_back(*it);
         }
@@ -395,8 +410,10 @@ void Position::CheckEndings(){
             current = current->prev;
         }
     }
-
+    std::cout << "checkpoint echeck endings 1  " << Move::count << '\n';
     std::list<Move>* possiblemoves = GenerateAllLegalMoves();
+    //std::list<Move>* possiblemoves{NULL};
+    std::cout << "checkpoint echeck endings 1  " << Move::count << '\n';
     if(possiblemoves->size() == 0){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){
@@ -492,20 +509,28 @@ int Position::GetSquareColor(int index) const{
 }
 
 bool Position::IsPlaceAttacked(int attackedplace, int attackingcolor){
+    std::cout << "is place   " << Ind2Not(attackedplace) << "   attacked entry   " << Move::count << '\n';
     bool answer = false;
     for(int i = 0; i < 64 && answer == false; i++){
         int ind = mailbox[i];
         if(GetSquareColor(ind) == attackingcolor){
-            std::list<Move>* moves = generators[squares[ind] + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, this);
-            auto it = moves->begin();
-            while(it != moves->end()){
+            //std::list<Move>* moves = generators[squares[ind] + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, this);
+            //auto it = moves->begin();
+            /*while(it != moves->end()){
                 if(it->To() == attackedplace){
                     answer = true;
                 }
                 ++it;
             }
-            delete moves;
+            delete moves;//*/
+            Move *m = MoveCheckHandler::CheckMove(this, ind, attackedplace);
+            if(m != NULL){
+                std::cout << *m;
+                delete m;
+                return true;
+            }
         }
     }
+    std::cout << "is place attacked exit   " << Move::count << '\n';
     return answer;
 }
