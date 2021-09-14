@@ -1,7 +1,7 @@
 #include "declarations.h"
 #include "move.h"
 #include "functions.h"
-int Move::count = 0;
+
 const char PromotionSymbols[4] = {'Q', 'R', 'N', 'B'};
 const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP};
 
@@ -33,21 +33,16 @@ bool Move::operator ==(Move o) const{
 }
 
 void Move::IncreaseType(int i){
-    /*int typetemp = type % (2 * i);
-
-    if(typetemp < i){
-        type += i;
-    }//*/
     if((type & i) == 0){
         type |= i;
     }
 }
 
-std::ostream& operator <<(std::ostream& out, Move& move){
-    out << "move from   " << Ind2Not(move.from) << "  to  " << Ind2Not(move.to);
-    out << "     type   " << move.type;
-    if(move.promo != EMPTY_SQUARE){
-        out << "     promo    " << GetPieceSymbol(move.promo);
+std::ostream& operator <<(std::ostream& out, const Move& move){
+    out << "move  " << Ind2Not(move.From()) << Ind2Not(move.To());
+    out << "     type   " << move.Type();
+    if(move.Promo() != EMPTY_SQUARE){
+        out << "     promo    " << GetPieceSymbol(move.Promo());
     }
     out << '\n';
     return out;

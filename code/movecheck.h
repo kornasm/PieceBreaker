@@ -2,7 +2,7 @@
 #define MOVECHECK_H_
 
 #include "declarations.h"
-#include "functions.h"
+#include <cstddef>
 
 class Position;
 class Move;
@@ -61,7 +61,7 @@ class MoveCheckHandler{
     static MoveChecker* checkers[NO_PIECES + 1];
     public:
         static void Init();
-        static void cleanup();
+        static void Cleanup();
         static Move* CheckMove(Position* position, int from, int to);
 };
 

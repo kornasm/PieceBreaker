@@ -8,7 +8,7 @@
 enum GameResult{ONGOING, WHITE_WIN, DRAW, BLACK_WIN};
 class Move;
 class MoveGenerator;
-extern MoveGenerator* generators[NO_PIECES + 1];
+//extern MoveGenerator* generators[NO_PIECES + 1];
 
 class Position{
     public:

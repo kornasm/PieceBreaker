@@ -2,11 +2,10 @@
 #include "movegenerators.h"
 #include "functions.h"
 #include "node.h"
-#include "declarations.h"
 #include "move.h"
 
 int main(){
-    init(generators);
+    init();
     Node *newgame = new Node();
     Node *current = newgame;
     int gamestate = 1;
@@ -54,7 +53,7 @@ int main(){
                 std::cin >> notation;
                 int square = Not2Ind(notation);
                 if(NotationValid(notation)){
-                    std::list<Move>* movestemp = generators[current->position->GetSquareValue(square) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(square, newgame->position);
+                    std::list<Move>* movestemp = MoveGeneratorHandler::GenerateMoves(square, newgame->position);
                     auto itt = movestemp->begin();
                     while(itt != movestemp->end()){
                         std::cout << *itt;
@@ -80,14 +79,15 @@ int main(){
                 std::cout << "black king           " << Ind2Not(current->position->blackKingPos) << '\n';
                 std::cout << "white castl          " << current->position->whcstl << '\n';
                 std::cout << "black castl          " << current->position->blcstl << '\n';
-                std::cout << "en passant           " << current->position->enPassant << '\n';
+                std::cout << "en passant           " << Ind2Not(current->position->enPassant) << '\n';
                 std::cout << "is check             " << current->position->underCheck << '\n';
                 std::cout << "half move clock      " << current->position->halfMoveClock << '\n';
                 std::cout << "pos hash             " << current->position->positionHash << '\n';
+                std::cout << "to move              " << current->position->toMove << '\n';
                 break;
             }
         }//*/
     }
     delete newgame;
-    cleanup(generators);
+    cleanup();
 }

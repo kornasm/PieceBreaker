@@ -25,8 +25,8 @@ bool NotationValid(std::string pos);
 
 int h(std::string hashed);
 
-void init(MoveGenerator* gens[]);
-void cleanup(MoveGenerator* gens[]);
+void init();
+void cleanup();
 
 void PrintMoveList(std::list<Move>* moves);
 

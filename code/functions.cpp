@@ -1,9 +1,9 @@
-#include "declarations.h"
 #include "functions.h"
 #include "movegenerators.h"
 #include "move.h"
 #include "movecheck.h"
 #include "position.h"
+#include <cmath>
 
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
 
@@ -56,30 +56,15 @@ int h(std::string hashed){
     return sum;
 }
 
-void init(MoveGenerator* gens[]){
+void init(){
     MoveCheckHandler::Init();
-    gens[0] = new KingMoveGenerator();
-    gens[1] = new QueenMoveGenerator();
-    gens[2] = new BishopMoveGenerator();
-    gens[3] = new KnightMoveGenerator();
-    gens[4] = new RookMoveGenerator();
-    gens[5] = new BlackPawnMoveGenerator();
-    gens[6] = new EmptyMoveGenerator();
-    gens[7] = new WhitePawnMoveGenerator();
-    gens[8] = new RookMoveGenerator();
-    gens[9] = new KnightMoveGenerator();
-    gens[10] = new BishopMoveGenerator();
-    gens[11] = new QueenMoveGenerator();
-    gens[12] = new KingMoveGenerator();
-    gens[13] = new EmptyMoveGenerator();
+    MoveGeneratorHandler::Init();
     return;
 }
 
-void cleanup(MoveGenerator* gens[]){
-    for(int i = 0; i <= NO_PIECES; i++){
-        delete gens[i];
-    }
-    MoveCheckHandler::cleanup();
+void cleanup(){
+    MoveGeneratorHandler::Cleanup();
+    MoveCheckHandler::Cleanup();
     return;
 }
 

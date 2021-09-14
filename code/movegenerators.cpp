@@ -1,19 +1,7 @@
 #include "movegenerators.h"
-#include "declarations.h"
 #include "position.h"
 #include "move.h"
 #include "functions.h"
-#include <array>
-
-/*MoveGenerator* gens[NO_PIECES + 1] = {new KingMoveGenerator(),new QueenMoveGenerator(),
-                                              new BishopMoveGenerator(),new KnightMoveGenerator(),
-                                              new RookMoveGenerator(),new BlackPawnMoveGenerator(),
-                                              new EmptyMoveGenerator(),new WhitePawnMoveGenerator(),
-                                              new RookMoveGenerator(),new KnightMoveGenerator(),
-                                              new BishopMoveGenerator(),new QueenMoveGenerator(),
-                                              new KingMoveGenerator(),new EmptyMoveGenerator()};//*/
-
-MoveGenerator* generators[NO_PIECES + 1];
 
 const int KingMoveGenerator::KingPossibleSquares[] = {-11, -10, -9, -1, 1, 9, 10, 11};
 const int RookMoveGenerator::RookLeftSquares[] = {-1, -2, -3, -4, -5, -6, -7};
@@ -22,7 +10,35 @@ const int BishopMoveGenerator::BishopUpRightSquares[] = {11, 22, 33, 44, 55, 66,
 const int BishopMoveGenerator::BishopUpLeftSquares[] = {9, 18, 27, 36, 45, 54, 63};
 const int KnightMoveGenerator::KnightSquares[] = {-21, -19, -8, 12, 21, 19, 8, -12};
 
-std::list<Move>* KingMoveGenerator::GenerateMoveListStatic(int originSquare, Position* position){
+MoveGenerator* MoveGeneratorHandler::generators[] = {};
+void MoveGeneratorHandler::Init(){
+    generators[0] = new KingMoveGenerator();
+    generators[1] = new QueenMoveGenerator();
+    generators[2] = new BishopMoveGenerator();
+    generators[3] = new KnightMoveGenerator();
+    generators[4] = new RookMoveGenerator();
+    generators[5] = new BlackPawnMoveGenerator();
+    generators[6] = new EmptyMoveGenerator();
+    generators[7] = new WhitePawnMoveGenerator();
+    generators[8] = new RookMoveGenerator();
+    generators[9] = new KnightMoveGenerator();
+    generators[10] = new BishopMoveGenerator();
+    generators[11] = new QueenMoveGenerator();
+    generators[12] = new KingMoveGenerator();
+    generators[13] = new EmptyMoveGenerator();
+}
+
+void MoveGeneratorHandler::Cleanup(){
+    for(auto movegen : generators){
+        delete movegen;
+    }
+}
+
+std::list<Move>* MoveGeneratorHandler::GenerateMoves(int originSquare, Position* position){
+    return generators[position->GetSquareValue(originSquare) + SYMBOLS_OFFSET]->GenerateMoveList(originSquare, position);
+}
+
+std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, Position* position){
     std::list<Move>* moves = new std::list<Move>();
     for(auto move : KingPossibleSquares){
         if(position->GetSquareValue(originSquare + move) != OUTSIDE_BOARD && 
@@ -75,7 +91,7 @@ std::list<Move>* KingMoveGenerator::GenerateMoveListStatic(int originSquare, Pos
     return moves;
 }
 
-std::list<Move>* RookMoveGenerator::GenerateMoveListStatic(int originSquare, Position* position){
+std::list<Move>* RookMoveGenerator::GenerateMoveList(int originSquare, Position* position) const{
     std::list<Move>* moves = new std::list<Move>();
     for(auto move : RookLeftSquares){
         int TargetColor = position->GetSquareColor(originSquare + move);
@@ -120,7 +136,7 @@ std::list<Move>* RookMoveGenerator::GenerateMoveListStatic(int originSquare, Pos
     return moves; 
 }
 
-std::list<Move>* BishopMoveGenerator::GenerateMoveListStatic(int originSquare, Position* position){
+std::list<Move>* BishopMoveGenerator::GenerateMoveList(int originSquare, Position* position) const{
     std::list<Move> *moves = new std::list<Move>();
     for(auto move : BishopUpRightSquares){
         int TargetColor = position->GetSquareColor(originSquare + move);
@@ -165,15 +181,15 @@ std::list<Move>* BishopMoveGenerator::GenerateMoveListStatic(int originSquare, P
     return moves;
 }
 
-std::list<Move>* QueenMoveGenerator::GenerateMoveListStatic(int originSquare, Position* position){
-    std::list<Move>* rookmoves = RookMoveGenerator::GenerateMoveListStatic(originSquare, position);
-    std::list<Move>* bishmoves = BishopMoveGenerator::GenerateMoveListStatic(originSquare, position);
+std::list<Move>* QueenMoveGenerator::GenerateMoveList(int originSquare, Position* position) const{
+    std::list<Move>* rookmoves = RookMoveGenerator().GenerateMoveList(originSquare, position);
+    std::list<Move>* bishmoves = BishopMoveGenerator().GenerateMoveList(originSquare, position);
     rookmoves->splice(rookmoves->end(), *bishmoves);
     delete bishmoves;
     return rookmoves;
 }
 
-std::list<Move>* KnightMoveGenerator::GenerateMoveListStatic(int originSquare, Position* position){
+std::list<Move>* KnightMoveGenerator::GenerateMoveList(int originSquare, Position* position) const{
     std::list<Move>* moves = new std::list<Move>();
     for(auto move : KnightSquares){
         if(position->GetSquareValue(originSquare + move) != OUTSIDE_BOARD && 
@@ -184,7 +200,7 @@ std::list<Move>* KnightMoveGenerator::GenerateMoveListStatic(int originSquare, P
     return moves;
 }
 
-std::list<Move>* WhitePawnMoveGenerator::GenerateMoveListStatic(int originSquare, Position* position){
+std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, Position* position) const{
     std::list<Move>* moves = new std::list<Move>();
     if(position->GetSquareColor(originSquare + 10) == EMPTY_SQUARE){
         Move m(originSquare, originSquare + 10, PAWN_MOVE | (position->GetSquareColor(originSquare + 10) != EMPTY_SQUARE));
@@ -228,7 +244,7 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveListStatic(int originSquare
     return moves;
 }
 
-std::list<Move>* BlackPawnMoveGenerator::GenerateMoveListStatic(int originSquare, Position* position){
+std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, Position* position) const{
     std::list<Move>* moves = new std::list<Move>();
     if(position->GetSquareColor(originSquare - 10) == EMPTY_SQUARE){
         Move m(originSquare, originSquare - 10, PAWN_MOVE | (position->GetSquareColor(originSquare - 10) != EMPTY_SQUARE));
@@ -282,7 +298,8 @@ std::list<Move>* AllMovesGenerator::GenerateMoves(Position *position, bool inver
             movingColor *= (-1);
         }
         if(position->GetSquareColor(ind) == movingColor){
-            std::list<Move> *m = generators[position->GetSquareValue(ind) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, position);
+            std::list<Move> *m = MoveGeneratorHandler::GenerateMoves(ind, position);
+             //generators[position->GetSquareValue(ind) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, position);
             moves->splice(moves->end(), *m);
             delete m;
         }
@@ -291,12 +308,12 @@ std::list<Move>* AllMovesGenerator::GenerateMoves(Position *position, bool inver
 }
 
 void AddPromoMoves(std::list<Move>* moves, Move baseMove, int color){
-    baseMove.Promo() = WHITE_ROOK * color;
+    baseMove.SetPromo(WHITE_ROOK * color);
     moves->push_back(baseMove);
-    baseMove.Promo() = WHITE_BISHOP * color;
+    baseMove.SetPromo(WHITE_BISHOP * color);
     moves->push_back(baseMove);
-    baseMove.Promo() = WHITE_QUEEN * color;
+    baseMove.SetPromo(WHITE_QUEEN * color);
     moves->push_back(baseMove);
-    baseMove.Promo() = WHITE_KNIGHT * color;
+    baseMove.SetPromo(WHITE_KNIGHT * color);
     moves->push_back(baseMove);
 }

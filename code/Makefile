@@ -1,4 +1,4 @@
-FLAGS= -Wall -std=c++17 -Wshadow
+FLAGS= -Wall -std=c++17 -Wshadow -Wextra -Wno-unused-parameter -O2
 
 all: main position functions movegen move node movecheck
 	g++ ${FLAGS} -o PieceBreaker main.o position.o functions.o generators.o move.o node.o movecheck.o

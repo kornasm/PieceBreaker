@@ -1,8 +1,9 @@
 #include "position.h"
-#include "movegenerators.h"
 #include "functions.h"
 #include "move.h"
 #include "movecheck.h"
+#include "movegenerators.h"
+#include <cmath>
 
 const int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
                          32, 33, 34, 35, 36, 37, 38, 39,
@@ -127,13 +128,10 @@ Position::Position(std::string fen){
     while(fen[0] == ' '){
         fen.erase(0, 1);
     }
-    //std::cout << "full fen    #" << fen << '#' << '\n';
     int ind = fen.find(' ');
-    //std::cout << ind << '\n';
     std::string fentemp = fen.substr(0, ind);
     fen.erase(0, ind + 1);
-    //std::cout << "first cut   #" << fentemp << '#' << '\n';
-    
+
     unsigned int index = 0;
     for(int i = 7; i >= 0; i--){
         int j = 0;
@@ -193,10 +191,8 @@ Position::Position(std::string fen){
         }
         index++;
     }
-    //std::cout << fen << '\n';
     fen[0] == 'w'? toMove = WHITE : toMove = BLACK;
     fen.erase(0, 2);
-    //std::cout << fen << "!\n";
     fentemp = fen.substr(0, fen.find(' '));
     whcstl = 0;
     blcstl = 0;
@@ -209,7 +205,6 @@ Position::Position(std::string fen){
     if(fentemp.find('q') != std::string::npos) 
         blcstl |= LONG_CASTLE_MOVE;
     fen.erase(0, fentemp.length() + 1);
-    //std::cout << fen << "!\n";
     fen[0] == '-' ? enPassant = -1 : enPassant = Not2Ind(fen.substr(0, 2));
     fen.erase(0,fen.find(' ') + 1);
     if(fen[1] != ' '){
@@ -219,7 +214,6 @@ Position::Position(std::string fen){
         halfMoveClock = (int)(fen[0]) - '0';
     }
     fen.erase(0, fen.find(' ') + 1);
-    //std::cout << fen << "!\n";
     fullMoveCounter = 1;
     for(uint i = 0; i < fen.length(); i++){
         fullMoveCounter *= 10;
@@ -250,13 +244,10 @@ void Position::ShowBoard() const{
 }
 
 Position* Position::MakeMove(Move *toExecute, bool execute){
-    std::cout << "before move    " << Move::count << '\n';
     Move *expectedmove = CheckIfMoveFullLegal(toExecute);
-    std::cout << "checkpoint3    " << Move::count << '\n';
     if(NULL != expectedmove)
     {
         Position *newposition = new Position(this, expectedmove, toExecute->Promo(), execute);
-        std::cout << "created new position   " << newposition << '\n';
         delete expectedmove;
         return newposition;
     }
@@ -303,15 +294,12 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
     else{
         expectedmove = CheckIfMovePseudoLegal(checkedmove->From(), checkedmove->To());
     }
-    std::cout << "checkpoint1    " << Move::count << '\n';
     if(NULL != expectedmove)
     {
         int takenPiece = MakeSoftMove(expectedmove);
         int kingPos = 0;
         toMove == WHITE ? kingPos = whiteKingPos : kingPos = blackKingPos;
-        std::cout << "own check check\n";
         bool ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
-        std::cout << "checkpoint2    " << Move::count << '\n';
         MakeSoftBack(expectedmove, takenPiece);
         if(ownCheckAfter){
             delete expectedmove;
@@ -323,24 +311,7 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
 }
 
 Move* Position::CheckIfMovePseudoLegal(int from, int to){
-    //std::list<Move>* moves = generators[this->GetSquareValue(from) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(from, this);
     Move *expected = MoveCheckHandler::CheckMove(this, from, to);
-
-    //Move *expected = new Move(from, to, REGULAR_MOVE);
-    /*bool available = false;
-    for(auto m : *moves){
-        if(m == *expected){ 
-            available = true;
-            *expected = m;
-            break;
-        }
-    }
-    delete moves;
-    if(available){
-        return expected;
-    }
-    delete expected;
-    return NULL;//*/
     return expected;
 }
 
@@ -370,7 +341,6 @@ std::list<Move>* Position::GenerateAllLegalMoves(){
     auto it = moves->begin();
     while(it != moves->end()){
         if((temp = CheckIfMoveFullLegal(&(*it), false))){
-            std::cout << "checkpoint GenerateLegal   " << Move::count << '\n';
             delete temp;
             results->push_back(*it);
         }
@@ -410,10 +380,7 @@ void Position::CheckEndings(){
             current = current->prev;
         }
     }
-    std::cout << "checkpoint echeck endings 1  " << Move::count << '\n';
     std::list<Move>* possiblemoves = GenerateAllLegalMoves();
-    //std::list<Move>* possiblemoves{NULL};
-    std::cout << "checkpoint echeck endings 1  " << Move::count << '\n';
     if(possiblemoves->size() == 0){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){
@@ -509,28 +476,16 @@ int Position::GetSquareColor(int index) const{
 }
 
 bool Position::IsPlaceAttacked(int attackedplace, int attackingcolor){
-    std::cout << "is place   " << Ind2Not(attackedplace) << "   attacked entry   " << Move::count << '\n';
     bool answer = false;
     for(int i = 0; i < 64 && answer == false; i++){
         int ind = mailbox[i];
         if(GetSquareColor(ind) == attackingcolor){
-            //std::list<Move>* moves = generators[squares[ind] + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, this);
-            //auto it = moves->begin();
-            /*while(it != moves->end()){
-                if(it->To() == attackedplace){
-                    answer = true;
-                }
-                ++it;
-            }
-            delete moves;//*/
             Move *m = MoveCheckHandler::CheckMove(this, ind, attackedplace);
             if(m != NULL){
-                std::cout << *m;
                 delete m;
                 return true;
             }
         }
     }
-    std::cout << "is place attacked exit   " << Move::count << '\n';
     return answer;
 }

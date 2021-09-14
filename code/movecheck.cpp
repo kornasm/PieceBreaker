@@ -2,8 +2,8 @@
 #include "position.h"
 #include "move.h"
 #include "movegenerators.h"
-#include <algorithm>
-#include <list>
+#include "functions.h"
+#include <cmath>
 
 MoveChecker* MoveCheckHandler::checkers[] = {};
 
@@ -24,7 +24,7 @@ void MoveCheckHandler::Init(){
     checkers[13] = new EmptyMoveChecker();
 }
 
-void MoveCheckHandler::cleanup(){
+void MoveCheckHandler::Cleanup(){
     for(auto m : checkers){
         delete m;
     }
@@ -190,7 +190,7 @@ Move* BlackPawnMoveChecker::CheckMoveLegality(Position *position, int from, int 
         }
     }
     if(to == from - 9 || to == from - 11){
-        if(position->GetSquareColor(to) == BLACK){
+        if(position->GetSquareColor(to) == WHITE){
             return new Move(from, to, PAWN_MOVE | CAPTURE_MOVE);
         }
     }

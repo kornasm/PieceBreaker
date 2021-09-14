@@ -11,22 +11,22 @@ class Move{
         int type;
         int promo;
     public:
-        static int count;
         Move(){}
         Move(int f, int t, int tp, int pr = 0);
-        ~Move(){count++;}
+        ~Move(){}
 
         static Move* String2Move(std::string);
 
-        int From() { return from; }
-        int To() { return to; }
-        int Type() { return type; }
-        int& Promo() { return promo; }
+        int From() const { return from; }
+        int To() const { return to; }
+        int Type() const { return type; }
+        int Promo() const { return promo; }
+        void SetPromo(int val) { promo = val; }
         void IncreaseType(int i);
         bool operator ==(Move o) const;
-        friend std::ostream& operator <<(std::ostream& out, Move& move);
+        friend std::ostream& operator <<(std::ostream& out, const Move& move);
 };
 
-std::ostream& operator <<(std::ostream& out, Move& move);
+std::ostream& operator <<(std::ostream& out, const Move& move);
 
 #endif

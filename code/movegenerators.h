@@ -3,6 +3,8 @@
 
 #include<list>
 #include<iostream>
+#include "declarations.h"
+
 class Position;
 class Move;
 
@@ -10,81 +12,60 @@ extern const int mailbox[64];
 
 class MoveGenerator{
     public:
-        virtual std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            return new std::list<Move>();
-        }
-        static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position){
+        virtual std::list<Move>* GenerateMoveList(int originSquare, Position* position) const{
             return new std::list<Move>();
         }
         virtual ~MoveGenerator(){};
 };
 
 class KingMoveGenerator: public MoveGenerator{
-    public:
+    private:
         static const int KingPossibleSquares[8];
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            return GenerateMoveListStatic(originSquare, position);
-        }
-        static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
+    public:
+        std::list<Move>* GenerateMoveList(int originSquare, Position* position);
 };
 
 class RookMoveGenerator: public MoveGenerator{
     public:
         static const int RookLeftSquares[7];
         static const int RookUpSquares[7];
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            return GenerateMoveListStatic(originSquare, position);
-        }
-        static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
+    public:
+        std::list<Move>* GenerateMoveList(int originSquare, Position* position) const;
 };
 
 class BishopMoveGenerator: public MoveGenerator{
     public:
         static const int BishopUpRightSquares[7];
         static const int BishopUpLeftSquares[7];
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            return GenerateMoveListStatic(originSquare, position);
-        }
-        static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
+    public:
+        std::list<Move>* GenerateMoveList(int originSquare, Position* position) const;
 };
 
 class KnightMoveGenerator: public MoveGenerator{
     public:
         static const int KnightSquares[8];
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            return GenerateMoveListStatic(originSquare, position);
-        }
-        static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
+    public:
+        std::list<Move>* GenerateMoveList(int originSquare, Position* position) const;
 };
 
 class QueenMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            return GenerateMoveListStatic(originSquare, position);
-        }
-        static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
+        std::list<Move>* GenerateMoveList(int originSquare, Position* position) const;
 };
 
 class WhitePawnMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            return GenerateMoveListStatic(originSquare, position);
-        }
-        static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
+        std::list<Move>* GenerateMoveList(int originSquare, Position* position) const;
 };
 
 class BlackPawnMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            return GenerateMoveListStatic(originSquare, position);
-        }
-        static std::list<Move>* GenerateMoveListStatic(int originSquare, Position* position);
+        std::list<Move>* GenerateMoveList(int originSquare, Position* position) const;
 };
 
 class EmptyMoveGenerator: public MoveGenerator{
     public:
-        std::list<Move>* GenerateMoveListVirtual(int originSquare, Position* position) const{
-            //std::cout << "EmptyMoveGenerator::GenerateMoveListStatic() executed (bad index typed)\n";
+        std::list<Move>* GenerateMoveList(int originSquare, Position* position) const{
             return new std::list<Move>();
         }
 };
@@ -95,5 +76,14 @@ class AllMovesGenerator{
 };
 
 void AddPromoMoves(std::list<Move>* list, Move baseMove, int color);
+
+class MoveGeneratorHandler{
+    private:
+        static MoveGenerator* generators[NO_PIECES + 1];
+    public:
+        static void Init();
+        static void Cleanup();
+        static std::list<Move>* GenerateMoves(int originSquare, Position* position);
+};
 
 #endif
