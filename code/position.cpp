@@ -32,12 +32,12 @@ Position::Position(){
     CalculatePositionHash();
 }
 
-Position::Position(Position *pr, Move *m, int promo, bool execute){
-    prev = pr;
+Position::Position(Position& pr, Move *m, int promo, bool execute){
+    prev = &pr;
 
-    std::copy(pr->squares, pr->squares + 122, squares);
-    whiteKingPos = pr->whiteKingPos;
-    blackKingPos = pr->blackKingPos;
+    std::copy(prev->squares, prev->squares + 122, squares);
+    whiteKingPos = pr.whiteKingPos;
+    blackKingPos = pr.blackKingPos;
     toMove = prev->toMove * (-1);
     whcstl = prev->whcstl;
     blcstl = prev->blcstl;
@@ -70,7 +70,7 @@ Position::Position(Position *pr, Move *m, int promo, bool execute){
     }
 
     
-    if(pr->toMove == WHITE){
+    if(prev->toMove == WHITE){
         if(whcstl & SHORT_CASTLE_MOVE){
             if(m->From() == Not2Ind("e1") || m->From() == Not2Ind("h1")){
                 whcstl -= SHORT_CASTLE_MOVE;
@@ -105,12 +105,12 @@ Position::Position(Position *pr, Move *m, int promo, bool execute){
     if(m->From() == blackKingPos){
         blackKingPos = m->To();
     }
-    fullMoveCounter = pr->fullMoveCounter;
+    fullMoveCounter = prev->fullMoveCounter;
     if(toMove == WHITE){
         fullMoveCounter++;
     }
     if(m->Type() < PAWN_MOVE){ // only regular moves and castles (no captures)
-        halfMoveClock = pr->halfMoveClock + 1;
+        halfMoveClock = prev->halfMoveClock + 1;
         searchBackRepetitions = true;
     }
     else{
@@ -222,6 +222,7 @@ Position::Position(std::string fen){
     searchBackRepetitions = false;
     CalculatePositionHash();
     CheckCheck();
+    CheckEndings();
     prev = NULL;
     result = GameResult::ONGOING;
 }
@@ -247,7 +248,7 @@ Position* Position::MakeMove(Move *toExecute, bool execute){
     Move *expectedmove = CheckIfMoveFullLegal(toExecute);
     if(NULL != expectedmove)
     {
-        Position *newposition = new Position(this, expectedmove, toExecute->Promo(), execute);
+        Position *newposition = new Position(*this, expectedmove, toExecute->Promo(), execute);
         delete expectedmove;
         return newposition;
     }
@@ -310,8 +311,8 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
     return NULL;
 }
 
-Move* Position::CheckIfMovePseudoLegal(int from, int to){
-    Move *expected = MoveCheckHandler::CheckMove(this, from, to);
+Move* Position::CheckIfMovePseudoLegal(int from, int to) const{
+    Move *expected = MoveCheckHandler::CheckMove(*this, from, to);
     return expected;
 }
 
@@ -335,7 +336,7 @@ void Position::CheckCheck(){
 }
 
 std::list<Move>* Position::GenerateAllLegalMoves(){
-    std::list<Move>* moves = AllMovesGenerator::GenerateMoves(this);
+    std::list<Move>* moves = AllMovesGenerator::GenerateMoves(*this);
     std::list<Move>* results = new std::list<Move>();
     Move *temp;
     auto it = moves->begin();
@@ -409,6 +410,7 @@ void Position::CheckEndings(){
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
         result = DRAW;
+        std::cout << "draw 1\n";
         return;
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] == 2 && colmaterial[BLACK + 1] == colmaterial[WHITE + 1]){
@@ -422,6 +424,7 @@ void Position::CheckEndings(){
             }
             if(isknight == false){
                 result = DRAW;
+                std::cout << "draw 2\n";
             }
         }
     }
@@ -475,12 +478,12 @@ int Position::GetSquareColor(int index) const{
     }
 }
 
-bool Position::IsPlaceAttacked(int attackedplace, int attackingcolor){
+bool Position::IsPlaceAttacked(int attackedplace, int attackingcolor) const{
     bool answer = false;
     for(int i = 0; i < 64 && answer == false; i++){
         int ind = mailbox[i];
         if(GetSquareColor(ind) == attackingcolor){
-            Move *m = MoveCheckHandler::CheckMove(this, ind, attackedplace);
+            Move *m = MoveCheckHandler::CheckMove(*this, ind, attackedplace);
             if(m != NULL){
                 delete m;
                 return true;

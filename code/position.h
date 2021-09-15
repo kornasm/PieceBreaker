@@ -8,10 +8,9 @@
 enum GameResult{ONGOING, WHITE_WIN, DRAW, BLACK_WIN};
 class Move;
 class MoveGenerator;
-//extern MoveGenerator* generators[NO_PIECES + 1];
 
 class Position{
-    public:
+    private:
         int squares[121] = {7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
@@ -24,8 +23,7 @@ class Position{
                              7, -1, -1, -1, -1, -1, -1, -1, -1, 7,
                              7, -2, -3, -4, -5, -6, -4, -3, -2, 7,
                              7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7
-        };
+                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
         int toMove;
         int whcstl;
         int blcstl;
@@ -39,39 +37,41 @@ class Position{
         int fullMoveCounter;
         int whiteKingPos;
         int blackKingPos;
-
+    public:
+        //construcotrs, destructor
         Position();
-        Position(Position *prev, Move *m, int promo = 0, bool execute = true);
+        Position(Position& prev, Move *m, int promo = 0, bool execute = true);
         Position(std::string fen);
         ~Position();
 
         Position(const Position& position) = delete;
         Position operator=(const Position& position) = delete;
         
-        void ShowBoard() const;
+        // move making/checking
         Position* MakeMove(Move* checkedmove, bool execute = true);
         Move* CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty = false);
-        Move* CheckIfMovePseudoLegal(int from, int to);
+        Move* CheckIfMovePseudoLegal(int from, int to) const;
         int MakeSoftMove(Move *toExecute);
         void MakeSoftBack(Move *toExecute, int takenPiece);
+        bool IsPlaceAttacked(int attackedplace, int atackingcolor) const;
         
-        
+        void ShowBoard() const;
         void CheckCheck();
         std::list<Move>* GenerateAllLegalMoves();
-        bool CheckIfMoveLegal(Move move);
         void CheckEndings();
-
         void CalculatePositionHash();
 
-
+        //getters
         char GetPiece(int column, int row) const;
         int GetSquareValue(int column, int row) const;
         int GetSquareColor(int column, int row) const;
         char GetPiece(int index) const;
         int GetSquareValue(int index) const;
         int GetSquareColor(int index) const;
-
-        bool IsPlaceAttacked(int attackedplace, int atackingcolor);
+        int WhiteCstl() const { return whcstl; }
+        int BlackCstl() const { return blcstl; }
+        int EnPassantPos() const { return enPassant; }
+        int ToMove() const { return toMove; }
 };
 
 #endif

@@ -30,6 +30,6 @@ void cleanup();
 
 void PrintMoveList(std::list<Move>* moves);
 
-bool InBetweenEmpty(Position* pos, int from, int to, bool checkForRook = false, bool checkForBishop = false);
+bool InBetweenEmpty(const Position& pos, int from, int to, bool checkForRook = false, bool checkForBishop = false);
 
 #endif

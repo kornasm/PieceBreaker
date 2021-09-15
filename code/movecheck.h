@@ -9,7 +9,7 @@ class Move;
 
 class MoveChecker{
     public:
-        virtual Move* CheckMoveLegality(Position *position, int from, int to){
+        virtual Move* CheckMoveLegality(const Position& position, int from, int to){
             return NULL;
         }
         virtual ~MoveChecker(){};
@@ -17,42 +17,42 @@ class MoveChecker{
 
 class KingMoveChecker: public MoveChecker{
     public:
-        Move* CheckMoveLegality(Position *position, int from, int to);
+        Move* CheckMoveLegality(const Position& position, int from, int to);
 };
 
 class RookMoveChecker: public MoveChecker{
     public:
-        Move* CheckMoveLegality(Position *position, int from, int to);
+        Move* CheckMoveLegality(const Position& position, int from, int to);
 };
 
 class BishopMoveChecker: public MoveChecker{
     public:
-        Move* CheckMoveLegality(Position *position, int from, int to);
+        Move* CheckMoveLegality(const Position& position, int from, int to);
 };
 
 class QueenMoveChecker: public MoveChecker{
     public:
-        Move* CheckMoveLegality(Position *position, int from, int to);
+        Move* CheckMoveLegality(const Position& position, int from, int to);
 };
 
 class KnightMoveChecker: public MoveChecker{
     public:
-        Move* CheckMoveLegality(Position *position, int from, int to);
+        Move* CheckMoveLegality(const Position& position, int from, int to);
 };
 
 class WhitePawnMoveChecker: public MoveChecker{
     public:
-        Move* CheckMoveLegality(Position *position, int from, int to);
+        Move* CheckMoveLegality(const Position& position, int from, int to);
 };
 
 class BlackPawnMoveChecker: public MoveChecker{
     public:
-        Move* CheckMoveLegality(Position *position, int from, int to);
+        Move* CheckMoveLegality(const Position& position, int from, int to);
 };
 
 class EmptyMoveChecker: public MoveChecker{
     public:
-        Move* CheckMoveLegality(Position *position, int from, int to){
+        Move* CheckMoveLegality(const Position& position, int from, int to){
             return NULL;
         }
 };
@@ -62,7 +62,7 @@ class MoveCheckHandler{
     public:
         static void Init();
         static void Cleanup();
-        static Move* CheckMove(Position* position, int from, int to);
+        static Move* CheckMove(const Position& position, int from, int to);
 };
 
 #endif

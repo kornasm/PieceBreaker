@@ -78,7 +78,7 @@ void PrintMoveList(std::list<Move>* moves){
     std::cout << '\n';
 }
 
-bool InBetweenEmpty(Position* pos, int from, int to, bool checkForRook, bool checkForBishop){
+bool InBetweenEmpty(const Position& pos, int from, int to, bool checkForRook, bool checkForBishop){
     if(from == to){
         return false;
     }
@@ -104,7 +104,7 @@ bool InBetweenEmpty(Position* pos, int from, int to, bool checkForRook, bool che
         if(coltemp == colto && rowtemp == rowto){
             return true;
         }
-        if(pos->GetSquareColor(coltemp, rowtemp) != EMPTY_SQUARE){
+        if(pos.GetSquareColor(coltemp, rowtemp) != EMPTY_SQUARE){
             return false;
         }
     }

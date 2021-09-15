@@ -53,7 +53,7 @@ int main(){
                 std::cin >> notation;
                 int square = Not2Ind(notation);
                 if(NotationValid(notation)){
-                    std::list<Move>* movestemp = MoveGeneratorHandler::GenerateMoves(square, newgame->position);
+                    std::list<Move>* movestemp = MoveGeneratorHandler::GenerateMoves(square, *(newgame->position));
                     auto itt = movestemp->begin();
                     while(itt != movestemp->end()){
                         std::cout << *itt;
@@ -75,18 +75,18 @@ int main(){
                 break;
             }
             case 169095377:{ // info
-                std::cout << "white king           " << Ind2Not(current->position->whiteKingPos) << '\n';
+                /*std::cout << "white king           " << Ind2Not(current->position->whiteKingPos) << '\n';
                 std::cout << "black king           " << Ind2Not(current->position->blackKingPos) << '\n';
                 std::cout << "white castl          " << current->position->whcstl << '\n';
                 std::cout << "black castl          " << current->position->blcstl << '\n';
-                std::cout << "en passant           " << Ind2Not(current->position->enPassant) << '\n';
+                std::cout << "en passant           " << Ind2Not(current->position->EnPassantPos() << '\n';
                 std::cout << "is check             " << current->position->underCheck << '\n';
                 std::cout << "half move clock      " << current->position->halfMoveClock << '\n';
-                std::cout << "pos hash             " << current->position->positionHash << '\n';
-                std::cout << "to move              " << current->position->toMove << '\n';
+                std::cout << "pos hash             " << current->position->PositionHash() << '\n';
+                std::cout << "to move              " << current->position->ToMove() << '\n';//*/
                 break;
             }
-        }//*/
+        }
     }
     delete newgame;
     cleanup();

@@ -29,23 +29,23 @@ void MoveCheckHandler::Cleanup(){
         delete m;
     }
 }
-Move* MoveCheckHandler::CheckMove(Position* position, int from, int to){
-    if(position->GetSquareColor(from) == position->GetSquareColor(to)){
+Move* MoveCheckHandler::CheckMove(const Position& position, int from, int to){
+    if(position.GetSquareColor(from) == position.GetSquareColor(to)){
         return NULL;
     }
-    if(position->GetSquareValue(to) == OUTSIDE_BOARD){
+    if(position.GetSquareValue(to) == OUTSIDE_BOARD){
         return NULL;
     }
-    //std::cout << "checkmovehandler  " << position->GetSquareValue(from) << "   " << from << '\n';
-    return checkers[position->GetSquareValue(from) + SYMBOLS_OFFSET]->CheckMoveLegality(position, from, to);
+    //std::cout << "checkmovehandler  " << position.GetSquareValue(from) << "   " << from << '\n';
+    return checkers[position.GetSquareValue(from) + SYMBOLS_OFFSET]->CheckMoveLegality(position, from, to);
 }
 
-Move* KingMoveChecker::CheckMoveLegality(Position *position, int from, int to){
+Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     int coldiff = std::abs(column(from) - column(to));
     int rowdiff = std::abs(row(from) - row(to));
     if(coldiff <= 1 && rowdiff <= 1){
         Move* m = new Move(from, to, REGULAR_MOVE);
-        if(position->GetSquareValue(to) != EMPTY_SQUARE){
+        if(position.GetSquareValue(to) != EMPTY_SQUARE){
             m->IncreaseType(CAPTURE_MOVE);
         }
         return m;
@@ -53,10 +53,10 @@ Move* KingMoveChecker::CheckMoveLegality(Position *position, int from, int to){
     if(coldiff >= 3 || rowdiff >= 2){
         return NULL;
     }
-    int col = position->GetSquareColor(from);
+    int col = position.GetSquareColor(from);
     if(col == WHITE){
-        if(position->whcstl & SHORT_CASTLE_MOVE){
-            if(position->GetSquareColor(from + 1) == EMPTY_SQUARE && position->GetSquareColor(from + 2) == EMPTY_SQUARE){
+        if(position.WhiteCstl() & SHORT_CASTLE_MOVE){
+            if(position.GetSquareColor(from + 1) == EMPTY_SQUARE && position.GetSquareColor(from + 2) == EMPTY_SQUARE){
                 std::list<Move>* attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
                 for(auto move : *attackedPlaces){
                     if(move.To() == from || move.To() == from + 1 || move.To() == from + 2){
@@ -68,8 +68,8 @@ Move* KingMoveChecker::CheckMoveLegality(Position *position, int from, int to){
                 return new Move(from, from + 2, SHORT_CASTLE_MOVE);
             }
         }
-        if(position->whcstl & LONG_CASTLE_MOVE){
-            if(position->GetSquareColor(from - 1) == EMPTY_SQUARE && position->GetSquareColor(from - 2) == EMPTY_SQUARE){
+        if(position.WhiteCstl() & LONG_CASTLE_MOVE){
+            if(position.GetSquareColor(from - 1) == EMPTY_SQUARE && position.GetSquareColor(from - 2) == EMPTY_SQUARE){
                 std::list<Move>* attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
                 for(auto move : *attackedPlaces){
                     if(move.To() == from || move.To() == from - 1 || move.To() == from - 2){
@@ -82,8 +82,8 @@ Move* KingMoveChecker::CheckMoveLegality(Position *position, int from, int to){
         }
     }
     if(col == BLACK){
-        if(position->blcstl & SHORT_CASTLE_MOVE){
-            if(position->GetSquareColor(from + 1) == EMPTY_SQUARE && position->GetSquareColor(from + 2) == EMPTY_SQUARE){
+        if(position.BlackCstl() & SHORT_CASTLE_MOVE){
+            if(position.GetSquareColor(from + 1) == EMPTY_SQUARE && position.GetSquareColor(from + 2) == EMPTY_SQUARE){
                 std::list<Move>* attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
                 for(auto move : *attackedPlaces){
                     if(move.To() == from || move.To() == from + 1 || move.To() == from + 2){
@@ -94,8 +94,8 @@ Move* KingMoveChecker::CheckMoveLegality(Position *position, int from, int to){
                 delete attackedPlaces;
             }
         }
-        if(position->blcstl & LONG_CASTLE_MOVE){
-            if(position->GetSquareColor(from - 1) == EMPTY_SQUARE && position->GetSquareColor(from - 2) == EMPTY_SQUARE){
+        if(position.BlackCstl() & LONG_CASTLE_MOVE){
+            if(position.GetSquareColor(from - 1) == EMPTY_SQUARE && position.GetSquareColor(from - 2) == EMPTY_SQUARE){
                 std::list<Move>* attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
                 for(auto move : *attackedPlaces){
                     if(move.To() == from || move.To() == from - 1 || move.To() == from - 2){
@@ -110,10 +110,10 @@ Move* KingMoveChecker::CheckMoveLegality(Position *position, int from, int to){
     return NULL;
 }
 
-Move* RookMoveChecker::CheckMoveLegality(Position *position, int from, int to){
+Move* RookMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     if(InBetweenEmpty(position, from, to, true, false)){
         Move *m = new Move(from, to, REGULAR_MOVE);
-        if(position->GetSquareColor(to) != EMPTY_SQUARE){
+        if(position.GetSquareColor(to) != EMPTY_SQUARE){
             m->IncreaseType(CAPTURE_MOVE);
         }
         return m;
@@ -121,10 +121,10 @@ Move* RookMoveChecker::CheckMoveLegality(Position *position, int from, int to){
     return NULL;
 }
 
-Move* BishopMoveChecker::CheckMoveLegality(Position *position, int from, int to){
+Move* BishopMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     if(InBetweenEmpty(position, from, to, false, true)){
         Move *m = new Move(from, to, REGULAR_MOVE);
-        if(position->GetSquareColor(to) != EMPTY_SQUARE){
+        if(position.GetSquareColor(to) != EMPTY_SQUARE){
             m->IncreaseType(CAPTURE_MOVE);
         }
         return m;
@@ -132,10 +132,10 @@ Move* BishopMoveChecker::CheckMoveLegality(Position *position, int from, int to)
     return NULL;
 }
 
-Move* QueenMoveChecker::CheckMoveLegality(Position *position, int from, int to){
+Move* QueenMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     if(InBetweenEmpty(position, from, to, true, true)){
         Move *m = new Move(from, to, REGULAR_MOVE);
-        if(position->GetSquareColor(to) != EMPTY_SQUARE){
+        if(position.GetSquareColor(to) != EMPTY_SQUARE){
             m->IncreaseType(CAPTURE_MOVE);
         }
         return m;
@@ -143,12 +143,12 @@ Move* QueenMoveChecker::CheckMoveLegality(Position *position, int from, int to){
     return NULL;
 }
 
-Move* KnightMoveChecker::CheckMoveLegality(Position *position, int from, int to){
+Move* KnightMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     int colDiff = std::abs(column(from) - column(to));
     int rowDiff = std::abs(row(from) - row(to));
     if(colDiff != 0 && rowDiff != 0 && colDiff + rowDiff == 3){
         Move *m = new Move(from, to, REGULAR_MOVE);
-        if(position->GetSquareValue(to) != EMPTY_SQUARE){
+        if(position.GetSquareValue(to) != EMPTY_SQUARE){
             m->IncreaseType(CAPTURE_MOVE);
         }
         return m;
@@ -156,41 +156,41 @@ Move* KnightMoveChecker::CheckMoveLegality(Position *position, int from, int to)
     return NULL;
 }
 
-Move* WhitePawnMoveChecker::CheckMoveLegality(Position *position, int from, int to){
+Move* WhitePawnMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     if(to == from + 10){
-        if(position->GetSquareValue(to) == EMPTY_SQUARE){
+        if(position.GetSquareValue(to) == EMPTY_SQUARE){
             return new Move(from, to, PAWN_MOVE);
         }
     }
     if(to == from + 20){
-        if(position->GetSquareValue(to) == EMPTY_SQUARE && position->GetSquareValue(from + 10) == EMPTY_SQUARE){
+        if(position.GetSquareValue(to) == EMPTY_SQUARE && position.GetSquareValue(from + 10) == EMPTY_SQUARE){
             return new Move(from, to, PAWN_MOVE | PAWN_DOUBLE_MOVE);
         }
     }
     if(to == from + 9 || to == from + 11){
-        if(position->GetSquareColor(to) == BLACK){
+        if(position.GetSquareColor(to) == BLACK){
             return new Move(from, to, PAWN_MOVE | CAPTURE_MOVE);
         }
-        if(position->enPassant == to){
+        if(position.EnPassantPos() == to){
             return new Move(from, to, PAWN_MOVE | EN_PASSANT_MOVE);
         }
     }
     return NULL;
 }
 
-Move* BlackPawnMoveChecker::CheckMoveLegality(Position *position, int from, int to){
+Move* BlackPawnMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     if(to == from - 10){
-        if(position->GetSquareValue(to) == EMPTY_SQUARE){
+        if(position.GetSquareValue(to) == EMPTY_SQUARE){
             return new Move(from, to, PAWN_MOVE);
         }
     }
     if(to == from - 20){
-        if(position->GetSquareValue(to) == EMPTY_SQUARE && position->GetSquareValue(from - 10) == EMPTY_SQUARE){
+        if(position.GetSquareValue(to) == EMPTY_SQUARE && position.GetSquareValue(from - 10) == EMPTY_SQUARE){
             return new Move(from, to, PAWN_MOVE | PAWN_DOUBLE_MOVE);
         }
     }
     if(to == from - 9 || to == from - 11){
-        if(position->GetSquareColor(to) == WHITE){
+        if(position.GetSquareColor(to) == WHITE){
             return new Move(from, to, PAWN_MOVE | CAPTURE_MOVE);
         }
     }
