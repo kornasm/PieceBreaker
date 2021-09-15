@@ -14,7 +14,7 @@ const int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
                          82, 83, 84, 85, 86, 87, 88, 89,
                          92, 93, 94, 95, 96, 97, 98, 99};
 
-const int drawMaterial[NO_PIECES] = {0, -10, -1, -1, -10, -10, 0, 10, 10, 1, 1, 10, 0};
+const int drawMaterial[NO_PIECES] = {0, 10, 1, 1, 10, 10, 0, 10, 10, 1, 1, 10, 0};
 
 Position::Position(){
     toMove = WHITE;
@@ -282,6 +282,7 @@ void Position::MakeSoftBack(Move *toExecute, int takenPiece){
         }
     }
 }
+
 Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty){
     int PieceColor = GetSquareColor(checkedmove->From());
     if(toMove != PieceColor){
@@ -353,7 +354,7 @@ std::list<Move>* Position::GenerateAllLegalMoves(){
 
 void Position::CheckEndings(){
     // 50-move rule
-    if(halfMoveClock>= 50){
+    if(halfMoveClock >= 100){
         result = GameResult::DRAW;
         return;
     }
@@ -367,7 +368,7 @@ void Position::CheckEndings(){
             count++;
             if(count>= 3){
                 result = GameResult::DRAW;
-                std::cout << "repetition draw\n";
+                std::cout << "draw (repetition)\n";
                 return;
             }
         }
@@ -386,13 +387,16 @@ void Position::CheckEndings(){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){
                 result = GameResult::BLACK_WIN;
+                std::cout << "black win (checkmate)\n";
             }
             else{
                 result = GameResult::WHITE_WIN;
+                std::cout << "white win (checkmate)\n";
             }
         }
         else{ // Stalemate
             result = GameResult::DRAW;
+            std::cout << "draw (stalemate)\n";            
         }
     }
     delete possiblemoves;
@@ -403,18 +407,22 @@ void Position::CheckEndings(){
     //
     int sqmaterial[2] = {0, 0}; // on white and black squares
     int colmaterial[3] = {0, 0, 0};
+    int col = 0;
     for(int i = 0; i < 64; i++){
+        if(i % 8 != 0){
+            col = 1 - col;
+        }
         int ind = mailbox[i];
-        sqmaterial[ind & 1] += std::abs(drawMaterial[squares[ind] + SYMBOLS_OFFSET]);
+        sqmaterial[col & 1] += drawMaterial[squares[ind] + SYMBOLS_OFFSET];
         colmaterial[GetSquareColor(ind) + 1] += drawMaterial[squares[ind] + SYMBOLS_OFFSET];
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
         result = DRAW;
-        std::cout << "draw 1\n";
+        std::cout << "draw (material)\n";
         return;
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] == 2 && colmaterial[BLACK + 1] == colmaterial[WHITE + 1]){
-        if(sqmaterial[0] == sqmaterial[1]){
+        if(sqmaterial[0] != sqmaterial[1]){
             bool isknight = false;
             for(int i = 0; i < 64; i++){
                 int ind = mailbox[i];
@@ -424,7 +432,7 @@ void Position::CheckEndings(){
             }
             if(isknight == false){
                 result = DRAW;
-                std::cout << "draw 2\n";
+                std::cout << "draw (material)\n";
             }
         }
     }
