@@ -157,42 +157,61 @@ Move* KnightMoveChecker::CheckMoveLegality(const Position& position, int from, i
 }
 
 Move* WhitePawnMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
+    Move *m = new Move(from, to, PAWN_MOVE);
+    if(row(from) == 7){
+        m->IncreaseType(PROMOTION_MOVE);
+    }
     if(to == from + 10){
         if(position.GetSquareValue(to) == EMPTY_SQUARE){
-            return new Move(from, to, PAWN_MOVE);
+            return m;
         }
     }
     if(to == from + 20){
         if(position.GetSquareValue(to) == EMPTY_SQUARE && position.GetSquareValue(from + 10) == EMPTY_SQUARE){
-            return new Move(from, to, PAWN_MOVE | PAWN_DOUBLE_MOVE);
+            m->IncreaseType(PAWN_DOUBLE_MOVE);
+            return m;
         }
     }
     if(to == from + 9 || to == from + 11){
         if(position.GetSquareColor(to) == BLACK){
-            return new Move(from, to, PAWN_MOVE | CAPTURE_MOVE);
+            m->IncreaseType(CAPTURE_MOVE);
+            return m;
         }
         if(position.EnPassantPos() == to){
-            return new Move(from, to, PAWN_MOVE | EN_PASSANT_MOVE);
+            m->IncreaseType(EN_PASSANT_MOVE | CAPTURE_MOVE);
+            return m;
         }
     }
+    delete m;
     return NULL;
 }
 
 Move* BlackPawnMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
+    Move *m = new Move(from, to, PAWN_MOVE);
+    if(row(from) == 2){
+        m->IncreaseType(PROMOTION_MOVE);
+    }
     if(to == from - 10){
         if(position.GetSquareValue(to) == EMPTY_SQUARE){
-            return new Move(from, to, PAWN_MOVE);
+            return m;
         }
     }
     if(to == from - 20){
         if(position.GetSquareValue(to) == EMPTY_SQUARE && position.GetSquareValue(from - 10) == EMPTY_SQUARE){
-            return new Move(from, to, PAWN_MOVE | PAWN_DOUBLE_MOVE);
+            m->IncreaseType(PAWN_DOUBLE_MOVE);
+            return m;
         }
     }
     if(to == from - 9 || to == from - 11){
         if(position.GetSquareColor(to) == WHITE){
-            return new Move(from, to, PAWN_MOVE | CAPTURE_MOVE);
+            m->IncreaseType(CAPTURE_MOVE);
+            return m;
+        }
+        if(position.EnPassantPos() == to){
+            m->IncreaseType(EN_PASSANT_MOVE | CAPTURE_MOVE);
+            return m;
         }
     }
+    delete m;
     return NULL;
 }

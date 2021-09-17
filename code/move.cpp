@@ -2,7 +2,7 @@
 #include "move.h"
 #include "functions.h"
 
-const char PromotionSymbols[4] = {'Q', 'R', 'N', 'B'};
+const char PromotionSymbols[4] = {'q', 'r', 'n', 'b'};
 const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP};
 
 Move::Move(int f, int t, int tp, int pr) :from(f), to(t), type(tp), promo(pr){}

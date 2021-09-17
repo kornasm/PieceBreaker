@@ -69,29 +69,24 @@ Position::Position(Position& pr, Move *m, int promo, bool execute){
         }
     }
 
-    
-    if(prev->toMove == WHITE){
-        if(whcstl & SHORT_CASTLE_MOVE){
-            if(m->From() == Not2Ind("e1") || m->From() == Not2Ind("h1")){
-                whcstl -= SHORT_CASTLE_MOVE;
-            }
-        }
-        if(whcstl & LONG_CASTLE_MOVE){
-            if(m->From() == Not2Ind("e1") || m->From() == Not2Ind("a1")){
-                whcstl -= LONG_CASTLE_MOVE;
-            }
+    if(whcstl & SHORT_CASTLE_MOVE){
+        if(m->From() == Not2Ind("e1") || GetSquareValue(Not2Ind("h1")) != WHITE_ROOK){
+            whcstl -= SHORT_CASTLE_MOVE;
         }
     }
-    else{
-        if(blcstl & SHORT_CASTLE_MOVE){
-            if(m->From() == Not2Ind("e8") || m->From() == Not2Ind("h8")){
-                blcstl -= SHORT_CASTLE_MOVE;
-            }
+    if(whcstl & LONG_CASTLE_MOVE){
+        if(m->From() == Not2Ind("e1") || GetSquareValue(Not2Ind("a1")) != WHITE_ROOK){
+            whcstl -= LONG_CASTLE_MOVE;
         }
-        if(blcstl & LONG_CASTLE_MOVE){
-            if(m->From() == Not2Ind("e8") || m->From() == Not2Ind("a8")){
-                blcstl -= LONG_CASTLE_MOVE;
-            }
+    }
+    if(blcstl & SHORT_CASTLE_MOVE){
+        if(m->From() == Not2Ind("e8") || GetSquareValue(Not2Ind("h8")) != BLACK_ROOK){
+            blcstl -= SHORT_CASTLE_MOVE;
+        }
+    }
+    if(blcstl & LONG_CASTLE_MOVE){
+        if(m->From() == Not2Ind("e8") || GetSquareValue(Not2Ind("a8")) != BLACK_ROOK){
+            blcstl -= LONG_CASTLE_MOVE;
         }
     }
 
@@ -267,6 +262,12 @@ int Position::MakeSoftMove(Move *toExecute){
             squares[enPassant + 10] = EMPTY_SQUARE;
         }
     }
+    if(toExecute->From() == whiteKingPos){
+        whiteKingPos = toExecute->To();
+    }
+    if(toExecute->From() == blackKingPos){
+        blackKingPos = toExecute->To();
+    }
     return takenPiece;
 }
 
@@ -280,6 +281,12 @@ void Position::MakeSoftBack(Move *toExecute, int takenPiece){
         else{
             squares[enPassant + 10] = WHITE_PAWN;
         }
+    }
+    if(toExecute->To() == whiteKingPos){
+        whiteKingPos = toExecute->From();
+    }
+    if(toExecute->To() == blackKingPos){
+        blackKingPos = toExecute->From();
     }
 }
 
@@ -295,6 +302,13 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
     }
     else{
         expectedmove = CheckIfMovePseudoLegal(checkedmove->From(), checkedmove->To());
+    }
+    if((expectedmove->Type()) & PROMOTION_MOVE){
+        if(checkedmove->Promo() == 0){
+            delete expectedmove;
+            std::cout << "no promo char entered\n";
+            return NULL;
+        }
     }
     if(NULL != expectedmove)
     {

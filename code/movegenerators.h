@@ -22,7 +22,7 @@ class KingMoveGenerator: public MoveGenerator{
     private:
         static const int KingPossibleSquares[8];
     public:
-        std::list<Move>* GenerateMoveList(int originSquare, const Position& position);
+        std::list<Move>* GenerateMoveList(int originSquare, const Position& position) const;
 };
 
 class RookMoveGenerator: public MoveGenerator{

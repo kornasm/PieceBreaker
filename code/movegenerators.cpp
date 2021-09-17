@@ -38,7 +38,7 @@ std::list<Move>* MoveGeneratorHandler::GenerateMoves(int originSquare, const Pos
     return generators[position.GetSquareValue(originSquare) + SYMBOLS_OFFSET]->GenerateMoveList(originSquare, position);
 }
 
-std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Position& position){
+std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
     std::list<Move>* moves = new std::list<Move>();
     for(auto move : KingPossibleSquares){
         if(position.GetSquareValue(originSquare + move) != OUTSIDE_BOARD && 

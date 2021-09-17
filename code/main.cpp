@@ -47,23 +47,7 @@ int main(){
             case 40093753:{ // moves}
                 std::list<Move> *moves = current->position->GenerateAllLegalMoves();
                 PrintMoveList(moves);
-                std::cout << "\n\n";
                 delete moves;
-                std::string notation;
-                std::cin >> notation;
-                int square = Not2Ind(notation);
-                if(NotationValid(notation)){
-                    std::list<Move>* movestemp = MoveGeneratorHandler::GenerateMoves(square, *(newgame->position));
-                    auto itt = movestemp->begin();
-                    while(itt != movestemp->end()){
-                        std::cout << *itt;
-                        ++itt;
-                    }
-                    delete movestemp;
-                }
-                else{
-                    std::cout << "main    invalid notation\n";
-                }
                 break;
             }
             case 9897063:{ //fen
