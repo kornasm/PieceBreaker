@@ -40,7 +40,7 @@ class Position{
     public:
         //construcotrs, destructor
         Position();
-        Position(Position& prev, Move *m, int promo = 0, bool execute = true);
+        Position(Position& prev, Move *m, int promo = 0);
         Position(std::string fen);
         ~Position();
 
@@ -48,7 +48,7 @@ class Position{
         Position operator=(const Position& position) = delete;
         
         // move making/checking
-        Position* MakeMove(Move* checkedmove, bool execute = true);
+        Position* MakeMove(Move* checkedmove);
         Move* CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty = false);
         Move* CheckIfMovePseudoLegal(int from, int to) const;
         int MakeSoftMove(Move *toExecute);
@@ -56,6 +56,7 @@ class Position{
         bool IsPlaceAttacked(int attackedplace, int atackingcolor) const;
         
         void ShowBoard() const;
+        std::ostream& ShowTinyBoard(std::ostream& out) const;
         void CheckCheck();
         std::list<Move>* GenerateAllLegalMoves();
         void CheckEndings();
@@ -72,6 +73,7 @@ class Position{
         int BlackCstl() const { return blcstl; }
         int EnPassantPos() const { return enPassant; }
         int ToMove() const { return toMove; }
+        GameResult GetGameResult() const { return result; }
 };
 
 #endif

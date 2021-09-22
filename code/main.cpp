@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "node.h"
 #include "move.h"
+#include "search.h"
 
 int main(){
     init();
@@ -68,6 +69,14 @@ int main(){
                 std::cout << "half move clock      " << current->position->halfMoveClock << '\n';
                 std::cout << "pos hash             " << current->position->PositionHash() << '\n';
                 std::cout << "to move              " << current->position->ToMove() << '\n';//*/
+                break;
+            }
+            case 32144: { // go
+                int depth;
+                std::cin >> depth;
+                SearchTree tree;
+                tree.entryNode = current;
+                tree.Search(depth);
                 break;
             }
         }

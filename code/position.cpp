@@ -32,7 +32,7 @@ Position::Position(){
     CalculatePositionHash();
 }
 
-Position::Position(Position& pr, Move *m, int promo, bool execute){
+Position::Position(Position& pr, Move *m, int promo){
     prev = &pr;
 
     std::copy(prev->squares, prev->squares + 122, squares);
@@ -113,10 +113,8 @@ Position::Position(Position& pr, Move *m, int promo, bool execute){
         searchBackRepetitions = false;
     }
     CheckCheck();
-    if(execute){
-        CalculatePositionHash();
-        CheckEndings();
-    }
+    CalculatePositionHash();
+    CheckEndings();
 }
 
 Position::Position(std::string fen){
@@ -238,12 +236,22 @@ void Position::ShowBoard() const{
     std::cout << "    a   b   c   d   e   f   g   h\n\n";
     return;
 }
+std::ostream& Position::ShowTinyBoard(std::ostream& out) const{
+    for(int row = 8; row > 0; row--){
+        out << " ";
+        for(int col = 1; col <= 8; col++){
+            out << GetPiece(col, row);
+        }
+        out << '\n';
+    }
+    return out;
+}
 
-Position* Position::MakeMove(Move *toExecute, bool execute){
+Position* Position::MakeMove(Move *toExecute){
     Move *expectedmove = CheckIfMoveFullLegal(toExecute);
     if(NULL != expectedmove)
     {
-        Position *newposition = new Position(*this, expectedmove, toExecute->Promo(), execute);
+        Position *newposition = new Position(*this, expectedmove, toExecute->Promo());
         delete expectedmove;
         return newposition;
     }
@@ -382,7 +390,7 @@ void Position::CheckEndings(){
             count++;
             if(count>= 3){
                 result = GameResult::DRAW;
-                std::cout << "draw (repetition)\n";
+                //std::cout << "draw (repetition)\n";
                 return;
             }
         }
@@ -401,16 +409,16 @@ void Position::CheckEndings(){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){
                 result = GameResult::BLACK_WIN;
-                std::cout << "black win (checkmate)\n";
+                //std::cout << "black win (checkmate)\n";
             }
             else{
                 result = GameResult::WHITE_WIN;
-                std::cout << "white win (checkmate)\n";
+                //std::cout << "white win (checkmate)\n";
             }
         }
         else{ // Stalemate
             result = GameResult::DRAW;
-            std::cout << "draw (stalemate)\n";            
+            //std::cout << "draw (stalemate)\n";            
         }
     }
     delete possiblemoves;
@@ -432,7 +440,7 @@ void Position::CheckEndings(){
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
         result = DRAW;
-        std::cout << "draw (material)\n";
+        //std::cout << "draw (material)\n";
         return;
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] == 2 && colmaterial[BLACK + 1] == colmaterial[WHITE + 1]){
@@ -446,7 +454,7 @@ void Position::CheckEndings(){
             }
             if(isknight == false){
                 result = DRAW;
-                std::cout << "draw (material)\n";
+                //std::cout << "draw (material)\n";
             }
         }
     }
