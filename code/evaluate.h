@@ -1,11 +1,11 @@
 #ifndef EVALUATE_H_
 #define EVALUATE_H_
 
-class Node;
+class Position;
 
 class Evaluator{
     public:
-        static int Evaluate(const Position& position);
+        static double Evaluate(const Position& position);
 };
 
 #endif

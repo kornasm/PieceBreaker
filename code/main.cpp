@@ -4,6 +4,7 @@
 #include "node.h"
 #include "move.h"
 #include "search.h"
+#include "evaluate.h"
 
 int main(){
     init();
@@ -79,8 +80,12 @@ int main(){
                 tree.Search(depth);
                 break;
             }
+            case 49546663: { // eval
+                std::cout << "Eval: " << Evaluator::Evaluate(*(current->position)) << '\n';
+            }
         }
     }
     delete newgame;
     cleanup();
+    std::cout << Node::count << '\n';
 }

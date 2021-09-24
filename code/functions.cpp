@@ -86,6 +86,9 @@ bool InBetweenEmpty(const Position& pos, int from, int to, bool checkForRook, bo
     int rowfrom = row(from), rowto = row(to);
     int coldiff = column(to) - column(from);
     int rowdiff = row(to) - row(from);
+    if(coldiff != 0 && rowdiff != 0 && std::abs(coldiff) != std::abs(rowdiff)){
+        return false;
+    }
     if(checkForRook == false){
         if(coldiff == 0 || rowdiff == 0){
             return false;

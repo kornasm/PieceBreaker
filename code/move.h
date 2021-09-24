@@ -24,6 +24,10 @@ class Move{
         void SetPromo(int val) { promo = val; }
         void IncreaseType(int i);
         bool operator ==(Move o) const;
+
+        std::ostream& ShowMove(std::ostream& out) const; // long version
+
+        // just notation
         friend std::ostream& operator <<(std::ostream& out, const Move& move);
 };
 

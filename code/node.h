@@ -4,6 +4,7 @@
 #include<list>
 #include<string>
 #include<stack>
+#include<memory>
 
 class Position;
 class Move;
@@ -18,9 +19,10 @@ class Node{
         int value = 0; // position evaluation
         int bestval;
 
-        int depth = 1;
+        int depth = 0;
 
     public:
+        static int count;
         Node();
         Node(std::string fen);
         Node(Position *pos, Node* pr);
@@ -35,6 +37,8 @@ class Node{
 
         friend std::ostream& operator <<(std::ostream& out, const Node& node);
 };
+
+// bool operator >(std::unique_ptr<Node> n1, std::unique_ptr<Node> n2);
 
 std::ostream& operator <<(std::ostream& out, const Node& node);
 

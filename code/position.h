@@ -58,7 +58,7 @@ class Position{
         void ShowBoard() const;
         std::ostream& ShowTinyBoard(std::ostream& out) const;
         void CheckCheck();
-        std::list<Move>* GenerateAllLegalMoves();
+        std::list<Move>* GenerateAllLegalMoves(bool searchAtLeastOne = false);
         void CheckEndings();
         void CalculatePositionHash();
 

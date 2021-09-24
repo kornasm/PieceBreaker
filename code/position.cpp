@@ -323,7 +323,10 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
         int takenPiece = MakeSoftMove(expectedmove);
         int kingPos = 0;
         toMove == WHITE ? kingPos = whiteKingPos : kingPos = blackKingPos;
-        bool ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
+        bool ownCheckAfter = false;
+        if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || row(kingPos) == row(expectedmove->From())){
+            ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
+        }
         MakeSoftBack(expectedmove, takenPiece);
         if(ownCheckAfter){
             delete expectedmove;
@@ -358,15 +361,21 @@ void Position::CheckCheck(){
     }
 }
 
-std::list<Move>* Position::GenerateAllLegalMoves(){
+std::list<Move>* Position::GenerateAllLegalMoves(bool searchAtLeastOne){
     std::list<Move>* moves = AllMovesGenerator::GenerateMoves(*this);
     std::list<Move>* results = new std::list<Move>();
     Move *temp;
     auto it = moves->begin();
+    bool found = false;
     while(it != moves->end()){
         if((temp = CheckIfMoveFullLegal(&(*it), false))){
+            found = true;
             delete temp;
             results->push_back(*it);
+        }
+        if(found && searchAtLeastOne){
+            delete moves;
+            return results;
         }
         ++it;
     }
@@ -404,7 +413,7 @@ void Position::CheckEndings(){
             current = current->prev;
         }
     }
-    std::list<Move>* possiblemoves = GenerateAllLegalMoves();
+    std::list<Move>* possiblemoves = GenerateAllLegalMoves(true);
     if(possiblemoves->size() == 0){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){

@@ -38,12 +38,17 @@ void Move::IncreaseType(int i){
     }
 }
 
-std::ostream& operator <<(std::ostream& out, const Move& move){
-    out << "move  " << Ind2Not(move.From()) << Ind2Not(move.To());
-    out << "     type   " << move.Type();
-    if(move.Promo() != EMPTY_SQUARE){
-        out << "     promo    " << GetPieceSymbol(move.Promo());
+std::ostream& Move::ShowMove(std::ostream& out) const{
+    out << "move  " << Ind2Not(From()) << Ind2Not(To());
+    out << "     type   " << Type();
+    if(Promo() != EMPTY_SQUARE){
+        out << "     promo    " << GetPieceSymbol(Promo());
     }
     out << '\n';
+    return out;
+}
+
+std::ostream& operator <<(std::ostream& out, const Move& move){
+    out << Ind2Not(move.From()) << Ind2Not(move.To());
     return out;
 }

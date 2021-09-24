@@ -13,9 +13,9 @@ void SearchTree::Search(int depth){
         nodesToSearch.pop();
         searched->Search(nodesToSearch, depth);
     }
-    std::cout << entryNode->bestval << '\n';
+    std::cout << "Eval: " << entryNode->bestval << '\n';
     Node *current = entryNode->bestmove;
-    std::cout << current->GetEval() << '\n';
+    std::cout << "moves  \n";
     while(current){
         std::cout << *(current->moveMade) << '\n';
         current = current->bestmove;

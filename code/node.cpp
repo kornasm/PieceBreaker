@@ -4,6 +4,8 @@
 #include "move.h"
 #include "evaluate.h"
 
+int Node::count = 0;
+
 Node::Node(){
     position = new Position();
     prev = NULL;
@@ -38,6 +40,7 @@ Node::~Node(){
     }//*/
     delete bestmove;
     delete moveMade;
+    count++;
 }
 
 bool Node::CheckMove(Move *move){
@@ -54,7 +57,7 @@ void Node::Search(std::stack<Node*>& stack, int maxDepth){
         bestval = value;
         return;
     }
-    std::cout << *this;
+    //std::cout << *this;
     int best = 0;
     std::list<Move>* moves = position->GenerateAllLegalMoves();
     for(auto m : *moves){
