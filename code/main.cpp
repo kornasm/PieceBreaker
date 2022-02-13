@@ -28,7 +28,7 @@ int main(){
                             current = current->children.back();
                         }
                         else{
-                            std::cout << "not ok\n";
+                            std::cout << "not ok\n"; 
                         }
                         delete insertedmove;
                     }
@@ -75,9 +75,12 @@ int main(){
             case 32144: { // go
                 int depth;
                 std::cin >> depth;
-                SearchTree tree;
-                tree.entryNode = current;
-                tree.Search(depth);
+                //std::unique_ptr<SearchTree> tree = std::make_unique<SearchTree>(SearchTree::GetInstance());
+                SearchTree* tree = SearchTree::GetInstance();
+                tree->SetEntry(current);
+                tree->Search(depth);
+                std::cout << "TREE DELETE CALLED\n\n\n";
+                delete tree;
                 break;
             }
             case 49546663: { // eval

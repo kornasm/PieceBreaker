@@ -3,6 +3,7 @@
 #include "position.h"
 #include "move.h"
 #include "evaluate.h"
+#include "search.h"
 
 int Node::count = 0;
 
@@ -30,16 +31,23 @@ Node::Node(Position *pos, Node* pr){
 
 void Node::OnConstructing(){
     Evaluate();
-    position->ToMove() == WHITE ? bestval = -999999 : bestval = 999999;
+    //position->ToMove() == WHITE ? bestval = -999999 : bestval = 999999;
 }
 
 Node::~Node(){
+    std::cerr << "DESTRUCTOR\n";
+    std::cerr << prev << "   " << position << "   " << moveMade << '\n';
+    std::cerr << *this << '\n';
+    //prev = NULL;
     delete position;
-    /*for(auto node : children){
+    for(auto node : children){ 
+        std::cerr << this << "   deletes    " << node << std::endl;
         delete node;
     }//*/
-    delete bestmove;
+    children.clear();
+    //delete bestmove;
     delete moveMade;
+    
     count++;
 }
 
@@ -52,25 +60,32 @@ bool Node::CheckMove(Move *move){
     return false;
 }
 
-void Node::Search(std::stack<Node*>& stack, int maxDepth){
+void Node::Search(int maxDepth){
+    PassValueBackwards(NULL, 0);
+    char waitchar;
+    //std::cin >> waitchar;
+    SearchTree* searchTree = SearchTree::GetInstance();
     if(depth >= maxDepth || position->GetGameResult() != ONGOING){
-        bestval = value;
+        bestval = partialEval;
         return;
     }
     //std::cout << *this;
-    int best = 0;
+    //int best = 0;
     std::list<Move>* moves = position->GenerateAllLegalMoves();
     for(auto m : *moves){
         Move *move = new Move(m);
         Position *newpos = new Position(*position, move, move->Promo());
         Node *newnode = new Node(newpos, this);
         newnode->moveMade = move;
-        newnode->Search(stack, maxDepth);
-        if(position->ToMove() == WHITE){
+        //newnode->Search(maxDepth);
+        searchTree->AddNodeToQueue(newnode);
+        //children.push_back(newnode);
+        /*if(position->ToMove() == WHITE){
             if(newnode->GetEval() > bestval){
                 delete bestmove;
-                bestmove = newnode;
+                bestmove = newnode; 
                 bestval = newnode->GetEval();
+                //PassValueBackwards(NULL);
             }
             else{
                 delete newnode;
@@ -85,57 +100,119 @@ void Node::Search(std::stack<Node*>& stack, int maxDepth){
             else{
                 delete newnode;
             }
-        }
+        }//*/
     }
     delete moves;
-
-    /*for(auto node : children){
-
-    }//*/
 }
 
-void Node::PassValueBackwards(Node *from){
-    std::cout << "passing back   ";
-    if(!from) std::cout << "  from null";
-    std::cout << '\n';
+void Node::PassValueBackwards(Node *from, int eval){
+    if(from == NULL){
+        std::cerr << "\npassing back   from\n" << *this;
+        char waitchar;
+        //std::cin >> waitchar;
+        if(prev){
+            prev->PassValueBackwards(this, bestval);
+        }
+        return;
+    }
+    std::cerr << "passing back   to   depth" << this->depth << '\n';
 
-    int passedValue(0);
-    //position->ToMove() == WHITE ? passedValue = 100000 : passedValue = -100000;
-    if(from){
-        passedValue = from->GetEval();
-    }
-    else{
-        passedValue = value;
-    }
-    if(position->ToMove() == WHITE){
-        if(passedValue < bestval){
-            bestval = passedValue;
-            bestmove = from;
-            if(prev){
-                prev->PassValueBackwards(this);
-                return;
-            }
+    int passedValue = from->GetEval();
+
+    /*if(from->fullyEvaluated > this->fullyEvaluated){
+        if(from->fullyEvaluated == 2){
+
         }
     }
+    if(from->searchedDepth > searchedDepth){
+        searchedDepth = from->searchedDepth;
+        bestval = from->GetEval();
+    }//*/
+    int maxval = 0;
+    Node* best = nullptr;
+    bool changed = false;
+    if(this->position->ToMove() == WHITE){
+        maxval = -1e6;
+        for(auto nd : this->children){
+            if(nd->partialEval > maxval){
+                maxval = nd->partialEval;
+                best = nd;
+            }
+        }
+        if(this->partialEval != maxval){
+            changed = true;
+        }
+        this->partialEval = maxval;
+        this->bestmove = best;
+    }
     else{
+        maxval = 1e6;
+        for(auto nd : this->children){
+            if(nd->partialEval < maxval){
+                maxval = nd->partialEval;
+                best = nd;
+            }
+        }
+        if(this->partialEval != maxval){
+            changed = true;
+        }
+        this->partialEval = maxval;
+        this->bestmove = best;
+    }
+
+    if(changed == true){
+        if(prev){
+            prev->PassValueBackwards(this, this->partialEval);
+        }
+    }
+    /*if(position->ToMove() == WHITE){
         if(passedValue > bestval){
             bestval = passedValue;
             bestmove = from;
             if(prev){
-                prev->PassValueBackwards(this);
+                prev->PassValueBackwards(this, bestval);
                 return;
+            } 
+            else{
+                std::cout << "new best move";
             }
         }
     }
+    else{
+        if(passedValue < bestval){
+            bestval = passedValue;
+            bestmove = from;
+            if(prev){
+                prev->PassValueBackwards(this, bestval);
+                return;
+            }
+            else{
+                std::cout << "new best move";
+            }
+        }
+    }//*/
 }
 
 void Node::Evaluate(){
-    value = Evaluator::Evaluate(*position);
+    partialEval = Evaluator::Evaluate(*position);
+    bestval = partialEval;
+    GameResult res = position->GetGameResult();
+    if(res != GameResult::ONGOING){
+        fullyEvaluated = 2;
+        fullEval = partialEval;
+    }
+    
 }
 
 std::ostream& operator <<(std::ostream& out, const Node& node){
-    out << "--NODE--    depth   " << node.depth << "\n";
+    out << "--NODE--    depth   " << node.depth << std::endl;
     node.position->ShowTinyBoard(out);
-    out << "Eval:  " << node.value << '\n';
+    if(node.fullyEvaluated == true){
+        out << "Eval full:  " << node.fullEval << std::endl;     
+    }
+    else{
+        out << "Eval partial:  " << node.partialEval << std::endl;
+    }
+    
     return out;
 }

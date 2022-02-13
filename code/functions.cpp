@@ -8,6 +8,7 @@
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
 
 char GetPieceSymbol(int piece_number){
+    //std::cerr << "Getting symbol   idx   " << piece_number + SYMBOLS_OFFSET << std::endl;
     return PiecesSymbols[piece_number + SYMBOLS_OFFSET];
 }
 

@@ -5,15 +5,26 @@
 #include <iostream>
 #include "move.h"
 
-void SearchTree::Search(int depth){
-    std::stack<Node*> nodesToSearch;
+SearchTree* SearchTree::instance = NULL;
+
+SearchTree::~SearchTree(void){
+    //delete entryNode;
+    instance = nullptr;
+}
+
+void SearchTree::Search(int maxdepth){
+    //std::stack<Node*> nodesToSearch;
     nodesToSearch.push(entryNode);
     while(!nodesToSearch.empty()){
-        Node *searched = nodesToSearch.top();
+        Node *searched = nodesToSearch.front();
         nodesToSearch.pop();
-        searched->Search(nodesToSearch, depth);
+        searched->Search(maxdepth);
     }
-    std::cout << "Eval: " << entryNode->bestval << '\n';
+    std::cout << "End Eval: " << entryNode->partialEval << '\n';
+    PrintResult();
+}
+
+void SearchTree::PrintResult(){
     Node *current = entryNode->bestmove;
     std::cout << "moves  \n";
     while(current){
@@ -22,6 +33,24 @@ void SearchTree::Search(int depth){
     }
 }
 
-void SearchTree::PrintResult(){
+SearchTree* SearchTree::GetInstance(){
+    if(!instance){
+        instance = new SearchTree();
+    }
+    return instance;
+}
 
+SearchTree* SearchTree::ResetAndGet(){
+    delete instance;
+    instance = NULL;
+    return GetInstance();
+}
+
+void SearchTree::AddNodeToQueue(Node* node){
+    nodesToSearch.push(node);
+}
+
+void SearchTree::SetEntry(Node * entry){
+    SearchTree* inst = GetInstance();
+    inst->entryNode = entry;
 }

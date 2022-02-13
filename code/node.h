@@ -16,8 +16,13 @@ class Node{
         Node *prev = NULL;
         Node *bestmove = NULL;
         std::list<Node*> children;
-        int value = 0; // position evaluation
+        //int value = 0; // position evaluation
+        int partialEval;
+        int fullEval;
+        int fullyEvaluated = 0; // 1 - some path leads to end, 2 - all paths lead to end
+        int fullChildren = 0;
         int bestval;
+        int searchedDepth = 0;
 
         int depth = 0;
 
@@ -30,14 +35,21 @@ class Node{
         ~Node();
 
         bool CheckMove(Move *move);
-        void Search(std::stack<Node*>& stack, int maxDepth);
-        void PassValueBackwards(Node *from);
+        void Search(int maxDepth);
+        void PassValueBackwards(Node *from, int eval);
         void Evaluate();
-        int GetEval() const { return bestval; }
+        int GetEval() const { return partialEval; }
 
         friend std::ostream& operator <<(std::ostream& out, const Node& node);
 };
 
+/*class WhiteNode : public Node{
+
+};
+
+class BlackNode : public Node{
+
+};//*/      
 // bool operator >(std::unique_ptr<Node> n1, std::unique_ptr<Node> n2);
 
 std::ostream& operator <<(std::ostream& out, const Node& node);

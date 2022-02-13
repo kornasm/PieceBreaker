@@ -467,7 +467,7 @@ void Position::CheckEndings(){
             }
         }
     }
-}
+} 
 
 void Position::CalculatePositionHash(){
     long long value = toMove + 313;
@@ -480,12 +480,15 @@ void Position::CalculatePositionHash(){
 }
 
 char Position::GetPiece(int column, int row) const{
+    //std::cerr << "Get piece     " << GetSquareValue(column, row) << "   " << column << "  " << row << std::endl;
     return GetPieceSymbol(GetSquareValue(column, row));
 }
 
 int Position::GetSquareValue(int column, int row) const{
     if(column < 1 || column > 8 || row < 1 || row > 8){
+        std::cout << "function    Position::GetSquareValue error    " << column << " " << row << std::endl;
     }
+    //std::cerr << "Get Square value    from   "  << 11 + 10 * row + column << "     " << squares[11 + 10 * row + column] << std::endl;
     return squares[11 + 10 * row + column];
 }
 
