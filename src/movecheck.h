@@ -2,6 +2,7 @@
 #define MOVECHECK_H_
 
 #include "declarations.h"
+
 #include <cstddef>
 
 class Position;

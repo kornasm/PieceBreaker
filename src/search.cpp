@@ -1,15 +1,40 @@
-#include "declarations.h"
-#include <stack>
-#include "node.h"
 #include "search.h"
-#include <iostream>
+
+#include "declarations.h"
+#include "node.h"
 #include "move.h"
 
+#include <stack>
+#include <iostream>
+
 SearchTree* SearchTree::instance = NULL;
+const std::string SearchTree::startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+SearchTree::SearchTree(){
+    entryNode = new Node();
+}
 
 SearchTree::~SearchTree(void){
-    //delete entryNode;
     instance = nullptr;
+}
+
+void SearchTree::Init(std::string fen){
+    Clear();
+    SearchTree* tree = GetInstance();
+    tree->entryNode = new Node(fen);
+}
+
+SearchTree* SearchTree::GetInstance(){
+    if(!instance){
+        instance = new SearchTree();
+    }
+    return instance;
+}
+
+void SearchTree::Clear(){
+    SearchTree *tree = GetInstance();
+    delete tree->entryNode;
+    tree->entryNode = NULL;
 }
 
 void SearchTree::Search(int maxdepth){
@@ -33,19 +58,6 @@ void SearchTree::PrintResult(){
     }
 }
 
-SearchTree* SearchTree::GetInstance(){
-    if(!instance){
-        instance = new SearchTree();
-    }
-    return instance;
-}
-
-SearchTree* SearchTree::ResetAndGet(){
-    delete instance;
-    instance = NULL;
-    return GetInstance();
-}
-
 void SearchTree::AddNodeToQueue(Node* node){
     nodesToSearch.push(node);
 }
@@ -53,4 +65,9 @@ void SearchTree::AddNodeToQueue(Node* node){
 void SearchTree::SetEntry(Node * entry){
     SearchTree* inst = GetInstance();
     inst->entryNode = entry;
+}
+
+void SearchTree::ShowBoard(){ 
+    std::cout << *entryNode << '\n';
+    std::cout << "end searchtree showboard\n";
 }

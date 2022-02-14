@@ -1,8 +1,8 @@
 #ifndef MOVE_H_
 #define MOVE_H_
 
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 
 class Move{
     private:

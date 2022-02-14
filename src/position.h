@@ -1,9 +1,10 @@
 #ifndef POSITION_H_
 #define POSITION_H_
 
-#include<string>
-#include<list>
-#include"declarations.h"
+#include "declarations.h"
+
+#include <string>
+#include <list>
 
 enum GameResult{ONGOING, WHITE_WIN, DRAW, BLACK_WIN};
 class Move;

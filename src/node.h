@@ -1,10 +1,10 @@
 #ifndef NODE_H_
 #define NODE_H_
 
-#include<list>
-#include<string>
-#include<stack>
-#include<memory>
+#include <list>
+#include <string>
+#include <stack>
+#include <memory>
 
 class Position;
 class Move;

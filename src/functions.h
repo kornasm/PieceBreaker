@@ -1,8 +1,8 @@
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
 
-#include<list>
-#include<string>
+#include <list>
+#include <string>
 
 class MoveGenerator;
 class Move;
@@ -22,8 +22,6 @@ int column(int position);
 int ColRow2Ind(int column, int row);
 
 bool NotationValid(std::string pos);
-
-int h(std::string hashed);
 
 void init();
 void cleanup();

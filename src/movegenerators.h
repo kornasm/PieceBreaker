@@ -1,9 +1,10 @@
 #ifndef MOVEGEN_H_
 #define MOVEGEN_H_
 
-#include<list>
-#include<iostream>
 #include "declarations.h"
+
+#include <list>
+#include <iostream>
 
 class Position;
 class Move;

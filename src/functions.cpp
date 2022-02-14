@@ -3,6 +3,8 @@
 #include "move.h"
 #include "movecheck.h"
 #include "position.h"
+#include "search.h"
+
 #include <cmath>
 
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
@@ -47,15 +49,6 @@ bool NotationValid(std::string pos){
     }
     return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
 }
-int h(std::string hashed){
-    long long sum = 0;
-    for(unsigned int i = 0; i < hashed.length(); i++){
-        sum = sum * 311;
-        sum += (int)(hashed[i]);
-        sum %= 1000000000 + 7;
-    }
-    return sum;
-}
 
 void init(){
     MoveCheckHandler::Init();
@@ -66,6 +59,9 @@ void init(){
 void cleanup(){
     MoveGeneratorHandler::Cleanup();
     MoveCheckHandler::Cleanup();
+    SearchTree *tree = SearchTree::GetInstance();
+    tree->Clear();
+    delete tree;
     return;
 }
 
