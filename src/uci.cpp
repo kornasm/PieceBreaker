@@ -14,7 +14,7 @@ void Uci::loop(){
         if(command == "isready"){
             std::cout << "readyok\n";
         }
-        if(command == "startpos"){
+        if(command == "position"){
             std::string option;
             std::cin >> option;
             if(option == "fen"){
@@ -55,7 +55,6 @@ void Uci::loop(){
             break;
         }
     }
-    cleanup();
     return;
 }
 
@@ -104,7 +103,7 @@ void Uci::loop(){
                 break;
             }
             case 169095377:{ // info
-                /*std::cout << "white king           " << Ind2Not(current->position->whiteKingPos) << '\n';
+                std::cout << "white king           " << Ind2Not(current->position->whiteKingPos) << '\n';
                 std::cout << "black king           " << Ind2Not(current->position->blackKingPos) << '\n';
                 std::cout << "white castl          " << current->position->whcstl << '\n';
                 std::cout << "black castl          " << current->position->blcstl << '\n';

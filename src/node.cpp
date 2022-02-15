@@ -35,13 +35,13 @@ void Node::OnConstructing(){
 }
 
 Node::~Node(){
-    std::cerr << "DESTRUCTOR\n";
+    /*std::cerr << "DESTRUCTOR\n";
     std::cerr << prev << "   " << position << "   " << moveMade << '\n';
-    std::cerr << *this << '\n';
+    std::cerr << *this << '\n';//*/
     //prev = NULL;
     delete position;
     for(auto node : children){ 
-        std::cerr << this << "   deletes    " << node << std::endl;
+        //std::cerr << this << "   deletes    " << node << std::endl;
         delete node;
     }//*/
     children.clear();
@@ -62,7 +62,7 @@ bool Node::CheckMove(Move *move){
 
 void Node::Search(int maxDepth){
     PassValueBackwards(NULL, 0);
-    char waitchar;
+    //char waitchar;
     //std::cin >> waitchar;
     SearchTree* searchTree = SearchTree::GetInstance();
     if(depth >= maxDepth || position->GetGameResult() != ONGOING){
@@ -107,64 +107,86 @@ void Node::Search(int maxDepth){
 
 void Node::PassValueBackwards(Node *from, int eval){
     if(from == NULL){
-        std::cerr << "\npassing back   from\n" << *this;
-        char waitchar;
+        //std::cerr << "\npassing back   from\n" << *this;
+        //char waitchar;
         //std::cin >> waitchar;
         if(prev){
             prev->PassValueBackwards(this, bestval);
         }
         return;
     }
-    std::cerr << "passing back   to   depth" << this->depth << '\n';
+    //std::cerr << "passing back   to   depth  " << this->depth << '\n';
 
-    int passedValue = from->GetEval();
-
-    /*if(from->fullyEvaluated > this->fullyEvaluated){
-        if(from->fullyEvaluated == 2){
-
-        }
-    }
-    if(from->searchedDepth > searchedDepth){
-        searchedDepth = from->searchedDepth;
-        bestval = from->GetEval();
-    }//*/
-    int maxval = 0;
-    Node* best = nullptr;
+    
     bool changed = false;
     if(this->position->ToMove() == WHITE){
-        maxval = -1e6;
-        for(auto nd : this->children){
-            if(nd->partialEval > maxval){
-                maxval = nd->partialEval;
-                best = nd;
-            }
-        }
-        if(this->partialEval != maxval){
+        if(from->partialEval > partialEval){
             changed = true;
+            partialEval = from->partialEval;
+            bestmove = from;
         }
-        this->partialEval = maxval;
-        this->bestmove = best;
+        else{
+            if(from == bestmove){
+                int maxval = -1e6;
+                Node* best = nullptr;
+                for(auto nd : this->children){
+                    if(nd->partialEval > maxval){
+                        maxval = nd->partialEval;
+                        best = nd;
+                    }
+                }
+                if(best != from){
+                    changed = true;
+                }
+                this->partialEval = maxval;
+                this->bestmove = best;
+            }
+            
+        }
     }
     else{
-        maxval = 1e6;
-        for(auto nd : this->children){
-            if(nd->partialEval < maxval){
-                maxval = nd->partialEval;
-                best = nd;
-            }
-        }
-        if(this->partialEval != maxval){
+        if(from->partialEval < partialEval){
             changed = true;
+            partialEval = from->partialEval;
+            bestmove = from;
         }
-        this->partialEval = maxval;
-        this->bestmove = best;
+        else{
+            if(from == bestmove){
+                int maxval = 1e6;
+                Node* best = nullptr;
+                for(auto nd : this->children){
+                    if(nd->partialEval < maxval){
+                        maxval = nd->partialEval;
+                        best = nd;
+                    }
+                }
+                if(best != from){
+                    changed = true;
+                }
+                this->partialEval = maxval;
+                this->bestmove = best;
+            }  
+            
+        }
     }
 
     if(changed == true){
         if(prev){
             prev->PassValueBackwards(this, this->partialEval);
         }
+        if(depth == 0){
+            std::cerr << "best path changed   ";
+            Node *current = this->bestmove;
+            std::cerr << bestmove << "\t" << partialEval << '\n';
+            std::cerr << "moves  \n";
+            while(current){
+                std::cerr << *(current->moveMade) << '\n';
+                current = current->bestmove;
+            }
+        }
     }
+
+    
     /*if(position->ToMove() == WHITE){
         if(passedValue > bestval){
             bestval = passedValue;
@@ -196,23 +218,23 @@ void Node::PassValueBackwards(Node *from, int eval){
 void Node::Evaluate(){
     partialEval = Evaluator::Evaluate(*position);
     bestval = partialEval;
-    GameResult res = position->GetGameResult();
-    if(res != GameResult::ONGOING){
+    //GameResult res = position->GetGameResult();
+    /*if(res != GameResult::ONGOING){
         fullyEvaluated = 2;
         fullEval = partialEval;
-    }
+    }//*/
     
 }
 
 std::ostream& operator <<(std::ostream& out, const Node& node){
     out << "--NODE--    depth   " << node.depth << std::endl;
     node.position->ShowTinyBoard(out);
-    if(node.fullyEvaluated == true){
-        out << "Eval full:  " << node.fullEval << std::endl;     
-    }
-    else{
+    //if(node.fullyEvaluated == true){
+    //    out << "Eval full:  " << node.fullEval << std::endl;     
+   // }
+   // else{
         out << "Eval partial:  " << node.partialEval << std::endl;
-    }
+   // }
     
     return out;
 }

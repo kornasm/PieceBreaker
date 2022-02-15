@@ -53,6 +53,7 @@ bool NotationValid(std::string pos){
 void init(){
     MoveCheckHandler::Init();
     MoveGeneratorHandler::Init();
+    SearchTree::Init();
     return;
 }
 

@@ -6,12 +6,13 @@
 
 #include <stack>
 #include <iostream>
+#include <iomanip>
 
 SearchTree* SearchTree::instance = NULL;
 const std::string SearchTree::startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 SearchTree::SearchTree(){
-    entryNode = new Node();
+    //entryNode = new Node();
 }
 
 SearchTree::~SearchTree(void){
@@ -37,6 +38,18 @@ void SearchTree::Clear(){
     tree->entryNode = NULL;
 }
 
+void Explore(Node *nd, std::string prefix){
+    std::cerr << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << nd->partialEval << "\tbest " << nd->bestmove << "\t";
+    if(nd->moveMade){
+        std::cerr << *(nd->moveMade);
+    }
+    std::cerr << '\n';
+    for(auto node : nd->children){
+        Explore(node, prefix + '\t');
+    }
+    return;
+}
+
 void SearchTree::Search(int maxdepth){
     //std::stack<Node*> nodesToSearch;
     nodesToSearch.push(entryNode);
@@ -45,17 +58,20 @@ void SearchTree::Search(int maxdepth){
         nodesToSearch.pop();
         searched->Search(maxdepth);
     }
-    std::cout << "End Eval: " << entryNode->partialEval << '\n';
+    std::cerr << "End Eval: " << entryNode->partialEval << '\n';
+    Explore(entryNode, "");
     PrintResult();
 }
 
 void SearchTree::PrintResult(){
-    Node *current = entryNode->bestmove;
+    /*Node *current = entryNode->bestmove;
     std::cout << "moves  \n";
     while(current){
         std::cout << *(current->moveMade) << '\n';
         current = current->bestmove;
-    }
+    }//*/
+    std::cout << "bestmove " << *(entryNode->bestmove->moveMade) << " ponder " << *(entryNode->bestmove->bestmove->moveMade) << '\n';
+
 }
 
 void SearchTree::AddNodeToQueue(Node* node){
@@ -69,5 +85,4 @@ void SearchTree::SetEntry(Node * entry){
 
 void SearchTree::ShowBoard(){ 
     std::cout << *entryNode << '\n';
-    std::cout << "end searchtree showboard\n";
 }

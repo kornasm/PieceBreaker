@@ -7,8 +7,11 @@
 #include "evaluate.h"
 #include "uci.h"
 
-int main(){
-    freopen("/dev/null", "w", stderr);
+int main(int argc, char **argv){
+    if(argc == 1){
+        freopen("/dev/null", "w", stderr);
+    }
     init();
     Uci::loop();
+    cleanup();
 }

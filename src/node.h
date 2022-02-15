@@ -17,11 +17,11 @@ class Node{
         Node *bestmove = NULL;
         std::list<Node*> children;
         //int value = 0; // position evaluation
-        int partialEval;
-        int fullEval;
-        int fullyEvaluated = 0; // 1 - some path leads to end, 2 - all paths lead to end
-        int fullChildren = 0;
-        int bestval;
+        float partialEval;
+        //float fullEval;
+        //float fullyEvaluated = 0; // 1 - some path leads to end, 2 - all paths lead to end
+        //float fullChildren = 0;
+        float bestval;
         int searchedDepth = 0;
 
         int depth = 0;
