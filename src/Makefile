@@ -1,4 +1,4 @@
-FLAGS = -std=c++17 -Wall -Wshadow -Wextra -Wno-unused-parameter
+FLAGS = -std=c++17 -Wall -Wshadow -Wextra -Wno-unused-parameter -Wconversion
 OBJECTFILES = main.o position.o functions.o generators.o move.o node.o movecheck.o search.o evaluate.o uci.o
 
 debug: FLAGS += -g

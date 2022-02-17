@@ -7,13 +7,13 @@
 #include "move.h"
 
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 
 extern const int mailbox[64];
 const double material[NO_PIECES] = {0, -9, -3, -3, -5, -1, 0, 1, 5, 3, 3, 9, 0};
-double Evaluator::Evaluate(const Position& position){
-    std::cerr << "EVALUATING   \n";
-    //position.ShowBoard();
+float Evaluator::Evaluate(const Position& position){
+    //std::cerr << "EVALUATING   \n";
     if(position.GetGameResult() != ONGOING){
         if(position.GetGameResult() == DRAW){
             return 0;
@@ -43,17 +43,18 @@ double Evaluator::Evaluate(const Position& position){
         // std::cout << "result   " << result << '\n';
     }
     // std::cout << "result   " << result << '\n';
-    double plus = (double)(position.ToMove()) / 10;
-    std::cerr << "Material   " << result << '\n';
+    //double plus = (double)(position.ToMove()) / 10;
+    int side = position.ToMove();
+    //std::cerr << "Material   " << result << '\n';
     std::list<Move> *moves = AllMovesGenerator::GenerateMoves(position);
     std::list<Move> *oppMoves = AllMovesGenerator::GenerateMoves(position, true);
-    std::cerr << "eval    " << result << '\n';
-    float pos = (float)((int)(moves->size()) - (int)(oppMoves->size())) / 5 * position.ToMove();
+    //std::cerr << "eval    " << result << '\n';
+    float pos = (float)((int)(moves->size()) - (int)(oppMoves->size())) / 5 * (float)(position.ToMove());
     result += pos;
-    std::cerr << "eval    " << result << '\n';
+    //std::cerr << "eval    " << result << '\n';
     int heatmap[121] = {};
     for(auto move : *moves){
-        heatmap[move.To()] += plus;
+        heatmap[move.To()] += side;
         int movingPiece = position.GetSquareValue(move.From());
         int targetPiece = position.GetSquareValue(move.To());
         if(sgn(targetPiece) == -position.ToMove()){
@@ -63,7 +64,7 @@ double Evaluator::Evaluate(const Position& position){
         }
     }
     for(auto move : *oppMoves){
-        heatmap[move.To()] += plus;
+        heatmap[move.To()] += side;
     }
     for(int i = 0; i < 64; i++){
         int color = position.GetSquareColor(mailbox[i]);
@@ -75,8 +76,7 @@ double Evaluator::Evaluate(const Position& position){
 
     result = round(result * 100) / 100;
 
-
     delete moves;
     delete oppMoves;
-    return result;
+    return (float)result;
 }

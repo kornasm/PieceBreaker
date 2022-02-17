@@ -8,7 +8,7 @@
 #include "uci.h"
 
 int main(int argc, char **argv){
-    if(argc == 1){
+    if(argc != 1){
         freopen("/dev/null", "w", stderr);
     }
     init();

@@ -75,6 +75,7 @@ class Position{
         int EnPassantPos() const { return enPassant; }
         int ToMove() const { return toMove; }
         GameResult GetGameResult() const { return result; }
+        long long GetPositionHash() const { return positionHash; }
 };
 
 #endif

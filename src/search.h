@@ -31,6 +31,7 @@ class SearchTree{
         void AddNodeToQueue(Node* node);
         void SetEntry(Node * entry);
         void ShowBoard();
+        Node *GetEntryNode() {return entryNode; }
 };
 
 #endif

@@ -225,9 +225,6 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, cons
             moves->push_back(m);
         }
     }
-    if(position.EnPassantPos() == (originSquare + 9) && position.GetSquareColor(originSquare + 9) == EMPTY_SQUARE){
-        moves->push_back(Move(originSquare, originSquare + 9, PAWN_MOVE | EN_PASSANT_MOVE));
-    }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare + 11))){
         Move m(originSquare, originSquare + 11, PAWN_MOVE | CAPTURE_MOVE);
         if(row(originSquare) == 7){
@@ -238,7 +235,10 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, cons
             moves->push_back(m);
         }
     }
-    if(position.EnPassantPos() == (originSquare + 11) && position.GetSquareColor(originSquare + 11) == EMPTY_SQUARE){
+    if(position.EnPassantPos() == (originSquare + 9) && position.GetSquareColor(originSquare + 9) == EMPTY_SQUARE && row(originSquare) == 5){
+        moves->push_back(Move(originSquare, originSquare + 9, PAWN_MOVE | EN_PASSANT_MOVE));
+    }
+    if(position.EnPassantPos() == (originSquare + 11) && position.GetSquareColor(originSquare + 11) == EMPTY_SQUARE && row(originSquare) == 5){
         moves->push_back(Move(originSquare, originSquare + 11, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     return moves;
@@ -270,9 +270,6 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, cons
             moves->push_back(m);
         }  
     }
-    if(position.EnPassantPos() == (originSquare - 9) && position.GetSquareColor(originSquare - 9) == EMPTY_SQUARE){
-        moves->push_back(Move(originSquare, originSquare - 9, PAWN_MOVE | EN_PASSANT_MOVE));
-    }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare - 11))){
         Move m(originSquare, originSquare - 11, PAWN_MOVE | CAPTURE_MOVE);
         if(row(originSquare) == 2){
@@ -283,7 +280,10 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, cons
             moves->push_back(m);
         }
     }
-    if(position.EnPassantPos() == (originSquare - 11) && position.GetSquareColor(originSquare - 11) == EMPTY_SQUARE){
+    if(position.EnPassantPos() == (originSquare - 9) && position.GetSquareColor(originSquare - 9) == EMPTY_SQUARE && row(originSquare) == 4){
+        moves->push_back(Move(originSquare, originSquare - 9, PAWN_MOVE | EN_PASSANT_MOVE));
+    }
+    if(position.EnPassantPos() == (originSquare - 11) && position.GetSquareColor(originSquare - 11) == EMPTY_SQUARE && row(originSquare) == 4){
         moves->push_back(Move(originSquare, originSquare - 11, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     return moves;

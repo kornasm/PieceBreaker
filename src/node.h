@@ -36,12 +36,15 @@ class Node{
 
         bool CheckMove(Move *move);
         void Search(int maxDepth);
-        void PassValueBackwards(Node *from, int eval);
+        void PassValueBackwards(Node *from);
         void Evaluate();
-        int GetEval() const { return partialEval; }
+        float GetEval() const { return partialEval; }
+        int GetDepth() const { return depth; }
 
         friend std::ostream& operator <<(std::ostream& out, const Node& node);
 };
+
+void Explore(Node *nd, std::string prefix, int maxdepth = 10);
 
 /*class WhiteNode : public Node{
 

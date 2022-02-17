@@ -5,6 +5,8 @@
 #include "evaluate.h"
 #include "search.h"
 
+#include <iomanip>
+
 int Node::count = 0;
 
 Node::Node(){
@@ -61,7 +63,7 @@ bool Node::CheckMove(Move *move){
 }
 
 void Node::Search(int maxDepth){
-    PassValueBackwards(NULL, 0);
+    PassValueBackwards(NULL);
     //char waitchar;
     //std::cin >> waitchar;
     SearchTree* searchTree = SearchTree::GetInstance();
@@ -105,13 +107,13 @@ void Node::Search(int maxDepth){
     delete moves;
 }
 
-void Node::PassValueBackwards(Node *from, int eval){
+void Node::PassValueBackwards(Node *from){
     if(from == NULL){
         //std::cerr << "\npassing back   from\n" << *this;
         //char waitchar;
         //std::cin >> waitchar;
         if(prev){
-            prev->PassValueBackwards(this, bestval);
+            prev->PassValueBackwards(this);
         }
         return;
     }
@@ -127,7 +129,7 @@ void Node::PassValueBackwards(Node *from, int eval){
         }
         else{
             if(from == bestmove){
-                int maxval = -1e6;
+                float maxval = -1e6;
                 Node* best = nullptr;
                 for(auto nd : this->children){
                     if(nd->partialEval > maxval){
@@ -135,13 +137,10 @@ void Node::PassValueBackwards(Node *from, int eval){
                         best = nd;
                     }
                 }
-                if(best != from){
-                    changed = true;
-                }
+                changed = true;
                 this->partialEval = maxval;
                 this->bestmove = best;
             }
-            
         }
     }
     else{
@@ -152,7 +151,7 @@ void Node::PassValueBackwards(Node *from, int eval){
         }
         else{
             if(from == bestmove){
-                int maxval = 1e6;
+                float maxval = 1e6;
                 Node* best = nullptr;
                 for(auto nd : this->children){
                     if(nd->partialEval < maxval){
@@ -160,22 +159,20 @@ void Node::PassValueBackwards(Node *from, int eval){
                         best = nd;
                     }
                 }
-                if(best != from){
-                    changed = true;
-                }
+                changed = true;
                 this->partialEval = maxval;
                 this->bestmove = best;
-            }  
-            
+            }
         }
     }
 
     if(changed == true){
         if(prev){
-            prev->PassValueBackwards(this, this->partialEval);
+            prev->PassValueBackwards(this);
         }
         if(depth == 0){
-            std::cerr << "best path changed   ";
+            Explore(this, "", 1);
+            std::cerr << "best path changed    from   " << *this->bestmove->moveMade << "   eval    " << this->bestmove->partialEval << '\n';
             Node *current = this->bestmove;
             std::cerr << bestmove << "\t" << partialEval << '\n';
             std::cerr << "moves  \n";
@@ -237,4 +234,18 @@ std::ostream& operator <<(std::ostream& out, const Node& node){
    // }
     
     return out;
+}
+
+void Explore(Node *nd, std::string prefix, int maxdepth){
+    std::cerr << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << std::setprecision(1) << nd->partialEval << "\tbest " << nd->bestmove << "\t";
+    if(nd->moveMade){
+        std::cerr << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To();
+    }
+    std::cerr << '\n';
+    if(nd->GetDepth() < maxdepth){
+        for(auto node : nd->children){
+            Explore(node, prefix + '\t', maxdepth);
+        }
+    }
+    return;
 }

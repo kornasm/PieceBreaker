@@ -5,7 +5,7 @@ class Position;
 
 class Evaluator{
     public:
-        static double Evaluate(const Position& position);
+        static float Evaluate(const Position& position);
 };
 
 #endif

@@ -1,12 +1,16 @@
 #include "uci.h"
 #include "search.h"
 #include "functions.h"
+#include "evaluate.h"
+#include "node.h"
+#include "position.h"
 
 #include <iostream>
 
 void Uci::loop(){
     std::string command;
     while(true){
+        std::cout << ">";
         std::cin >> command;
 
         if(command == "uci")
@@ -31,12 +35,11 @@ void Uci::loop(){
             SearchTree *tree = SearchTree::GetInstance();
             int depth;
             std::cin >> depth;
+            if(depth == 0){
+                std::cout << "depth must be positive\n";
+                continue;
+            }
             tree->Search(depth);
-        }
-
-        if(command == "board"){
-            SearchTree *tree = SearchTree::GetInstance();
-            tree->ShowBoard();
         }
 
         if(command == "ucinewgame"){
@@ -53,6 +56,22 @@ void Uci::loop(){
 
         if(command == "quit"){
             break;
+        }
+
+
+        // not uci
+
+        if(command == "board"){
+            SearchTree *tree = SearchTree::GetInstance();
+            tree->ShowBoard();
+        }
+        if(command == "eval"){
+            SearchTree *tree = SearchTree::GetInstance();
+            tree->GetEntryNode()->Evaluate();
+        }
+        if(command == "hash"){
+            SearchTree *tree = SearchTree::GetInstance();
+            std::cout << tree->GetEntryNode()->position->GetPositionHash();
         }
     }
     return;

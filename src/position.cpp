@@ -121,7 +121,7 @@ Position::Position(std::string fen){
     while(fen[0] == ' '){
         fen.erase(0, 1);
     }
-    int ind = fen.find(' ');
+    long unsigned int ind = fen.find(' ');
     std::string fentemp = fen.substr(0, ind);
     fen.erase(0, ind + 1);
 
