@@ -5,13 +5,29 @@
 #include "node.h"
 #include "position.h"
 
+#include <thread>
+#include <memory>
 #include <iostream>
 
 void Uci::loop(){
+    bool running = false;
     std::string command;
+    std::unique_ptr<std::thread> st = nullptr;
+    SearchTree::Init();
     while(true){
-        std::cout << ">";
+        std::cout << "> ";
         std::cin >> command;
+
+        {
+            SearchTree* tree = SearchTree::GetInstance();
+            if(THREAD_READY_TO_JOIN == tree->GetThreadStatus()){
+                if(st->joinable()){
+                    st->join();
+                    tree->SetThreadStatus(THREAD_IDLE);
+                    running = false;
+                }
+            }
+        }
 
         if(command == "uci")
             std::cout << "uci ok\n";
@@ -32,14 +48,19 @@ void Uci::loop(){
         }
 
         if(command == "go"){
-            SearchTree *tree = SearchTree::GetInstance();
-            int depth;
-            std::cin >> depth;
-            if(depth == 0){
-                std::cout << "depth must be positive\n";
-                continue;
+            if(running == false){
+                SearchTree::Init();
+                SearchTree *tree = SearchTree::GetInstance();
+                int depth;
+                std::cin >> depth;
+                if(depth == 0){
+                    std::cout << "depth must be positive\n";
+                    continue;
+                }
+                running = true;
+                tree->SetThreadStatus(THREAD_RUNNING);
+                st = std::make_unique<std::thread>(std::thread(executeSearching, depth));
             }
-            tree->Search(depth);
         }
 
         if(command == "ucinewgame"){
@@ -47,14 +68,27 @@ void Uci::loop(){
         }
 
         if(command == "stop"){
-            // nothing yet
+            if(running){
+                SearchTree* tree = SearchTree::GetInstance();
+                tree->SetThreadStatus(THREAD_STOP);
+                st->join();
+                tree->SetThreadStatus(THREAD_IDLE);
+                running = false;
+            }
+
         }
 
         if(command == "ponderhit"){
             // nothing yet
         }
-
         if(command == "quit"){
+            if(running){
+                SearchTree* tree = SearchTree::GetInstance();
+                tree->SetThreadStatus(THREAD_STOP);
+                st->join();
+                tree->SetThreadStatus(THREAD_IDLE);
+                running = false;
+            }
             break;
         }
 
@@ -73,82 +107,11 @@ void Uci::loop(){
             SearchTree *tree = SearchTree::GetInstance();
             std::cout << tree->GetEntryNode()->position->GetPositionHash();
         }
-    }
-    return;
-}
-
-/*Node *newgame = new Node();
-    Node *current = newgame;
-    int gamestate = 1;
-    while(gamestate){
-        std::cout << "Enter command:" << std::endl;
-        std::string command;
-        std::cin >> command;
-        std::cout << h(command) << std::endl;
-        switch(h(command)){
-            case 289517988:{ // "move"
-                std::string movestr;
-                std::cin >> movestr;
-                if(movestr.length() >= 4){
-                    Move *insertedmove = Move::String2Move(movestr);
-                    if(insertedmove != NULL){
-                        if(current->CheckMove(insertedmove)){
-                            std::cout << "ok\n";
-                            current = current->children.back();
-                        }
-                        else{
-                            std::cout << "not ok\n"; 
-                        }
-                        delete insertedmove;
-                    }
-                }
-                else{
-                    std::cout << "incorrect move syntax\n";
-                }
-                break;
-            }
-            case 40093753:{ // moves}
-                std::list<Move> *moves = current->position->GenerateAllLegalMoves();
-                PrintMoveList(moves);
-                delete moves;
-                break;
-            }
-            case 9897063:{ //fen
-                std::string fen;
-                std::getline(std::cin, fen);
-                delete newgame;
-                newgame = new Node(fen);
-                current = newgame;
-                break;
-            }
-            case 169095377:{ // info
-                std::cout << "white king           " << Ind2Not(current->position->whiteKingPos) << '\n';
-                std::cout << "black king           " << Ind2Not(current->position->blackKingPos) << '\n';
-                std::cout << "white castl          " << current->position->whcstl << '\n';
-                std::cout << "black castl          " << current->position->blcstl << '\n';
-                std::cout << "en passant           " << Ind2Not(current->position->EnPassantPos() << '\n';
-                std::cout << "is check             " << current->position->underCheck << '\n';
-                std::cout << "half move clock      " << current->position->halfMoveClock << '\n';
-                std::cout << "pos hash             " << current->position->PositionHash() << '\n';
-                std::cout << "to move              " << current->position->ToMove() << '\n';
-                break;
-            }
-            case 32144: { // go
-                int depth;
-                std::cin >> depth;
-                //std::unique_ptr<SearchTree> tree = std::make_unique<SearchTree>(SearchTree::GetInstance());
-                SearchTree* tree = SearchTree::GetInstance();
-                tree->SetEntry(current);
-                tree->Search(depth);
-                std::cout << "TREE DELETE CALLED\n\n\n";
-                delete tree;
-                break;
-            }
-            case 49546663: { // eval
-                std::cout << "Eval: " << Evaluator::Evaluate(*(current->position)) << '\n';
-            }
+        if(command == "sethash"){
+            std::cin >> Evaluator::hashInfo;
         }
     }
-    delete newgame;
-    cleanup();
-    std::cout << Node::count << '\n';//*/
+    //if(searching_thread)
+    //    delete searching_thread;
+    return;
+}

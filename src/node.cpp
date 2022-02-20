@@ -223,6 +223,10 @@ void Node::Evaluate(){
     
 }
 
+int Node::CalcPriority(){
+    return 0;
+}
+
 std::ostream& operator <<(std::ostream& out, const Node& node){
     out << "--NODE--    depth   " << node.depth << std::endl;
     node.position->ShowTinyBoard(out);
@@ -234,6 +238,10 @@ std::ostream& operator <<(std::ostream& out, const Node& node){
    // }
     
     return out;
+}
+
+bool sortNodesByPriority(Node *nd1, Node* nd2){
+    return nd1->priority > nd2->priority;
 }
 
 void Explore(Node *nd, std::string prefix, int maxdepth){
@@ -249,3 +257,4 @@ void Explore(Node *nd, std::string prefix, int maxdepth){
     }
     return;
 }
+

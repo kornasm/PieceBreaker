@@ -12,8 +12,11 @@
 
 extern const int mailbox[64];
 const double material[NO_PIECES] = {0, -9, -3, -3, -5, -1, 0, 1, 5, 3, 3, 9, 0};
+
+long long Evaluator::hashInfo = 0;
 float Evaluator::Evaluate(const Position& position){
-    //std::cerr << "EVALUATING   \n";
+    //std::cout << "EVALUATING    " << position.GetPositionHash() << "\n";
+    //std::cout << "h    " << hashInfo << '\n';
     if(position.GetGameResult() != ONGOING){
         if(position.GetGameResult() == DRAW){
             return 0;
@@ -64,7 +67,7 @@ float Evaluator::Evaluate(const Position& position){
         }
     }
     for(auto move : *oppMoves){
-        heatmap[move.To()] += side;
+        heatmap[move.To()] -= side;
     }
     for(int i = 0; i < 64; i++){
         int color = position.GetSquareColor(mailbox[i]);
@@ -75,6 +78,27 @@ float Evaluator::Evaluate(const Position& position){
     
 
     result = round(result * 100) / 100;
+
+    if(position.GetPositionHash() == hashInfo){
+        int a = 0;
+        a++;
+        for(auto m : *moves){
+            std::cerr << m << "\n";
+        }
+        std::cerr << "\n\n";
+        for(auto m : *oppMoves){
+            std::cerr << m << "\n";
+        }
+        for(int r = 8; r > 0; r--){
+            for(int c = 1; c <= 8; c++){
+                if(heatmap[ColRow2Ind(c, r)] >= 0)
+                    std::cerr << " ";
+                std::cerr << std::fixed << std::setprecision(1) << heatmap[ColRow2Ind(c, r)] << " ";
+            }
+            std::cerr << '\n';
+        }
+        std::cerr << "\n\n";
+    }
 
     delete moves;
     delete oppMoves;

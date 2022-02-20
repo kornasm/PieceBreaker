@@ -40,6 +40,8 @@ class Node{
         void Evaluate();
         float GetEval() const { return partialEval; }
         int GetDepth() const { return depth; }
+        const int priority = 0;
+        int CalcPriority();
 
         friend std::ostream& operator <<(std::ostream& out, const Node& node);
 };
@@ -57,4 +59,5 @@ class BlackNode : public Node{
 
 std::ostream& operator <<(std::ostream& out, const Node& node);
 
+bool sortNodesByPriority(Node *nd1, Node* nd2);
 #endif

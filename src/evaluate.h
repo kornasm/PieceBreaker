@@ -6,6 +6,7 @@ class Position;
 class Evaluator{
     public:
         static float Evaluate(const Position& position);
+        static long long hashInfo;
 };
 
 #endif
