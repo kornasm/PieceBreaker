@@ -1,8 +1,10 @@
 #include "position.h"
+
 #include "functions.h"
 #include "move.h"
 #include "movecheck.h"
 #include "movegenerators.h"
+
 #include <cmath>
 
 const int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
@@ -23,7 +25,7 @@ Position::Position(){
     whcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
     blcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
     enPassant = -1;
-    prev = NULL;
+    prev = nullptr;
     result = ONGOING;
     underCheck = false;
     halfMoveClock = 0;
@@ -216,7 +218,7 @@ Position::Position(std::string fen){
     CalculatePositionHash();
     CheckCheck();
     CheckEndings();
-    prev = NULL;
+    prev = nullptr;
     result = GameResult::ONGOING;
 }
 
@@ -249,13 +251,13 @@ std::ostream& Position::ShowTinyBoard(std::ostream& out) const{
 
 Position* Position::MakeMove(Move *toExecute){
     Move *expectedmove = CheckIfMoveFullLegal(toExecute);
-    if(NULL != expectedmove)
+    if(nullptr != expectedmove)
     {
         Position *newposition = new Position(*this, expectedmove, toExecute->Promo());
         delete expectedmove;
         return newposition;
     }
-    return NULL;
+    return nullptr;
 }
 
 int Position::MakeSoftMove(Move *toExecute){
@@ -302,9 +304,9 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
     int PieceColor = GetSquareColor(checkedmove->From());
     if(toMove != PieceColor){
         std::cout << "wrong piece chosen (wrong color)\n";
-        return NULL;
+        return nullptr;
     }
-    Move *expectedmove = NULL;
+    Move *expectedmove = nullptr;
     if(pseudoLegalWarranty){
         expectedmove = new Move(*checkedmove);
     }
@@ -315,10 +317,10 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
         if(checkedmove->Promo() == 0){
             delete expectedmove;
             std::cout << "no promo char entered\n";
-            return NULL;
+            return nullptr;
         }
     }
-    if(NULL != expectedmove)
+    if(nullptr != expectedmove)
     {
         int takenPiece = MakeSoftMove(expectedmove);
         int kingPos = 0;
@@ -330,11 +332,11 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
         MakeSoftBack(expectedmove, takenPiece);
         if(ownCheckAfter){
             delete expectedmove;
-            return NULL;
+            return nullptr;
         }
         return expectedmove;
     }
-    return NULL;
+    return nullptr;
 }
 
 Move* Position::CheckIfMovePseudoLegal(int from, int to) const{
@@ -406,7 +408,7 @@ void Position::CheckEndings(){
         if(current->searchBackRepetitions == false){
             break;
         }
-        if(NULL == current->prev){
+        if(nullptr == current->prev){
             break;
         }
         else{
@@ -526,7 +528,7 @@ bool Position::IsPlaceAttacked(int attackedplace, int attackingcolor) const{
         int ind = mailbox[i];
         if(GetSquareColor(ind) == attackingcolor){
             Move *m = MoveCheckHandler::CheckMove(*this, ind, attackedplace);
-            if(m != NULL){
+            if(m != nullptr){
                 delete m;
                 return true;
             }

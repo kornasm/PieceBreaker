@@ -1,4 +1,5 @@
 #include "movegenerators.h"
+
 #include "position.h"
 #include "move.h"
 #include "functions.h"

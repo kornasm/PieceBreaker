@@ -4,11 +4,9 @@
 #include "node.h"
 #include "move.h"
 
-#include <stack>
 #include <iostream>
-#include <iomanip>
 
-SearchTree* SearchTree::instance = NULL;
+SearchTree* SearchTree::instance = nullptr;
 const std::string SearchTree::startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 void executeSearching(int depth){
@@ -44,15 +42,10 @@ void SearchTree::Clear(){
         tree->nodesToSearch.pop();
     }
     delete tree->entryNode;
-    tree->entryNode = NULL;
-}
-
-void SearchTree::operator()(int maxdepth){
-    Search(maxdepth);
+    tree->entryNode = nullptr;
 }
 
 void SearchTree::Search(int maxdepth){
-    //std::stack<Node*> nodesToSearch;
     nodesToSearch.push(entryNode);
     while(!nodesToSearch.empty() && status == THREAD_RUNNING){
         Node *searched = nodesToSearch.front();
@@ -72,9 +65,8 @@ void SearchTree::PrintResult(){
     while(current){
         std::cout << *(current->moveMade) << ' ';
         current = current->bestmove;
-    }//*/
-    std::cout << std::endl;
-    std::cout << "bestmove " << *(entryNode->bestmove->moveMade);
+    }
+    std::cout << "\nbestmove " << *(entryNode->bestmove->moveMade);
     if(entryNode->bestmove->bestmove)
         std::cout << " ponder " << *(entryNode->bestmove->bestmove->moveMade);
     std::cout << std::endl;
@@ -82,11 +74,6 @@ void SearchTree::PrintResult(){
 
 void SearchTree::AddNodeToQueue(Node* node){
     nodesToSearch.push(node);
-}
-
-void SearchTree::SetEntry(Node * entry){
-    SearchTree* inst = GetInstance();
-    inst->entryNode = entry;
 }
 
 void SearchTree::ShowBoard(){ 

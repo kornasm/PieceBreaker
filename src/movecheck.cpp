@@ -1,8 +1,10 @@
 #include "movecheck.h"
+
 #include "position.h"
 #include "move.h"
 #include "movegenerators.h"
 #include "functions.h"
+
 #include <cmath>
 
 MoveChecker* MoveCheckHandler::checkers[] = {};
@@ -31,10 +33,10 @@ void MoveCheckHandler::Cleanup(){
 }
 Move* MoveCheckHandler::CheckMove(const Position& position, int from, int to){
     if(position.GetSquareColor(from) == position.GetSquareColor(to)){
-        return NULL;
+        return nullptr;
     }
     if(position.GetSquareValue(to) == OUTSIDE_BOARD){
-        return NULL;
+        return nullptr;
     }
     //std::cout << "checkmovehandler  " << position.GetSquareValue(from) << "   " << from << '\n';
     return checkers[position.GetSquareValue(from) + SYMBOLS_OFFSET]->CheckMoveLegality(position, from, to);
@@ -51,7 +53,7 @@ Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int
         return m;
     }
     if(coldiff >= 3 || rowdiff >= 2){
-        return NULL;
+        return nullptr;
     }
     int col = position.GetSquareColor(from);
     if(col == WHITE){
@@ -61,7 +63,7 @@ Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int
                 for(auto move : *attackedPlaces){
                     if(move.To() == from || move.To() == from + 1 || move.To() == from + 2){
                         delete attackedPlaces;
-                        return NULL;
+                        return nullptr;
                     }
                 }
                 delete attackedPlaces;
@@ -74,7 +76,7 @@ Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int
                 for(auto move : *attackedPlaces){
                     if(move.To() == from || move.To() == from - 1 || move.To() == from - 2){
                         delete attackedPlaces;
-                        return NULL;
+                        return nullptr;
                     }
                 }
                 delete attackedPlaces;
@@ -88,7 +90,7 @@ Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int
                 for(auto move : *attackedPlaces){
                     if(move.To() == from || move.To() == from + 1 || move.To() == from + 2){
                         delete attackedPlaces;
-                        return NULL;
+                        return nullptr;
                     }
                 }
                 delete attackedPlaces;
@@ -100,14 +102,14 @@ Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int
                 for(auto move : *attackedPlaces){
                     if(move.To() == from || move.To() == from - 1 || move.To() == from - 2){
                         delete attackedPlaces;
-                        return NULL;
+                        return nullptr;
                     }
                 }
                 delete attackedPlaces;
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 Move* RookMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
@@ -118,7 +120,7 @@ Move* RookMoveChecker::CheckMoveLegality(const Position& position, int from, int
         }
         return m;
     }
-    return NULL;
+    return nullptr;
 }
 
 Move* BishopMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
@@ -129,7 +131,7 @@ Move* BishopMoveChecker::CheckMoveLegality(const Position& position, int from, i
         }
         return m;
     }
-    return NULL;
+    return nullptr;
 }
 
 Move* QueenMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
@@ -140,7 +142,7 @@ Move* QueenMoveChecker::CheckMoveLegality(const Position& position, int from, in
         }
         return m;
     }
-    return NULL;
+    return nullptr;
 }
 
 Move* KnightMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
@@ -153,7 +155,7 @@ Move* KnightMoveChecker::CheckMoveLegality(const Position& position, int from, i
         }
         return m;
     }
-    return NULL;
+    return nullptr;
 }
 
 Move* WhitePawnMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
@@ -183,7 +185,7 @@ Move* WhitePawnMoveChecker::CheckMoveLegality(const Position& position, int from
         }
     }
     delete m;
-    return NULL;
+    return nullptr;
 }
 
 Move* BlackPawnMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
@@ -213,5 +215,5 @@ Move* BlackPawnMoveChecker::CheckMoveLegality(const Position& position, int from
         }
     }
     delete m;
-    return NULL;
+    return nullptr;
 }

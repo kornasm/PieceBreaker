@@ -34,5 +34,10 @@
 #define EN_PASSANT_MOVE 32
 #define PROMOTION_MOVE 64
 
+// thread status
+#define THREAD_IDLE 0 
+#define THREAD_RUNNING 1
+#define THREAD_STOP 2
+#define THREAD_READY_TO_JOIN 3
 
 #endif

@@ -3,15 +3,13 @@
 
 #include "declarations.h"
 
-#include <cstddef>
-
 class Position;
 class Move;
 
 class MoveChecker{
     public:
         virtual Move* CheckMoveLegality(const Position& position, int from, int to){
-            return NULL;
+            return nullptr;
         }
         virtual ~MoveChecker(){};
 };
@@ -54,7 +52,7 @@ class BlackPawnMoveChecker: public MoveChecker{
 class EmptyMoveChecker: public MoveChecker{
     public:
         Move* CheckMoveLegality(const Position& position, int from, int to){
-            return NULL;
+            return nullptr;
         }
 };
 

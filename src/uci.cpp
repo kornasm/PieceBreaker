@@ -1,4 +1,5 @@
 #include "uci.h"
+
 #include "search.h"
 #include "functions.h"
 #include "evaluate.h"
@@ -6,20 +7,17 @@
 #include "position.h"
 
 #include <thread>
-#include <memory>
 #include <iostream>
 
 void Uci::loop(){
     bool running = false;
     std::string command;
     std::unique_ptr<std::thread> st = nullptr;
-    SearchTree::Init();
+    SearchTree *tree = SearchTree::GetInstance();
     while(true){
-        std::cout << "> ";
-        std::cin >> command;
+        std::cin >> command;        
 
-        {
-            SearchTree* tree = SearchTree::GetInstance();
+        if(running){
             if(THREAD_READY_TO_JOIN == tree->GetThreadStatus()){
                 if(st->joinable()){
                     st->join();
@@ -30,16 +28,16 @@ void Uci::loop(){
         }
 
         if(command == "uci")
-            std::cout << "uci ok\n";
-        if(command == "isready"){
-            std::cout << "readyok\n";
-        }
+            std::cout << "uciok" << std::endl;
+        if(command == "isready")
+            std::cout << "readyok" << std::endl;
+
         if(command == "position"){
             std::string option;
             std::cin >> option;
             if(option == "fen"){
                 std::string fen;
-                std::cin >> fen;
+                std::getline(std::cin, fen);
                 SearchTree::Init(fen);
             }
             if(option == "startpos"){
@@ -49,8 +47,6 @@ void Uci::loop(){
 
         if(command == "go"){
             if(running == false){
-                SearchTree::Init();
-                SearchTree *tree = SearchTree::GetInstance();
                 int depth;
                 std::cin >> depth;
                 if(depth == 0){
@@ -69,13 +65,11 @@ void Uci::loop(){
 
         if(command == "stop"){
             if(running){
-                SearchTree* tree = SearchTree::GetInstance();
                 tree->SetThreadStatus(THREAD_STOP);
                 st->join();
                 tree->SetThreadStatus(THREAD_IDLE);
                 running = false;
             }
-
         }
 
         if(command == "ponderhit"){
@@ -83,11 +77,8 @@ void Uci::loop(){
         }
         if(command == "quit"){
             if(running){
-                SearchTree* tree = SearchTree::GetInstance();
                 tree->SetThreadStatus(THREAD_STOP);
                 st->join();
-                tree->SetThreadStatus(THREAD_IDLE);
-                running = false;
             }
             break;
         }
@@ -96,22 +87,17 @@ void Uci::loop(){
         // not uci
 
         if(command == "board"){
-            SearchTree *tree = SearchTree::GetInstance();
             tree->ShowBoard();
         }
         if(command == "eval"){
-            SearchTree *tree = SearchTree::GetInstance();
             tree->GetEntryNode()->Evaluate();
         }
         if(command == "hash"){
-            SearchTree *tree = SearchTree::GetInstance();
-            std::cout << tree->GetEntryNode()->position->GetPositionHash();
+            std::cout << tree->GetEntryNode()->GetHash() << '\n';
         }
         if(command == "sethash"){
             std::cin >> Evaluator::hashInfo;
         }
     }
-    //if(searching_thread)
-    //    delete searching_thread;
     return;
 }

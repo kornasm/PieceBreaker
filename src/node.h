@@ -3,27 +3,18 @@
 
 #include <list>
 #include <string>
-#include <stack>
-#include <memory>
 
 class Position;
 class Move;
 
 class Node{
-    public:
+    private:
         Position *position;
-        Move *moveMade = NULL;
-        Node *prev = NULL;
-        Node *bestmove = NULL;
+        Move *moveMade = nullptr;
+        Node *prev = nullptr;
+        Node *bestmove = nullptr;
         std::list<Node*> children;
-        //int value = 0; // position evaluation
         float partialEval;
-        //float fullEval;
-        //float fullyEvaluated = 0; // 1 - some path leads to end, 2 - all paths lead to end
-        //float fullChildren = 0;
-        float bestval;
-        int searchedDepth = 0;
-
         int depth = 0;
 
     public:
@@ -34,30 +25,31 @@ class Node{
         void OnConstructing();
         ~Node();
 
+        Node(const Node& nd) = delete;
+        Node operator =(const Node& nd) = delete;
+
         bool CheckMove(Move *move);
         void Search(int maxDepth);
         void PassValueBackwards(Node *from);
         void Evaluate();
-        float GetEval() const { return partialEval; }
-        int GetDepth() const { return depth; }
+        
         const int priority = 0;
         int CalcPriority();
 
+        // getters
+        float GetEval() const { return partialEval; }
+        int GetDepth() const { return depth; }
+        long long GetHash() const;
+
         friend std::ostream& operator <<(std::ostream& out, const Node& node);
+        friend void Explore(Node *nd, std::string prefix, int maxdepth);
+        friend class SearchTree;
 };
 
-void Explore(Node *nd, std::string prefix, int maxdepth = 10);
-
-/*class WhiteNode : public Node{
-
-};
-
-class BlackNode : public Node{
-
-};//*/      
-// bool operator >(std::unique_ptr<Node> n1, std::unique_ptr<Node> n2);
+void Explore(Node *nd, std::string prefix = "", int maxdepth = 10);
 
 std::ostream& operator <<(std::ostream& out, const Node& node);
 
 bool sortNodesByPriority(Node *nd1, Node* nd2);
+
 #endif

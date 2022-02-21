@@ -1,4 +1,5 @@
 #include "functions.h"
+
 #include "movegenerators.h"
 #include "move.h"
 #include "movecheck.h"
@@ -50,14 +51,14 @@ bool NotationValid(std::string pos){
     return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
 }
 
-void init(){
+void Init(){
     MoveCheckHandler::Init();
     MoveGeneratorHandler::Init();
     SearchTree::Init();
     return;
 }
 
-void cleanup(){
+void Cleanup(){
     MoveGeneratorHandler::Cleanup();
     MoveCheckHandler::Cleanup();
     SearchTree *tree = SearchTree::GetInstance();

@@ -1,7 +1,6 @@
 #ifndef MOVE_H_
 #define MOVE_H_
 
-#include <iostream>
 #include <string>
 
 class Move{
@@ -26,9 +25,8 @@ class Move{
         bool operator ==(Move o) const;
 
         std::ostream& ShowMove(std::ostream& out) const; // long version
-
-        // just notation
-        friend std::ostream& operator <<(std::ostream& out, const Move& move);
+        
+        friend std::ostream& operator <<(std::ostream& out, const Move& move); // notation only
 };
 
 std::ostream& operator <<(std::ostream& out, const Move& move);

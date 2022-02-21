@@ -1,6 +1,9 @@
-#include "declarations.h"
 #include "move.h"
+
+#include "declarations.h"
 #include "functions.h"
+
+#include <iostream>
 
 const char PromotionSymbols[4] = {'q', 'r', 'n', 'b'};
 const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP};
@@ -22,7 +25,7 @@ Move* Move::String2Move(std::string notation){
     }
     if(from < 0 || from > 120){
         std::cout << "index out of range\n";
-        return NULL;
+        return nullptr;
     }
     Move *result = new Move(from, to, REGULAR_MOVE, promo);
     return result;
@@ -50,5 +53,12 @@ std::ostream& Move::ShowMove(std::ostream& out) const{
 
 std::ostream& operator <<(std::ostream& out, const Move& move){
     out << Ind2Not(move.From()) << Ind2Not(move.To());
+    if(move.Promo() != EMPTY_SQUARE){
+        char c = GetPieceSymbol(move.Promo());
+        if(c <= 'Z'){
+            c = static_cast<char>(c + 32);
+        }
+        out << c;
+    }
     return out;
 }

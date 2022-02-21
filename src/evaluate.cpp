@@ -6,7 +6,6 @@
 #include "movegenerators.h"
 #include "move.h"
 
-#include <iostream>
 #include <iomanip>
 #include <cmath>
 

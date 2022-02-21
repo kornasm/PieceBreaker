@@ -23,8 +23,8 @@ int ColRow2Ind(int column, int row);
 
 bool NotationValid(std::string pos);
 
-void init();
-void cleanup();
+void Init();
+void Cleanup();
 
 void PrintMoveList(std::list<Move>* moves);
 
