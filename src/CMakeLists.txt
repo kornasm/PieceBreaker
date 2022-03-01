@@ -1,0 +1,1 @@
+add_library(libpcbr movegenerators.cpp move.cpp evaluate.cpp functions.cpp movecheck.cpp node.cpp position.cpp search.cpp uci.cpp)

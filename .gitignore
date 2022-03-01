@@ -2,3 +2,4 @@
 PieceBreaker
 .vscode/
 callgrind*
+build/
