@@ -7,6 +7,7 @@
 #include <iostream>
 
 SearchTree* SearchTree::instance = nullptr;
+std::string SearchTree::fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 const std::string SearchTree::startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 void executeSearching(int depth){
@@ -48,9 +49,10 @@ void SearchTree::Clear(){
 void SearchTree::Search(int maxdepth){
     nodesToSearch.push(entryNode);
     while(!nodesToSearch.empty() && status == THREAD_RUNNING){
-        Node *searched = nodesToSearch.front();
+        Node *searched = nodesToSearch.top();
         nodesToSearch.pop();
         searched->Search(maxdepth);
+        Explore(searched, "", 0);
     }
     std::cerr << "End Eval: " << entryNode->partialEval << '\n';
     //Explore(entryNode, "");
@@ -78,4 +80,8 @@ void SearchTree::AddNodeToQueue(Node* node){
 
 void SearchTree::ShowBoard(){ 
     std::cout << *entryNode << '\n';
+}
+
+bool CompareNodesByPriority::operator()(Node *nd1, Node* nd2){
+    return nd1->priority < nd2->priority;
 }

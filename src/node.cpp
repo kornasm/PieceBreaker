@@ -8,13 +8,16 @@
 
 #include <iomanip>
 #include <iostream>
+#include <cmath>
 
-int Node::count = 0;
+int Node::noNodes = 0;
+int Node::noActiveNodes = 0;
 
 Node::Node(){
     position = new Position();
     prev = nullptr;
     OnConstructing();
+
 }
 
 Node::Node(std::string fen){
@@ -35,7 +38,9 @@ Node::Node(Position *pos, Node* pr){
 
 void Node::OnConstructing(){
     Evaluate();
-    count++;
+    noNodes++;
+    noActiveNodes++;
+    priority = CalcPriority();
 }
 
 Node::~Node(){
@@ -45,6 +50,7 @@ Node::~Node(){
     }//*/
     children.clear();
     delete moveMade;
+    noActiveNodes--;
 }
 
 bool Node::CheckMove(Move *move){
@@ -153,8 +159,10 @@ void Node::Evaluate(){
     //bestval = partialEval;
 }
 
-int Node::CalcPriority(){
-    return 0;
+double Node::CalcPriority(){
+    double val = std::exp(-static_cast<double>(depth));
+    double eval = -partialEval * static_cast<float>(position->ToMove());
+    return val * eval;
 }
 
 long long Node::GetHash() const { 
@@ -170,14 +178,10 @@ std::ostream& operator <<(std::ostream& out, const Node& node){
     return out;
 }
 
-bool sortNodesByPriority(Node *nd1, Node* nd2){
-    return nd1->priority > nd2->priority;
-}
-
 void Explore(Node *nd, std::string prefix, int maxdepth){
     std::cerr << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << std::setprecision(1) << nd->partialEval << "\tbest " << nd->bestmove << "\t";
     if(nd->moveMade){
-        std::cerr << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To();
+        std::cerr << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To() << "   priority   " << nd->priority;
     }
     std::cerr << '\n';
     if(nd->GetDepth() < maxdepth){

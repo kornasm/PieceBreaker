@@ -6,6 +6,10 @@
 #include <atomic>
 
 class Node;
+struct CompareNodesByPriority{
+    bool operator()(Node *nd1, Node* nd2);
+};
+
 
 void executeSearching(int depth);
 
@@ -16,6 +20,7 @@ class SearchTree{
 
     public:
         static const std::string startFen;
+        static std::string fen;
         static void Init(std::string fen = SearchTree::startFen);
         static SearchTree* GetInstance();
         static void Clear();
@@ -24,7 +29,8 @@ class SearchTree{
     private:
         std::atomic_int status;
         int searchedDepth = 0;
-        std::queue<Node*> nodesToSearch;
+        //std::queue<Node*> nodesToSearch;
+        std::priority_queue<Node*, std::vector<Node*>, CompareNodesByPriority> nodesToSearch;
         Node *entryNode;
 
     public:

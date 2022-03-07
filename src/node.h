@@ -8,7 +8,10 @@ class Position;
 class Move;
 
 class Node{
-    private:
+    public:
+        static int noNodes;
+        static int noActiveNodes;
+
         Position *position;
         Move *moveMade = nullptr;
         Node *prev = nullptr;
@@ -18,7 +21,7 @@ class Node{
         int depth = 0;
 
     public:
-        static int count;
+        
         Node();
         Node(std::string fen);
         Node(Position *pos, Node* pr);
@@ -33,8 +36,8 @@ class Node{
         void PassValueBackwards(Node *from);
         void Evaluate();
         
-        const int priority = 0;
-        int CalcPriority();
+        double priority;
+        double CalcPriority();
 
         // getters
         float GetEval() const { return partialEval; }
@@ -50,6 +53,6 @@ void Explore(Node *nd, std::string prefix = "", int maxdepth = 10);
 
 std::ostream& operator <<(std::ostream& out, const Node& node);
 
-bool sortNodesByPriority(Node *nd1, Node* nd2);
+
 
 #endif

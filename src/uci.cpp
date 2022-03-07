@@ -23,6 +23,8 @@ void Uci::loop(){
                     st->join();
                     tree->SetThreadStatus(THREAD_IDLE);
                     running = false;
+                    SearchTree::Init(SearchTree::fen);
+                    tree = SearchTree::GetInstance();
                 }
             }
         }
@@ -36,9 +38,8 @@ void Uci::loop(){
             std::string option;
             std::cin >> option;
             if(option == "fen"){
-                std::string fen;
-                std::getline(std::cin, fen);
-                SearchTree::Init(fen);
+                std::getline(std::cin, SearchTree::fen);
+                SearchTree::Init(SearchTree::fen);
             }
             if(option == "startpos"){
                 //not implemanted
