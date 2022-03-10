@@ -1,15 +1,21 @@
 #ifndef SEARCH_H_
 #define SEARCH_H_
 
+#include "node.h"
+
 #include <queue>
 #include <string>
 #include <atomic>
+#include <set>
+#include <map>
 
 class Node;
-struct CompareNodesByPriority{
-    bool operator()(Node *nd1, Node* nd2);
-};
 
+class NodePtr{
+    public:
+        const Node* ptr;
+        int status; // 0 - not searched, 1 - searched, 2 - deleted
+};
 
 void executeSearching(int depth);
 
@@ -26,11 +32,12 @@ class SearchTree{
         static void Clear();
         ~SearchTree(void);
 
+        std::map<Node*, int> nodeTable;
     private:
+
         std::atomic_int status;
         int searchedDepth = 0;
-        //std::queue<Node*> nodesToSearch;
-        std::priority_queue<Node*, std::vector<Node*>, CompareNodesByPriority> nodesToSearch;
+        std::priority_queue<Node*, std::vector<Node*>, decltype(&CompareNodesDescending)> nodesToSearch;
         Node *entryNode;
 
     public:

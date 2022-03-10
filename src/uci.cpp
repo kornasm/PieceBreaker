@@ -3,7 +3,6 @@
 #include "search.h"
 #include "functions.h"
 #include "evaluate.h"
-#include "node.h"
 #include "position.h"
 
 #include <thread>

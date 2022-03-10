@@ -1,7 +1,6 @@
 #include "search.h"
 
 #include "declarations.h"
-#include "node.h"
 #include "move.h"
 
 #include <iostream>
@@ -15,7 +14,7 @@ void executeSearching(int depth){
     tree->Search(depth);
 }
 
-SearchTree::SearchTree(){
+SearchTree::SearchTree() :nodesToSearch(&CompareNodesAscending){
     entryNode = new Node();
 }
 
@@ -48,14 +47,34 @@ void SearchTree::Clear(){
 
 void SearchTree::Search(int maxdepth){
     nodesToSearch.push(entryNode);
+    nodeTable.insert(std::make_pair(entryNode, 0));
     while(!nodesToSearch.empty() && status == THREAD_RUNNING){
         Node *searched = nodesToSearch.top();
-        nodesToSearch.pop();
-        searched->Search(maxdepth);
-        Explore(searched, "", 0);
+        auto it = nodeTable.find(searched);
+        if(it == nodeTable.end()){
+            std::cout << "Trying to search a node not found in node table" << std::endl;
+            nodeTable.insert(std::make_pair(searched, 0));
+        }
+        else{
+            nodesToSearch.pop();
+            if(it->second == 0){
+                searched->Search(maxdepth);
+                Explore(searched, "", 0);
+                it->second = 1;
+            }
+            else if(it->second == 1){
+                std::cout << "Searching a node second time    " << std::endl;
+                Explore(searched, "", 0, 1);
+                exit(EXIT_SUCCESS); // just to see if it happens
+            }
+            else if(it->second == 2){
+                std::cout << "node table erasing:  " << it->first << std::endl;
+                nodeTable.erase(it->first);
+            }
+        }
     }
     std::cerr << "End Eval: " << entryNode->partialEval << '\n';
-    //Explore(entryNode, "");
+    Explore(entryNode, "", 10);
     PrintResult();
     Clear();
     status = THREAD_READY_TO_JOIN;
@@ -76,12 +95,9 @@ void SearchTree::PrintResult(){
 
 void SearchTree::AddNodeToQueue(Node* node){
     nodesToSearch.push(node);
+    nodeTable.insert(std::make_pair(node, 0));
 }
 
 void SearchTree::ShowBoard(){ 
     std::cout << *entryNode << '\n';
-}
-
-bool CompareNodesByPriority::operator()(Node *nd1, Node* nd2){
-    return nd1->priority < nd2->priority;
 }

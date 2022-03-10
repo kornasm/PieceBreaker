@@ -9,31 +9,31 @@
 #include <iomanip>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 int Node::noNodes = 0;
 int Node::noActiveNodes = 0;
 
-Node::Node(){
+Node::Node() :children(&CompareNodesDescending){
     position = new Position();
     prev = nullptr;
     OnConstructing();
-
 }
 
-Node::Node(std::string fen){
+Node::Node(std::string fen) :children(&CompareNodesDescending){
     position = new Position(fen);
     prev = nullptr;
     OnConstructing();
 }
 
-Node::Node(Position *pos, Node* pr){
+Node::Node(Position *pos, Node* pr) :children(&CompareNodesDescending){
     prev = pr;
     position = pos;
     if(prev){
         depth = prev->depth + 1;
     }
-    prev->children.push_back(this);
     OnConstructing();
+    prev->children.insert(this);
 }
 
 void Node::OnConstructing(){
@@ -45,9 +45,9 @@ void Node::OnConstructing(){
 
 Node::~Node(){
     delete position;
-    for(auto node : children){ 
-        delete node;
-    }//*/
+    for(auto nd = children.begin(); nd != children.end(); ++nd){
+        delete *nd;
+    }
     children.clear();
     delete moveMade;
     noActiveNodes--;
@@ -56,7 +56,7 @@ Node::~Node(){
 bool Node::CheckMove(Move *move){
     Position *newposition = position->MakeMove(move);
     if(newposition){
-        children.push_back(new Node(newposition, this));
+        children.insert(new Node(newposition, this));
         return true;
     }
     return false;
@@ -74,8 +74,14 @@ void Node::Search(int maxDepth){
         Position *newpos = new Position(*position, move, move->Promo());
         Node *newnode = new Node(newpos, this);
         newnode->moveMade = move;
-        //newnode->Search(maxDepth);
-        searchTree->AddNodeToQueue(newnode);
+    }
+    while(children.size() > 10){
+        Node* toDelete = *(children.rbegin());
+        children.erase(--children.end());
+        delete toDelete;
+    }
+    for(auto nd = this->children.begin(); nd != this->children.end(); ++nd){
+        searchTree->AddNodeToQueue(*nd);
     }
     delete moves;
 }
@@ -101,10 +107,11 @@ void Node::PassValueBackwards(Node *from){
             if(from == bestmove){
                 float maxval = -1e6;
                 Node* best = nullptr;
-                for(auto nd : this->children){
-                    if(nd->partialEval > maxval){
-                        maxval = nd->partialEval;
-                        best = nd;
+                //for(auto nd : this->children){
+                for(auto nd = this->children.begin(); nd != this->children.end(); ++nd){
+                    if((*nd)->partialEval > maxval){
+                        maxval = (*nd)->partialEval;
+                        best = *nd;
                     }
                 }
                 changed = true;
@@ -178,17 +185,38 @@ std::ostream& operator <<(std::ostream& out, const Node& node){
     return out;
 }
 
-void Explore(Node *nd, std::string prefix, int maxdepth){
-    std::cerr << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << std::setprecision(1) << nd->partialEval << "\tbest " << nd->bestmove << "\t";
-    if(nd->moveMade){
-        std::cerr << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To() << "   priority   " << nd->priority;
+void Explore(Node *nd, std::string prefix, int maxdepth, int outstream){
+    if(outstream == 0){
+        std::cerr << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << std::setprecision(1) << nd->partialEval << "\tbest " << nd->bestmove << "\t";
+        if(nd->moveMade){
+            std::cerr << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To() << "   priority   " << nd->priority;
+        }
+        std::cerr << '\n';
+        if(nd->GetDepth() < maxdepth){
+            for(auto node = nd->children.begin(); node != nd->children.end(); ++node){
+                Explore(*node, prefix + '\t', maxdepth, outstream);
+            }
+        }
+        return;
     }
-    std::cerr << '\n';
+    std::cout << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << std::setprecision(1) << nd->partialEval << "\tbest " << nd->bestmove << "\t";
+    if(nd->moveMade){
+        std::cout << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To() << "   priority   " << nd->priority;
+    }
+    std::cout << '\n';
     if(nd->GetDepth() < maxdepth){
-        for(auto node : nd->children){
-            Explore(node, prefix + '\t', maxdepth);
+        for(auto node = nd->children.begin(); node != nd->children.end(); ++node){
+            Explore(*node, prefix + '\t', maxdepth, outstream);
         }
     }
     return;
 }
 
+
+bool CompareNodesAscending(Node* nd1, Node* nd2){
+    return nd1->priority < nd2->priority;
+}
+
+bool CompareNodesDescending(Node* nd1, Node* nd2){
+    return nd1->priority >= nd2->priority;
+}

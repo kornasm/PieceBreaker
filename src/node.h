@@ -1,11 +1,16 @@
 #ifndef NODE_H_
 #define NODE_H_
 
-#include <list>
 #include <string>
+#include <set>
 
 class Position;
 class Move;
+class Node;
+
+
+bool CompareNodesAscending(Node *nd1, Node *nd2);
+bool CompareNodesDescending(Node* nd1, Node* nd2);
 
 class Node{
     public:
@@ -16,7 +21,7 @@ class Node{
         Move *moveMade = nullptr;
         Node *prev = nullptr;
         Node *bestmove = nullptr;
-        std::list<Node*> children;
+        std::set<Node*, decltype(&CompareNodesAscending)> children;
         float partialEval;
         int depth = 0;
 
@@ -45,11 +50,11 @@ class Node{
         long long GetHash() const;
 
         friend std::ostream& operator <<(std::ostream& out, const Node& node);
-        friend void Explore(Node *nd, std::string prefix, int maxdepth);
+        friend void Explore(Node *nd, std::string prefix, int maxdepth, int outstream);
         friend class SearchTree;
 };
 
-void Explore(Node *nd, std::string prefix = "", int maxdepth = 10);
+void Explore(Node *nd, std::string prefix = "", int maxdepth = 10, int outstream = 0);
 
 std::ostream& operator <<(std::ostream& out, const Node& node);
 
