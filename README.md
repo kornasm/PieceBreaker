@@ -6,11 +6,11 @@ PieceBreaker is simple chess engine. It does not provide GUI. Full support for t
 ## Compiling
 Best to use with g++ (other compilers not tested). CMake required.
 
-'''
+```
     cmake -B build/
     cmake --build build/
     build/PieceBreaker
-'''
+```
 
 ## Usage
 Some commands from UCI protocol are available. Most important are listed below:
