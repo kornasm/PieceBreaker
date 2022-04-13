@@ -14,18 +14,19 @@ void executeSearching(int depth){
     tree->Search(depth);
 }
 
-SearchTree::SearchTree() :nodesToSearch(&CompareNodesAscending){
-    entryNode = new Node();
-}
+SearchTree::SearchTree() :nodesToSearch(&CompareNodesAscending) {}
 
 SearchTree::~SearchTree(void){
     instance = nullptr;
 }
 
 void SearchTree::Init(std::string fen){
-    Clear();
+    if(instance != nullptr){
+        Clear();
+    }
     SearchTree* tree = GetInstance();
-    tree->entryNode = new Node(fen);
+    tree->root = new Node(fen);
+    tree->entryNode = tree->root;
     tree->status = THREAD_IDLE;
 }
 
@@ -41,8 +42,21 @@ void SearchTree::Clear(){
     while(!tree->nodesToSearch.empty()){
         tree->nodesToSearch.pop();
     }
-    delete tree->entryNode;
+    tree->nodeTable.clear();
     tree->entryNode = nullptr;
+    delete tree->root;
+    tree->root = nullptr;
+}
+
+bool SearchTree::ForwardTo(Move *move){
+    if(Node *next = entryNode->CheckMove(move)){
+        entryNode = next;
+        entryNode->Isolate();
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 void SearchTree::Search(int maxdepth){
@@ -74,7 +88,7 @@ void SearchTree::Search(int maxdepth){
         }
     }
     std::cerr << "End Eval: " << entryNode->partialEval << '\n';
-    Explore(entryNode, "", 10);
+    Explore(entryNode, "", 10, 0);
     PrintResult();
     Clear();
     status = THREAD_READY_TO_JOIN;
@@ -100,4 +114,5 @@ void SearchTree::AddNodeToQueue(Node* node){
 
 void SearchTree::ShowBoard(){ 
     std::cout << *entryNode << '\n';
+    std::cout << *root << '\n';
 }

@@ -36,10 +36,13 @@ class Node{
         Node(const Node& nd) = delete;
         Node operator =(const Node& nd) = delete;
 
-        bool CheckMove(Move *move);
+        Node* CheckMove(Move *move);
+        Node* MakeMove(Move *move, Position *newposition = nullptr);
         void Search(int maxDepth);
         void PassValueBackwards(Node *from);
         void Evaluate();
+
+        void Isolate(); // prepare a root node to be searched
         
         double priority;
         double CalcPriority();

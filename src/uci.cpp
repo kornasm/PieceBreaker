@@ -4,6 +4,7 @@
 #include "functions.h"
 #include "evaluate.h"
 #include "position.h"
+#include "move.h"
 
 #include <thread>
 #include <iostream>
@@ -35,13 +36,40 @@ void Uci::loop(){
 
         if(command == "position"){
             std::string option;
-            std::cin >> option;
-            if(option == "fen"){
-                std::getline(std::cin, SearchTree::fen);
-                SearchTree::Init(SearchTree::fen);
+            std::getline(std::cin, option);
+            if(option[0] == ' ' || option[0] == '\n'){
+                option.erase(0, 1);
             }
-            if(option == "startpos"){
-                //not implemanted
+            option += ' ';
+            long unsigned int idx = option.find("moves");
+            std::string rootstring = option.substr(0, idx - 1);
+            if(rootstring == "startpos"){
+                SearchTree::Init();
+            }
+            else{
+                std::string fen = rootstring.substr(4, idx);
+                SearchTree::Init(fen);
+            }
+            option.erase(0, idx + 6); // first part + "moves "
+            if(idx != std::string::npos){
+                idx = option.find(' ');
+                while(idx != std::string::npos){
+                    std::string move = option.substr(0, idx);
+                    Move *mov = Move::String2Move(move);
+                    if(mov != nullptr){
+                        if(tree->ForwardTo(mov) == false){
+                            idx = std::string::npos;
+                            std::cout << "Illegal sequence of moves" << std::endl;
+                            delete mov;
+                            SearchTree::Init();
+                        }
+                    }
+                    else{
+                        idx = std::string::npos;
+                    }
+                    option.erase(0, idx + 1);
+                    idx = option.find(' ');
+                }
             }
         }
 
@@ -83,10 +111,8 @@ void Uci::loop(){
             break;
         }
 
-
         // not uci
-
-        if(command == "board"){
+        if(command == "d"){
             tree->ShowBoard();
         }
         if(command == "eval"){

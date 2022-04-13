@@ -17,6 +17,7 @@ int Node::noActiveNodes = 0;
 Node::Node() :children(&CompareNodesDescending){
     position = new Position();
     prev = nullptr;
+    moveMade = nullptr;
     OnConstructing();
 }
 
@@ -49,17 +50,27 @@ Node::~Node(){
         delete *nd;
     }
     children.clear();
-    delete moveMade;
+    if(moveMade){
+        delete moveMade;
+    }
     noActiveNodes--;
 }
 
-bool Node::CheckMove(Move *move){
+Node* Node::CheckMove(Move *move){
     Position *newposition = position->MakeMove(move);
     if(newposition){
-        children.insert(new Node(newposition, this));
-        return true;
+        return MakeMove(move, newposition);
     }
-    return false;
+    return nullptr;
+}
+
+Node* Node::MakeMove(Move *move, Position *newposition){
+    if(newposition == nullptr){
+        newposition = new Position(*position, move, move->Promo());
+    }
+    Node *newNode = new Node(newposition, this);
+    newNode->moveMade = move;
+    return newNode;
 }
 
 void Node::Search(int maxDepth){
@@ -71,9 +82,7 @@ void Node::Search(int maxDepth){
     std::list<Move>* moves = position->GenerateAllLegalMoves();
     for(auto m : *moves){
         Move *move = new Move(m);
-        Position *newpos = new Position(*position, move, move->Promo());
-        Node *newnode = new Node(newpos, this);
-        newnode->moveMade = move;
+        MakeMove(move);
     }
     while(children.size() > 10){
         Node* toDelete = *(children.rbegin());
@@ -164,6 +173,11 @@ void Node::PassValueBackwards(Node *from){
 void Node::Evaluate(){
     partialEval = Evaluator::Evaluate(*position);
     //bestval = partialEval;
+}
+
+void Node::Isolate(){
+    prev = nullptr;
+    depth = 0;
 }
 
 double Node::CalcPriority(){

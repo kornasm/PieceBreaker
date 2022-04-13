@@ -11,8 +11,10 @@ int main(int argc, char **argv){
     if(argc == 1){
         freopen("/dev/null", "w", stderr);
     }
+    if(argc > 1){
+        freopen(argv[1], "r", stdin);
+    }
     Init();
-    SearchTree::Init();
     Uci::loop();
     Cleanup();
 }

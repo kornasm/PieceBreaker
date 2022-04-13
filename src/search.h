@@ -33,14 +33,16 @@ class SearchTree{
         ~SearchTree(void);
 
         std::map<Node*, int> nodeTable;
-    private:
 
+    private:
         std::atomic_int status;
         int searchedDepth = 0;
         std::priority_queue<Node*, std::vector<Node*>, decltype(&CompareNodesDescending)> nodesToSearch;
         Node *entryNode;
+        Node *root;
 
     public:
+        bool ForwardTo(Move *move);
         void Search(int maxdepth);
         void AddNodeToQueue(Node* node);
 

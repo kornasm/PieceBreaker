@@ -11,6 +11,9 @@ const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_B
 Move::Move(int f, int t, int tp, int pr) :from(f), to(t), type(tp), promo(pr){}
 
 Move* Move::String2Move(std::string notation){
+    if(notation.length() < 4 || notation.length() > 5){
+        return nullptr;
+    }
     int from = Not2Ind(notation.substr(0, 2));
     int to = Not2Ind(notation.substr(2, 2));
     int promo(EMPTY_SQUARE);
