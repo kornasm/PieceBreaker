@@ -8,7 +8,6 @@ class Position;
 class Move;
 class Node;
 
-
 bool CompareNodesAscending(Node *nd1, Node *nd2);
 bool CompareNodesDescending(Node* nd1, Node* nd2);
 
@@ -28,7 +27,7 @@ class Node{
     public:
         
         Node();
-        Node(std::string fen);
+        Node(std::stringstream& strFen);
         Node(Position *pos, Node* pr);
         void OnConstructing();
         ~Node();

@@ -27,12 +27,14 @@ class SearchTree{
     public:
         static const std::string startFen;
         static std::string fen;
-        static void Init(std::string fen = SearchTree::startFen);
+        static void Init();
+        static void Init(std::stringstream& strFen);
         static SearchTree* GetInstance();
         static void Clear();
         ~SearchTree(void);
 
-        std::map<Node*, int> nodeTable;
+        std::map<Node*, int> nodeTable; // map storing node status (not searched, searched, to delete)
+                                        // used to avoid memory problems (dereferencing deleted nodes, double frees)
 
     private:
         std::atomic_int status;
@@ -40,6 +42,7 @@ class SearchTree{
         std::priority_queue<Node*, std::vector<Node*>, decltype(&CompareNodesDescending)> nodesToSearch;
         Node *entryNode;
         Node *root;
+        long long operationNumber = 0;
 
     public:
         bool ForwardTo(Move *move);

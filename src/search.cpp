@@ -20,12 +20,22 @@ SearchTree::~SearchTree(void){
     instance = nullptr;
 }
 
-void SearchTree::Init(std::string fen){
+void SearchTree::Init(){
     if(instance != nullptr){
         Clear();
     }
     SearchTree* tree = GetInstance();
-    tree->root = new Node(fen);
+    tree->root = new Node();
+    tree->entryNode = tree->root;
+    tree->status = THREAD_IDLE;
+}
+
+void SearchTree::Init(std::stringstream& strFen){
+    if(instance != nullptr){
+        Clear();
+    }
+    SearchTree* tree = GetInstance();
+    tree->root = new Node(strFen);
     tree->entryNode = tree->root;
     tree->status = THREAD_IDLE;
 }

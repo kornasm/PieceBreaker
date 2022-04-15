@@ -42,7 +42,7 @@ class Position{
         //construcotrs, destructor
         Position();
         Position(Position& prev, Move *m, int promo = 0);
-        Position(std::string fen);
+        Position(std::stringstream& issfen);
         ~Position();
 
         Position(const Position& position) = delete;

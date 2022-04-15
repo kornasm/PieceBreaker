@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <sstream>
 
 int Node::noNodes = 0;
 int Node::noActiveNodes = 0;
@@ -21,8 +22,8 @@ Node::Node() :children(&CompareNodesDescending){
     OnConstructing();
 }
 
-Node::Node(std::string fen) :children(&CompareNodesDescending){
-    position = new Position(fen);
+Node::Node(std::stringstream& strFen) :children(&CompareNodesDescending){
+    position = new Position(strFen);
     prev = nullptr;
     OnConstructing();
 }

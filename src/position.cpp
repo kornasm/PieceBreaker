@@ -6,6 +6,7 @@
 #include "movegenerators.h"
 
 #include <cmath>
+#include <sstream>
 
 const int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
                          32, 33, 34, 35, 36, 37, 38, 39,
@@ -119,19 +120,16 @@ Position::Position(Position& pr, Move *m, int promo){
     CheckEndings();
 }
 
-Position::Position(std::string fen){
-    while(fen[0] == ' '){
-        fen.erase(0, 1);
-    }
-    long unsigned int ind = fen.find(' ');
-    std::string fentemp = fen.substr(0, ind);
-    fen.erase(0, ind + 1);
+Position::Position(std::stringstream& strFen){
+    std::string fen;
 
+    // pieces
+    strFen >> fen;
     unsigned int index = 0;
     for(int i = 7; i >= 0; i--){
         int j = 0;
-        while(fentemp[index] != '/' && index < fentemp.length()){
-            switch(fentemp[index]){
+        while(fen[index] != '/' && index < fen.length()){
+            switch(fen[index]){
                 case 'K':
                     squares[mailbox[8 * i + j]] = WHITE_KING;
                     whiteKingPos = mailbox[8 * i + j];
@@ -172,8 +170,8 @@ Position::Position(std::string fen){
                     break;
                 default:;
             }
-            if(isdigit(fentemp[index])){
-                int x = (int)(fentemp[index]) - '0';
+            if(isdigit(fen[index])){
+                int x = (int)(fen[index]) - '0';
                 for(; x> 0; x--){
                     squares[mailbox[8 * i + j]] = EMPTY_SQUARE;
                     j++;
@@ -186,40 +184,42 @@ Position::Position(std::string fen){
         }
         index++;
     }
+
+    // color to move
+    strFen >> fen;
     fen[0] == 'w'? toMove = WHITE : toMove = BLACK;
-    fen.erase(0, 2);
-    fentemp = fen.substr(0, fen.find(' '));
+
+    // castles
+    strFen >> fen;
     whcstl = 0;
     blcstl = 0;
-    if(fentemp.find('K') != std::string::npos) 
+    if(fen.find('K') != std::string::npos)
         whcstl |= SHORT_CASTLE_MOVE;
-    if(fentemp.find('Q') != std::string::npos) 
+    if(fen.find('Q') != std::string::npos)
         whcstl |= LONG_CASTLE_MOVE;
-    if(fentemp.find('k') != std::string::npos) 
+    if(fen.find('k') != std::string::npos)
         blcstl |= SHORT_CASTLE_MOVE;
-    if(fentemp.find('q') != std::string::npos) 
+    if(fen.find('q') != std::string::npos)
         blcstl |= LONG_CASTLE_MOVE;
-    fen.erase(0, fentemp.length() + 1);
+
+    // en passant position
+    strFen >> fen;
     fen[0] == '-' ? enPassant = -1 : enPassant = Not2Ind(fen.substr(0, 2));
-    fen.erase(0,fen.find(' ') + 1);
-    if(fen[1] != ' '){
-        halfMoveClock = 10 * ((int)(fen[0]) - '0') + (int)(fen[1]) - '0';
-    }
-    else{
-        halfMoveClock = (int)(fen[0]) - '0';
-    }
-    fen.erase(0, fen.find(' ') + 1);
+
+    // half move clock
+    strFen >> fen;
+    halfMoveClock = std::stoi(fen);
     fullMoveCounter = 1;
-    for(uint i = 0; i < fen.length(); i++){
-        fullMoveCounter *= 10;
-        fullMoveCounter += (int)(fen[i]) - '0';
-    }
+
+    // full move counter
+    strFen >> fen;
+    fullMoveCounter = std::stoi(fen);
+
     searchBackRepetitions = false;
+    prev = nullptr;
     CalculatePositionHash();
     CheckCheck();
     CheckEndings();
-    prev = nullptr;
-    result = GameResult::ONGOING;
 }
 
 Position::~Position(){}

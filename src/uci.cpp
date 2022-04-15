@@ -8,75 +8,68 @@
 
 #include <thread>
 #include <iostream>
+#include <sstream>
 
 void Uci::loop(){
     bool running = false;
-    std::string command;
+    std::string command, option;
     std::unique_ptr<std::thread> st = nullptr;
     SearchTree *tree = SearchTree::GetInstance();
+    //std::stringstream lastfen(SearchTree::startFen);
     while(true){
-        std::cin >> command;        
+        std::getline(std::cin, command);
+        std::stringstream sstr(command);
+        sstr >> option;
 
+        // join the searching thread if search has completed without "stop" command
         if(running){
             if(THREAD_READY_TO_JOIN == tree->GetThreadStatus()){
                 if(st->joinable()){
                     st->join();
                     tree->SetThreadStatus(THREAD_IDLE);
                     running = false;
-                    SearchTree::Init(SearchTree::fen);
+                    SearchTree::Init();
                     tree = SearchTree::GetInstance();
                 }
             }
         }
 
-        if(command == "uci")
+        if(option == "uci")
             std::cout << "uciok" << std::endl;
-        if(command == "isready")
+        if(option == "isready")
             std::cout << "readyok" << std::endl;
 
-        if(command == "position"){
-            std::string option;
-            std::getline(std::cin, option);
-            if(option[0] == ' ' || option[0] == '\n'){
-                option.erase(0, 1);
-            }
-            option += ' ';
-            long unsigned int idx = option.find("moves");
-            std::string rootstring = option.substr(0, idx - 1);
-            if(rootstring == "startpos"){
+        if(option == "position"){
+            std::string rootstr;
+            sstr >> rootstr;
+            if(rootstr == "startpos"){
                 SearchTree::Init();
             }
             else{
-                std::string fen = rootstring.substr(4, idx);
-                SearchTree::Init(fen);
+                SearchTree::Init(sstr);
             }
-            option.erase(0, idx + 6); // first part + "moves "
-            if(idx != std::string::npos){
-                idx = option.find(' ');
-                while(idx != std::string::npos){
-                    std::string move = option.substr(0, idx);
-                    Move *mov = Move::String2Move(move);
-                    if(mov != nullptr){
-                        if(tree->ForwardTo(mov) == false){
-                            idx = std::string::npos;
-                            std::cout << "Illegal sequence of moves" << std::endl;
-                            delete mov;
-                            SearchTree::Init();
-                        }
+            sstr >> option; // read "moves" word
+            while(sstr.good()){
+                sstr >> option;
+                Move *mov = Move::String2Move(option);
+                if(mov != nullptr){
+                    if(tree->ForwardTo(mov) == false){
+                        sstr.clear();
+                        std::cout << "Illegal sequence of moves" << std::endl;
+                        delete mov;
+                        SearchTree::Init();
                     }
-                    else{
-                        idx = std::string::npos;
-                    }
-                    option.erase(0, idx + 1);
-                    idx = option.find(' ');
+                }
+                else{
+                    sstr.clear();
                 }
             }
         }
 
-        if(command == "go"){
+        if(option == "go"){
             if(running == false){
                 int depth;
-                std::cin >> depth;
+                sstr >> depth;
                 if(depth == 0){
                     std::cout << "depth must be positive\n";
                     continue;
@@ -87,11 +80,11 @@ void Uci::loop(){
             }
         }
 
-        if(command == "ucinewgame"){
+        if(option == "ucinewgame"){
             SearchTree::Init();
         }
 
-        if(command == "stop"){
+        if(option == "stop"){
             if(running){
                 tree->SetThreadStatus(THREAD_STOP);
                 st->join();
@@ -100,10 +93,10 @@ void Uci::loop(){
             }
         }
 
-        if(command == "ponderhit"){
+        if(option == "ponderhit"){
             // nothing yet
         }
-        if(command == "quit"){
+        if(option == "quit"){
             if(running){
                 tree->SetThreadStatus(THREAD_STOP);
                 st->join();
@@ -112,16 +105,16 @@ void Uci::loop(){
         }
 
         // not uci
-        if(command == "d"){
+        if(option == "d"){
             tree->ShowBoard();
         }
-        if(command == "eval"){
+        if(option == "eval"){
             tree->GetEntryNode()->Evaluate();
         }
-        if(command == "hash"){
+        if(option == "hash"){
             std::cout << tree->GetEntryNode()->GetHash() << '\n';
         }
-        if(command == "sethash"){
+        if(option == "sethash"){
             std::cin >> Evaluator::hashInfo;
         }
     }
