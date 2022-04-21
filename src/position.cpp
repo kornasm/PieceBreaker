@@ -222,20 +222,118 @@ Position::Position(std::stringstream& strFen){
     CheckEndings();
 }
 
+std::string Position::GetFen() const{
+    std::stringstream result;
+
+    unsigned int index = 0;
+    for(int i = 8; i >= 1; i--){
+        int emptys = 0;
+        for(int j = 1; j <= 8; j++){
+            index = ColRow2Ind(j, i);
+            if(squares[index] == EMPTY_SQUARE){
+                emptys++;
+            }
+            else{
+                if(emptys != 0){
+                    result << emptys;
+                    emptys = 0;
+                }
+                switch(squares[index]){
+                    case WHITE_KING:
+                        result << "K";
+                        break;
+                    case BLACK_KING:
+                        result << "k";
+                        break;
+                    case WHITE_QUEEN:
+                        result << "Q";
+                        break;
+                    case BLACK_QUEEN:
+                        result << "q";
+                        break;
+                    case WHITE_ROOK:
+                        result << "R";
+                        break;
+                    case BLACK_ROOK:
+                        result << "r";
+                        break;
+                    case WHITE_BISHOP:
+                        result << "B";
+                        break;
+                    case BLACK_BISHOP:
+                        result << "b";
+                        break;
+                    case WHITE_KNIGHT:
+                        result << "N";
+                        break;
+                    case BLACK_KNIGHT:
+                        result << "n";
+                        break;
+                    case WHITE_PAWN:
+                        result << "P";
+                        break;
+                    case BLACK_PAWN:
+                        result << "p";
+                        break;
+                    default:;
+                }
+            }
+        }
+        if(emptys != 0){
+            result << emptys;
+        }
+        result << "/";
+    }
+
+    // color to move
+    result << " ";
+    toMove == WHITE ? result << "w" : result << "b";
+    //fen[0] == 'w'? toMove = WHITE : toMove = BLACK;
+
+    // castles
+    result << " ";
+    if(whcstl + blcstl == 0){
+        result << "-";
+    }
+    else{
+        if(whcstl | SHORT_CASTLE_MOVE)
+            result << "K";
+        if(whcstl | LONG_CASTLE_MOVE)
+            result << "Q";
+        if(blcstl | SHORT_CASTLE_MOVE)
+            result << "K";
+        if(blcstl | LONG_CASTLE_MOVE)
+            result << "q";
+    }
+    // en passant position
+    result << " ";
+    enPassant == -1 ? result << "-" : result << Ind2Not(enPassant);
+
+    // half move clock
+    result << " ";
+    result << halfMoveClock;
+
+    // full move counter
+    result << " ";
+    result << fullMoveCounter;
+
+    return std::string(result.str());
+}
+
 Position::~Position(){}
 
-void Position::ShowBoard() const{
-    std::cout << std::endl;
-    std::cout << "  +---+---+---+---+---+---+---+---+\n";
+void Position::ShowBoard(std::ostream& out) const{
+    out << std::endl;
+    out << "  +---+---+---+---+---+---+---+---+\n";
     for(int row = 8; row > 0; row--){
-        std::cout << row << " ";
+        out << row << " ";
         for(int col = 1; col <= 8; col++){
-            std::cout << "| " << GetPiece(col, row) << " ";
+            out << "| " << GetPiece(col, row) << " ";
         }
-        std::cout << "|";
-        std::cout << "\n  +---+---+---+---+---+---+---+---+\n";
+        out << "|";
+        out << "\n  +---+---+---+---+---+---+---+---+\n";
     }
-    std::cout << "    a   b   c   d   e   f   g   h\n\n";
+    out << "    a   b   c   d   e   f   g   h\n\n";
     return;
 }
 std::ostream& Position::ShowTinyBoard(std::ostream& out) const{

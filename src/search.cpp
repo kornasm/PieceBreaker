@@ -124,5 +124,6 @@ void SearchTree::AddNodeToQueue(Node* node){
 
 void SearchTree::ShowBoard(){ 
     std::cout << *entryNode << '\n';
+    std::cout << entryNode->GetFen() << '\n';
     std::cout << *root << '\n';
 }

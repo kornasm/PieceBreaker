@@ -47,6 +47,7 @@ class Node{
         double CalcPriority();
 
         // getters
+        std::string GetFen();
         float GetEval() const { return partialEval; }
         int GetDepth() const { return depth; }
         long long GetHash() const;

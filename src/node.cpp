@@ -187,6 +187,10 @@ double Node::CalcPriority(){
     return val * eval;
 }
 
+std::string Node::GetFen(){
+    return position->GetFen();
+}
+
 long long Node::GetHash() const { 
     return position->GetPositionHash(); 
 }

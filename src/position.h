@@ -5,6 +5,7 @@
 
 #include <string>
 #include <list>
+#include <iostream>
 
 enum GameResult{ONGOING, WHITE_WIN, DRAW, BLACK_WIN};
 class Move;
@@ -56,7 +57,7 @@ class Position{
         void MakeSoftBack(Move *toExecute, int takenPiece);
         bool IsPlaceAttacked(int attackedplace, int atackingcolor) const;
         
-        void ShowBoard() const;
+        void ShowBoard(std::ostream& out = std::cout) const;
         std::ostream& ShowTinyBoard(std::ostream& out) const;
         void CheckCheck();
         std::list<Move>* GenerateAllLegalMoves(bool searchAtLeastOne = false);
@@ -64,6 +65,7 @@ class Position{
         void CalculatePositionHash();
 
         //getters
+        std::string GetFen() const;
         char GetPiece(int column, int row) const;
         int GetSquareValue(int column, int row) const;
         int GetSquareColor(int column, int row) const;
