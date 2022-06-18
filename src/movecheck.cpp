@@ -168,7 +168,7 @@ Move* WhitePawnMoveChecker::CheckMoveLegality(const Position& position, int from
             return m;
         }
     }
-    if(to == from + 20){
+    if(to == from + 20 && row(from) == 2){
         if(position.GetSquareValue(to) == EMPTY_SQUARE && position.GetSquareValue(from + 10) == EMPTY_SQUARE){
             m->IncreaseType(PAWN_DOUBLE_MOVE);
             return m;
@@ -198,7 +198,7 @@ Move* BlackPawnMoveChecker::CheckMoveLegality(const Position& position, int from
             return m;
         }
     }
-    if(to == from - 20){
+    if(to == from - 20 && row(from) == 7){
         if(position.GetSquareValue(to) == EMPTY_SQUARE && position.GetSquareValue(from - 10) == EMPTY_SQUARE){
             m->IncreaseType(PAWN_DOUBLE_MOVE);
             return m;
