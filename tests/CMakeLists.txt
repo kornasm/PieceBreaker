@@ -15,14 +15,14 @@ FetchContent_MakeAvailable(googletest)
 add_library(GTest::GTest INTERFACE IMPORTED)
 
 add_executable(fen_tests fen_test.cpp)
-
+add_executable(move_tests move_test.cpp)
 
 target_link_libraries(GTest::GTest INTERFACE gtest_main)
 
-
 target_link_libraries(fen_tests PRIVATE GTest::GTest libpcbr)
-
+target_link_libraries(move_tests PRIVATE GTest::GTest libpcbr)
 
 enable_testing()
 
 add_test(PCB_fen_tests fen_tests)
+add_test(PCB_move_tests move_tests)
