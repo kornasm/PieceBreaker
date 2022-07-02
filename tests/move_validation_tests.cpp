@@ -13,12 +13,28 @@
 #include "../src/move.h"
 #include "../src/position.h"
 
-//bool CkeckMoves(Position &position, std::list<Move> moves, bool isMoveValid, int moveType = 0){
-//    EXPECT_EQ(1, 1)
-//}
+bool testMoves(std::string fen, std::list<Move> moves, bool resultShouldBeNull, int expectedMoveType){
+    std::stringstream sstr(fen);
+    std::unique_ptr<Position> position(new Position(sstr));
+    for(auto move : moves){
+        std::unique_ptr<Move> result = std::unique_ptr<Move>(position->CheckIfMoveFullLegal(&move));
+        if(resultShouldBeNull == false){
+            // ASSERT result is not null
+            EXPECT_NE(result.get(), nullptr) << move << "   is null\n";
+            if(result.get() == nullptr){
+                return false;
+            }
+            EXPECT_EQ(result->Type(), expectedMoveType) << move << "  has wrong type\n";
+        }
+        else{
+            EXPECT_EQ(result.get(), nullptr) << move << "  isn't null\n";
+        }
+    }
+    return true;
+}
 
 
-TEST(MoveTests, MoveToEmptySquare){
+TEST(MoveValidationTests, MoveToEmptySquare){
     // these tests contain only simple moves
     // no taking other pieces, no castles, no pawn moves
     Init();
@@ -53,10 +69,6 @@ TEST(MoveTests, MoveToEmptySquare){
     whiteValidMoves.push_back(Move(Not2Ind("f3"), Not2Ind("h4"), 0));
     whiteValidMoves.push_back(Move(Not2Ind("f3"), Not2Ind("g1"), 0));
     whiteValidMoves.push_back(Move(Not2Ind("f3"), Not2Ind("e1"), 0));
-    // white pawns
-    //whiteValidMoves.push_back(Move(Not2Ind("c4"), Not2Ind("c5"), 0));
-    //whiteValidMoves.push_back(Move(Not2Ind("g2"), Not2Ind("g3"), 0));
-    //whiteValidMoves.push_back(Move(Not2Ind("h3"), Not2Ind("h4"), 0));
 
     // black king
     blackValidMoves.push_back(Move(Not2Ind("g7"), Not2Ind("f8"), 0));
@@ -83,26 +95,13 @@ TEST(MoveTests, MoveToEmptySquare){
     blackValidMoves.push_back(Move(Not2Ind("e8"), Not2Ind("d6"), 0));
     blackValidMoves.push_back(Move(Not2Ind("e8"), Not2Ind("c7"), 0));
 
-    std::stringstream sstr(whiteFen);
-    std::unique_ptr<Position> position(new Position(sstr));
+    testMoves(whiteFen, whiteValidMoves, false, REGULAR_MOVE);
+    testMoves(blackFen, blackValidMoves, false, REGULAR_MOVE);
 
-    for(auto move : whiteValidMoves){
-
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        ASSERT_NE(result.get(), nullptr) << "white Valid Move is null   " << result.get() << "   " << move << std::endl;
-        EXPECT_EQ(result->Type(), REGULAR_MOVE) << "white Valid Move is wrong type   " << result.get() << "   " << move << std::endl;
-    }
-    sstr = std::stringstream(blackFen);
-    position = std::unique_ptr<Position>(new Position(sstr));
-    for(auto move : blackValidMoves){
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        ASSERT_NE(result.get(), nullptr) << "valid move failed" << std::endl;
-        EXPECT_EQ(result->Type(), REGULAR_MOVE);
-    }
     Cleanup();
 }
 
-TEST(MoveTests, CaptureMoves){
+TEST(MoveValidationTests, CaptureMoves){
     // still no pawn moves
     Init();
     std::string whiteFen = "kB6/pppq1p1p/4QBpP/1N1P4/2Rn1r2/3NPb2/P1P1q1P1/Kn6 w - - 0 1";
@@ -134,25 +133,13 @@ TEST(MoveTests, CaptureMoves){
     blackMoves.push_back(Move(Not2Ind("f3"), Not2Ind("d5"), 0));
     blackMoves.push_back(Move(Not2Ind("e2"), Not2Ind("d3"), 0));
 
-    std::stringstream sstr(whiteFen);
-    std::unique_ptr<Position> position(new Position(sstr));
-    for(auto move : whiteMoves){
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        ASSERT_NE(result.get(), nullptr) << "white Valid Move is null   " << result.get() << "   " << move << std::endl;
-        EXPECT_EQ(result->Type(), CAPTURE_MOVE) << "white Valid Move is wrong type   " << result.get() << "   " << move << std::endl;
-    }
-    
-    sstr = std::stringstream(blackFen);
-    position = std::unique_ptr<Position>(new Position(sstr));
-    for(auto move : blackMoves){
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        ASSERT_NE(result.get(), nullptr) << "black valid move failed" << std::endl;
-        EXPECT_EQ(result->Type(), CAPTURE_MOVE);
-    }
+    testMoves(whiteFen, whiteMoves, false, CAPTURE_MOVE);
+    testMoves(blackFen, blackMoves, false, CAPTURE_MOVE);
+
     Cleanup();
 }
 
-TEST(MoveTests, InvalidMoves){
+TEST(MoveValidationTests, InvalidMoves){
     // these moves should be considered as invalid
     Init();
     std::string whiteFen = "4n3/3p2k1/5pb1/6r1/2P5/1K2BN1P/1Q4Pq/3R4 w - - 0 1";
@@ -184,32 +171,22 @@ TEST(MoveTests, InvalidMoves){
     whiteInvalidMoves.push_back(Move(Not2Ind("a2"), Not2Ind("a3"), 0));
     blackInvalidMoves.push_back(Move(Not2Ind("e5"), Not2Ind("e4"), 0));
 
-    std::stringstream sstr(whiteFen);
-    std::unique_ptr<Position> position(new Position(sstr));
-
-    for(auto move : whiteInvalidMoves){
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        EXPECT_EQ(result.get(), nullptr);
-    }
-    sstr = std::stringstream(blackFen);
-    position = std::unique_ptr<Position>(new Position(sstr));
-
-    for(auto move : blackInvalidMoves){
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        EXPECT_EQ(result.get(), nullptr);
-    }    
+    testMoves(whiteFen, whiteInvalidMoves, true, 0);
+    testMoves(blackFen, blackInvalidMoves, true, 0);
+ 
     Cleanup();
 
 }
 
-TEST(MoveTests, PawnMoves){
+TEST(MoveValidationTests, PawnMoves){
     Init();
-    std::string whiteFen = "k7/pp5p/6p1/1NpP4/5r2/2P1P2b/P1P3P1/K7 w - c6 0 2";
-    std::string blackFen = "k7/ppp1p2p/8/1N1P4/7b/2P1P3/P1P3P1/K7 b - - 0 1";
+    std::string whiteFen = "k7/pp2PP1p/6p1/1NpP4/5r2/2P1P2b/P1P3P1/K7 w - c6 0 2";
+    std::string blackFen = "k7/p3p3/2pP4/1N6/4Pp1b/2P5/PKP3Pp/8 b - e3 0 1";
 
     std::list<Move> whiteRegularMoves;
     std::list<Move> whiteDoubleMoves;
     std::list<Move> whiteEnPassantMoves;
+    std::list<Move> whitePromotionMoves;
 
     whiteRegularMoves.push_back(Move(Not2Ind("a2"), Not2Ind("a3"), 0));
     whiteRegularMoves.push_back(Move(Not2Ind("c3"), Not2Ind("c4"), 0));
@@ -222,23 +199,138 @@ TEST(MoveTests, PawnMoves){
 
     whiteEnPassantMoves.push_back(Move(Not2Ind("d5"), Not2Ind("c6"), 0));
 
-    std::stringstream sstr(whiteFen);
-    std::unique_ptr<Position> position(new Position(sstr));
+    whitePromotionMoves.push_back(Move(Not2Ind("e7"), Not2Ind("e8"), 0, WHITE_QUEEN));
+    whitePromotionMoves.push_back(Move(Not2Ind("e7"), Not2Ind("e8"), 0, WHITE_BISHOP));
 
-    for(auto move : whiteRegularMoves){
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        ASSERT_NE(result.get(), nullptr) << "valid move failed" << std::endl;
-        EXPECT_EQ(result->Type(), PAWN_MOVE) << move;
-    }
-    for(auto move : whiteDoubleMoves){
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        ASSERT_NE(result.get(), nullptr) << "valid move failed" << std::endl;
-        EXPECT_EQ(result->Type(), PAWN_MOVE | PAWN_DOUBLE_MOVE) << move;
-    }
-    for(auto move : whiteEnPassantMoves){
-        std::unique_ptr<Move> result(position->CheckIfMoveFullLegal(&move));
-        ASSERT_NE(result.get(), nullptr) << "valid move failed" << std::endl;
-        EXPECT_EQ(result->Type(), PAWN_MOVE | EN_PASSANT_MOVE | CAPTURE_MOVE) << move;
-    }
+    std::list<Move> blackRegularMoves;
+    std::list<Move> blackDoubleMoves;
+    std::list<Move> blackEnPassantMoves;
+    std::list<Move> blackPromotionMoves;
+
+    blackRegularMoves.push_back(Move(Not2Ind("a7"), Not2Ind("a6"), 0));
+    blackRegularMoves.push_back(Move(Not2Ind("c6"), Not2Ind("c5"), 0));
+    blackRegularMoves.push_back(Move(Not2Ind("e7"), Not2Ind("e6"), 0));
+    blackRegularMoves.push_back(Move(Not2Ind("a7"), Not2Ind("a6"), 0));
+
+    blackDoubleMoves.push_back(Move(Not2Ind("a7"), Not2Ind("a5"), 0));
+    blackDoubleMoves.push_back(Move(Not2Ind("e7"), Not2Ind("e5"), 0));
+
+    blackEnPassantMoves.push_back(Move(Not2Ind("f4"), Not2Ind("e3"), 0));
+
+    blackPromotionMoves.push_back(Move(Not2Ind("h2"), Not2Ind("h1"), 0, BLACK_ROOK));
+
+
+    testMoves(whiteFen, whiteRegularMoves, false, PAWN_MOVE);
+    testMoves(whiteFen, whiteDoubleMoves, false, PAWN_MOVE | PAWN_DOUBLE_MOVE);
+    testMoves(whiteFen, whiteEnPassantMoves, false, PAWN_MOVE | CAPTURE_MOVE | EN_PASSANT_MOVE);
+    testMoves(whiteFen, whitePromotionMoves, false, PAWN_MOVE | PROMOTION_MOVE);
+
+    testMoves(blackFen, blackRegularMoves, false, PAWN_MOVE);
+    testMoves(blackFen, blackDoubleMoves, false, PAWN_MOVE | PAWN_DOUBLE_MOVE);
+    testMoves(blackFen, blackEnPassantMoves, false, PAWN_MOVE | CAPTURE_MOVE | EN_PASSANT_MOVE);
+    testMoves(blackFen, blackPromotionMoves, false, PAWN_MOVE | PROMOTION_MOVE);
+
     Cleanup();
 }//*/
+
+
+TEST(MoveValidationTests, Castling){
+    Init();
+    std::string whiteCastleOK = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
+    std::string blackCastleOK = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1";
+
+    std::list<Move> whiteCastles;
+    std::list<Move> blackCastles;
+    whiteCastles.push_back(Move(Not2Ind("e1"), Not2Ind("g1"), 0));
+    whiteCastles.push_back(Move(Not2Ind("e1"), Not2Ind("c1"), 0));
+
+    blackCastles.push_back(Move(Not2Ind("e8"), Not2Ind("g8"), 0));
+    blackCastles.push_back(Move(Not2Ind("e8"), Not2Ind("c8"), 0));
+
+    // check castling for white
+    std::stringstream sstr(whiteCastleOK);
+    std::unique_ptr<Position> position(new Position(sstr));
+    auto moveIterator = whiteCastles.begin();
+    std::unique_ptr<Move> result = std::unique_ptr<Move>(position->CheckIfMoveFullLegal(&(*moveIterator)));
+    ASSERT_NE(result.get(), nullptr);
+    EXPECT_EQ(result->Type(), SHORT_CASTLE_MOVE);
+    
+    ++moveIterator;
+    result = std::unique_ptr<Move>(position->CheckIfMoveFullLegal(&(*moveIterator)));
+    ASSERT_NE(result.get(), nullptr);
+    EXPECT_EQ(result->Type(), LONG_CASTLE_MOVE);
+
+    // check castling for black
+    sstr = std::stringstream(blackCastleOK);
+    position = std::unique_ptr<Position>(new Position(sstr));
+    moveIterator = blackCastles.begin();
+    result = std::unique_ptr<Move>(position->CheckIfMoveFullLegal(&(*moveIterator)));
+    ASSERT_NE(result.get(), nullptr);
+    EXPECT_EQ(result->Type(), SHORT_CASTLE_MOVE);
+
+    ++moveIterator;
+    result = std::unique_ptr<Move>(position->CheckIfMoveFullLegal(&(*moveIterator)));
+    ASSERT_NE(result.get(), nullptr);
+    EXPECT_EQ(result->Type(), LONG_CASTLE_MOVE);
+
+
+    Cleanup();
+}
+
+
+TEST(MoveValidationTests, CastlingForbidden){
+    Init();
+    std::string whiteBlockedCastle = "r3k2r/ppp1p1pp/3R4/3B4/3b4/3r4/PPP1P1PP/R3K2R w KQkq - 0 1";
+    std::string blackBlockedCastle = "r3k2r/ppp1p1pp/3R4/3B4/3b4/3r4/PPP1P1PP/R3K2R b KQkq - 0 1";
+    std::string whiteNoPermission = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w - - 4 3";
+    std::string blackNoPermission = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b - - 4 3";
+    std::string whitePiecesInBetween = "r1p1k1nr/pppppppp/8/8/8/8/PPPPPPPP/R1R1KN1R w KQkq - 0 1";
+    std::string blackPiecesInBetween = "r1p1k1nr/pppppppp/8/8/8/8/PPPPPPPP/R1R1KN1R b KQkq - 0 1";
+    std::string whiteKingChecked = "r3k2r/ppp1pppp/3p4/1B6/7q/5P2/PPPPP1PP/R3K2R w KQkq - 0 1";
+    std::string blackKingChecked = "r3k2r/ppp1pppp/3p4/1B6/7q/5P2/PPPPP1PP/R3K2R b KQkq - 0 1";
+
+
+    std::list<Move> whiteCastles;
+    std::list<Move> blackCastles;
+    whiteCastles.push_back(Move(Not2Ind("e1"), Not2Ind("g1"), 0));
+    whiteCastles.push_back(Move(Not2Ind("e1"), Not2Ind("c1"), 0));
+
+    blackCastles.push_back(Move(Not2Ind("e8"), Not2Ind("g8"), 0));
+    blackCastles.push_back(Move(Not2Ind("e8"), Not2Ind("c8"), 0));
+
+    testMoves(whiteBlockedCastle, whiteCastles, true, 0);
+    testMoves(blackBlockedCastle, blackCastles, true, 0);
+    testMoves(whiteNoPermission, whiteCastles, true, 0);
+    testMoves(blackNoPermission, blackCastles, true, 0);
+    testMoves(whitePiecesInBetween, whiteCastles, true, 0);
+    testMoves(blackPiecesInBetween, blackCastles, true, 0);
+    testMoves(whiteKingChecked, whiteCastles, true, 0);
+    testMoves(blackKingChecked, blackCastles, true, 0);
+
+    Cleanup();
+}
+
+TEST(MoveValidationTests, LeavingOwnKingUnderCheck){
+    Init();
+
+    std::string whiteFen = "3q4/5k2/8/1K1Pp2r/6r1/3B4/8/5b2 w - - 0 2";
+
+    std::list<Move> whiteInvalidMoves;
+
+    // moving king to attacked place
+    whiteInvalidMoves.push_back(Move(Not2Ind("b5"), Not2Ind("b6"), 0));
+    whiteInvalidMoves.push_back(Move(Not2Ind("b5"), Not2Ind("a5"), 0));
+    whiteInvalidMoves.push_back(Move(Not2Ind("b5"), Not2Ind("b4"), 0));
+    whiteInvalidMoves.push_back(Move(Not2Ind("b5"), Not2Ind("a4"), 0));
+
+    // leaving king under attack by moving other piece
+    whiteInvalidMoves.push_back(Move(Not2Ind("d3"), Not2Ind("c2"), 0));
+    whiteInvalidMoves.push_back(Move(Not2Ind("d3"), Not2Ind("e4"), 0));
+
+    // leaving king under attack after en passant move
+    whiteInvalidMoves.push_back(Move(Not2Ind("d5"), Not2Ind("e6"), 0));
+
+    testMoves(whiteFen, whiteInvalidMoves, true, 0);
+
+    Cleanup();
+}

@@ -8,7 +8,7 @@
 #include "../src/functions.h"
 #include "../src/node.h"
 
-TEST(BoardFunctions, BoardIndicies){
+TEST(BoardTests, BoardIndiciesConverting){
     std::string notation = "a1";
     std::vector<int> rows = {1, 5, 4, 8, 1, 2, 3, 4, 6, 1, 8};
     std::vector<int> columns = {1, 1, 2, 2, 3, 3, 3, 5, 6, 8, 8};
@@ -22,7 +22,7 @@ TEST(BoardFunctions, BoardIndicies){
     }
 }
 
-TEST(PositionTests, FenReadingPrinting){
+TEST(BoardTests, FenReadingPrinting){
     Init();
     std::vector<std::string> fens = { "rn3bn1/pbppk1pp/1p2p2r/2q1Np2/8/2P1PK2/P1PP1PPP/RNBQ1B1R w - - 0 1",
                                       "4k3/Q7/4K3/8/8/8/8/8 w - - 0 1",
@@ -37,10 +37,4 @@ TEST(PositionTests, FenReadingPrinting){
         delete nd;
     }
     Cleanup();
-}
-
-TEST(PcbrTests, test2){
-    for(int i = 0; i <= 0; i++){
-        EXPECT_EQ(1, 1);
-    }
 }
