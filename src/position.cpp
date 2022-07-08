@@ -427,9 +427,10 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
         int kingPos = 0;
         toMove == WHITE ? kingPos = whiteKingPos : kingPos = blackKingPos;
         bool ownCheckAfter = false;
-        if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || row(kingPos) == row(expectedmove->From())){
+        /*if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || row(kingPos) == row(expectedmove->From())){
             ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
-        }
+        }//*/
+        ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
         MakeSoftBack(expectedmove, takenPiece);
         if(ownCheckAfter){
             delete expectedmove;
