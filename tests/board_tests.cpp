@@ -8,7 +8,18 @@
 #include "../src/functions.h"
 #include "../src/node.h"
 
-TEST(BoardTests, BoardIndiciesConverting){
+class BoardTests: public ::testing::Test {
+    protected:
+        BoardTests() {
+           Init();
+        }
+        ~BoardTests() override {
+           Cleanup();
+        }
+};
+
+
+TEST_F(BoardTests, BoardIndiciesConverting){
     std::string notation = "a1";
     std::vector<int> rows = {1, 5, 4, 8, 1, 2, 3, 4, 6, 1, 8};
     std::vector<int> columns = {1, 1, 2, 2, 3, 3, 3, 5, 6, 8, 8};
@@ -22,8 +33,7 @@ TEST(BoardTests, BoardIndiciesConverting){
     }
 }
 
-TEST(BoardTests, FenReadingPrinting){
-    Init();
+TEST_F(BoardTests, FenReadingPrinting){
     std::vector<std::string> fens = { "rn3bn1/pbppk1pp/1p2p2r/2q1Np2/8/2P1PK2/P1PP1PPP/RNBQ1B1R w - - 0 1",
                                       "4k3/Q7/4K3/8/8/8/8/8 w - - 0 1",
                                       "4k3/Q7/4K3/8/8/8/8/8 b - - 10 115",
@@ -33,8 +43,7 @@ TEST(BoardTests, FenReadingPrinting){
         Node *nd = new Node(sstr);
         std::string outFen = nd->GetFen();
         EXPECT_EQ(inFen, outFen) << "Test:  " << inFen << "  failed\n";
-        std::cerr << "#" << inFen << "#\n#" << outFen << "#\n";
+        //std::cerr << "#" << inFen << "#\n#" << outFen << "#\n";
         delete nd;
     }
-    Cleanup();
 }

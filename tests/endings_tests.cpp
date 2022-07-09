@@ -10,19 +10,26 @@
 #include "../src/position.h"
 #include "../src/move.h"
 
-void testGameResult(std::list<std::string> fenList, GameResult result){
+class EndingsTests: public ::testing::Test {
+    protected:
+        EndingsTests() {
+           Init();
+        }
+        ~EndingsTests() override {
+           Cleanup();
+        }
+};
 
+void testGameResult(std::list<std::string> fenList, GameResult expectedResult){
     for(auto fen : fenList){
         std::stringstream sstr(fen);
         std::unique_ptr<Position> position(new Position(sstr));
-        EXPECT_EQ(position->GetGameResult(), result) << "  Wrong result.  Fen is  " << fen << std::endl;
+        EXPECT_EQ(position->GetGameResult(), expectedResult) << "  Wrong result.  Fen is  " << fen << std::endl;
     }
 }
 
 
-TEST(EndingsTests, Checkmate){
-    Init();
-
+TEST_F(EndingsTests, Checkmate){
     std::list<std::string> blackWins;
     std::list<std::string> whiteWins;
 
@@ -39,24 +46,20 @@ TEST(EndingsTests, Checkmate){
 
     testGameResult(whiteWins, GameResult::WHITE_WIN);
     testGameResult(blackWins, GameResult::BLACK_WIN);
-
-    Cleanup();
 }
 
-TEST(EndingsTests, Stalemate){
-    Init();
+TEST_F(EndingsTests, Stalemate){
     std::list<std::string> stalemateFens;
 
     stalemateFens.push_back("3k4/8/2Q1K3/8/8/8/8/8 b - - 0 1");
     stalemateFens.push_back("8/2R5/5p1k/p4P2/Pp5K/1P6/8/8 b - - 0 1");
     stalemateFens.push_back("8/3q3n/7P/4K3/6r1/1k3pP1/1P3P2/7N w - - 0 1");
+    stalemateFens.push_back("7k/7P/7K/8/8/8/8/8 b - - 0 1");
 
     testGameResult(stalemateFens, GameResult::DRAW);
-    Cleanup();
 }
 
-TEST(EndingsTest, 50MoveRule){
-    Init();
+TEST_F(EndingsTests, 50MoveRule){
     std::string fen = "8/1k3r2/8/6n1/8/2K5/4R3/8 w - - 99 5";
 
     std::stringstream sstr(fen);
@@ -72,12 +75,9 @@ TEST(EndingsTest, 50MoveRule){
 
     ASSERT_NE(position2.get(), nullptr);
     EXPECT_EQ(position2->GetGameResult(), GameResult::DRAW);
-    Cleanup();
 }
 
-TEST(EndingsTests, RepetitionDraw){
-    Init();
-
+TEST_F(EndingsTests, RepetitionDraw){
     std::string fen = "6k1/6r1/2ppp3/1qq1qp1Q/1qq5/8/8/7K w - - 0 1";
     std::stringstream sstr(fen);
 
@@ -95,27 +95,29 @@ TEST(EndingsTests, RepetitionDraw){
     std::unique_ptr<Position> position7(new Position(*(position6.get()), move2.get()));
     std::unique_ptr<Position> position8(new Position(*(position7.get()), move3.get()));
     std::unique_ptr<Position> position9(new Position(*(position8.get()), move4.get()));
+
     EXPECT_EQ(position8->GetGameResult(), GameResult::ONGOING);
     EXPECT_EQ(position9->GetGameResult(), GameResult::DRAW);
-    Cleanup();
 }
 
-TEST(EndingsTests, InsufficientMaterial){
-    Init();
-    
+TEST_F(EndingsTests, InsufficientMaterial){
     std::list<std::string> drawFens;
     std::list<std::string> notDrawFens;
 
-    drawFens.push_back("");
-    drawFens.push_back("");
-    drawFens.push_back("");
-    drawFens.push_back("");
+    drawFens.push_back("8/8/5k2/8/8/8/3K4/8 w - - 0 1"); // king vs king
+    drawFens.push_back("8/8/5k2/8/8/8/3K1B2/8 w - - 0 1"); // king & bishop
+    drawFens.push_back("8/2b5/5k2/8/8/8/3K1B2/8 w - - 0 1"); // bishop vs bishop (same colors)
+    drawFens.push_back("8/8/5k2/8/8/8/3K1N2/8 w - - 0 1"); // king & knight
 
-    notDrawFens.push_back("");
-    notDrawFens.push_back("");
-    notDrawFens.push_back("");
-    notDrawFens.push_back("");
-    notDrawFens.push_back("");
+    drawFens.push_back("8/3b4/5k2/8/8/8/3K1B2/8 w - - 0 1"); // bishop vs bishop (different colors)
+    notDrawFens.push_back("8/3b4/5k2/8/8/8/3K1N2/8 w - - 0 1"); // knight vs bishop
+    notDrawFens.push_back("8/8/5k2/3n4/8/8/3K1N2/8 w - - 0 1"); // knight vs knight
+    notDrawFens.push_back("2k5/8/8/4P3/8/8/6K1/8 b - - 0 1"); // king & pawn
+    notDrawFens.push_back("2k5/8/8/8/8/4BB2/6K1/8 b - - 0 1"); // king & 2 bishops
+    notDrawFens.push_back("2k5/8/8/8/8/4NN2/6K1/8 b - - 0 1"); // king & 2 knights
+    notDrawFens.push_back("2k5/8/8/8/8/4R3/6K1/8 b - - 0 1"); // king & rook
+    notDrawFens.push_back("2k5/8/8/8/8/4Q3/6K1/8 b - - 0 1"); // king & queen
 
-    Cleanup();
+    testGameResult(drawFens, GameResult::DRAW);
+    testGameResult(notDrawFens, GameResult::ONGOING);
 }
