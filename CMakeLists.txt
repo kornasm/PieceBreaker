@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(PieceBreaker)
+set(This PieceBreaker)
+project(${This} CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wshadow -Wextra -Wno-unused-parameter -Wconversion")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_subdirectory(src)
-add_executable(PieceBreaker main.cpp)
 
-target_link_libraries(PieceBreaker libpcbr)
-target_link_libraries(PieceBreaker pthread)
+enable_testing()
+
+add_subdirectory(tests)
+
+add_executable(${This} main.cpp)
+target_link_libraries(${This} libpcbr)
+target_link_libraries(${This} pthread)

@@ -214,7 +214,6 @@ Position::Position(std::stringstream& strFen){
     // full move counter
     strFen >> fen;
     fullMoveCounter = std::stoi(fen);
-
     searchBackRepetitions = false;
     prev = nullptr;
     CalculatePositionHash();
@@ -282,13 +281,14 @@ std::string Position::GetFen() const{
         if(emptys != 0){
             result << emptys;
         }
-        result << "/";
+        if(i != 1){
+            result << "/";
+        }
     }
 
     // color to move
     result << " ";
     toMove == WHITE ? result << "w" : result << "b";
-    //fen[0] == 'w'? toMove = WHITE : toMove = BLACK;
 
     // castles
     result << " ";
@@ -301,7 +301,7 @@ std::string Position::GetFen() const{
         if(whcstl | LONG_CASTLE_MOVE)
             result << "Q";
         if(blcstl | SHORT_CASTLE_MOVE)
-            result << "K";
+            result << "k";
         if(blcstl | LONG_CASTLE_MOVE)
             result << "q";
     }
@@ -410,6 +410,9 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
     }
     else{
         expectedmove = CheckIfMovePseudoLegal(checkedmove->From(), checkedmove->To());
+        if(expectedmove == nullptr){
+            return nullptr;
+        }
     }
     if((expectedmove->Type()) & PROMOTION_MOVE){
         if(checkedmove->Promo() == 0){
@@ -424,9 +427,10 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
         int kingPos = 0;
         toMove == WHITE ? kingPos = whiteKingPos : kingPos = blackKingPos;
         bool ownCheckAfter = false;
-        if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || row(kingPos) == row(expectedmove->From())){
+        /*if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || row(kingPos) == row(expectedmove->From())){
             ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
-        }
+        }//*/
+        ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
         MakeSoftBack(expectedmove, takenPiece);
         if(ownCheckAfter){
             delete expectedmove;
