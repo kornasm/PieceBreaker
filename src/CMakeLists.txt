@@ -1,4 +1,3 @@
-set(CMAKE_CXX_FLAGS_INIT "-std=c++17 -Wall -Wshadow -Wextra -Wno-unused-parameter -Wconversion")
 
 set(This libpcbr)
 
