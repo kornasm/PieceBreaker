@@ -11,10 +11,10 @@
 class BoardTests: public ::testing::Test {
     protected:
         BoardTests() {
-           Init();
+           PieceBreaker::Init(0, nullptr);
         }
         ~BoardTests() override {
-           Cleanup();
+           PieceBreaker::Cleanup();
         }
 };
 

@@ -13,10 +13,10 @@
 class EndingsTests: public ::testing::Test {
     protected:
         EndingsTests() {
-           Init();
+           PieceBreaker::Init(0, nullptr);
         }
         ~EndingsTests() override {
-           Cleanup();
+           PieceBreaker::Cleanup();
         }
 };
 
@@ -109,8 +109,9 @@ TEST_F(EndingsTests, InsufficientMaterial){
     drawFens.push_back("8/2b5/5k2/8/8/8/3K1B2/8 w - - 0 1"); // bishop vs bishop (same colors)
     drawFens.push_back("8/8/5k2/8/8/8/3K1N2/8 w - - 0 1"); // king & knight
 
-    drawFens.push_back("8/3b4/5k2/8/8/8/3K1B2/8 w - - 0 1"); // bishop vs bishop (different colors)
-    notDrawFens.push_back("8/3b4/5k2/8/8/8/3K1N2/8 w - - 0 1"); // knight vs bishop
+    notDrawFens.push_back("8/3b4/5k2/8/8/8/3K1B2/8 w - - 0 1"); // bishop vs bishop (different colors)
+    notDrawFens.push_back("8/3b4/5k2/8/8/8/3K1N2/8 w - - 0 1"); // knight vs bishop (different colors)
+    notDrawFens.push_back("8/3b4/5k2/8/8/5N2/3K4/8 w - - 0 1"); // knight vs bishop (same colors)
     notDrawFens.push_back("8/8/5k2/3n4/8/8/3K1N2/8 w - - 0 1"); // knight vs knight
     notDrawFens.push_back("2k5/8/8/4P3/8/8/6K1/8 b - - 0 1"); // king & pawn
     notDrawFens.push_back("2k5/8/8/8/8/4BB2/6K1/8 b - - 0 1"); // king & 2 bishops
