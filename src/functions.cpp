@@ -5,8 +5,9 @@
 #include "movecheck.h"
 #include "position.h"
 #include "search.h"
-
+#include "input_provider.h"
 #include <cmath>
+#include <boost/program_options.hpp>
 
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
 
@@ -50,23 +51,55 @@ bool NotationValid(std::string pos){
     }
     return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
 }
+namespace PieceBreaker{
+    // if this function is called in unit tests, enter (0, nullptr) as arguments
+    void Init(int argc, char **argv){
+        if(argc != 0){ // 0 is provided explicitly during unit tests execution
+            namespace po = boost::program_options;
+            po::options_description desc("Available options");
+	        desc.add_options()
+	            ("help,h", "Show this help message")
+	        	("input-source,i", po::value<std::string>(), "specify path to input source (used for testing)")
+                ("output,o", "redirect diagnostic output messages from stderr to stdout")
+	        ;
 
-void Init(){
-    MoveCheckHandler::Init();
-    MoveGeneratorHandler::Init();
-    SearchTree::Init();
-    return;
+	        po::variables_map vm;
+	        po::store(po::parse_command_line(argc, argv, desc), vm);
+	        po::notify(vm);    
+
+	        if (vm.count("help")) {
+	            std::cout << desc << "\n";
+	            exit(0);
+	        }
+
+	        if (vm.count("input-source")) {
+                InputProvider::SetInstance(true, vm["input-source"].as<std::string>());
+	        } else {
+	            InputProvider::SetInstance();
+	        }
+
+	        if(vm.count("output") == 0){
+                freopen("/dev/null", "w", stderr);
+                std::cout << "Hiding stderr from output\n";
+	        }
+        }
+        MoveCheckHandler::Init();
+        MoveGeneratorHandler::Init();
+        SearchTree::Init();
+        return;
+    }
+    
+    void Cleanup(){
+        MoveGeneratorHandler::Cleanup();
+        MoveCheckHandler::Cleanup();
+        SearchTree *tree = SearchTree::GetInstance();
+        tree->Clear();
+        delete tree;
+        InputProvider *ip = InputProvider::GetInstance();
+        delete ip;
+        return;
+    }
 }
-
-void Cleanup(){
-    MoveGeneratorHandler::Cleanup();
-    MoveCheckHandler::Cleanup();
-    SearchTree *tree = SearchTree::GetInstance();
-    tree->Clear();
-    delete tree;
-    return;
-}
-
 void PrintMoveList(std::list<Move>* moves){
     auto it = moves->begin();
     std::cout << "available places:\n";
