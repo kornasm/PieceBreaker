@@ -222,7 +222,7 @@ Position::Position(std::stringstream& strFen){
 }
 
 std::string Position::GetFen() const{
-    std::stringstream result;
+    std::stringstream fen;
 
     unsigned int index = 0;
     for(int i = 8; i >= 1; i--){
@@ -234,90 +234,90 @@ std::string Position::GetFen() const{
             }
             else{
                 if(emptys != 0){
-                    result << emptys;
+                    fen << emptys;
                     emptys = 0;
                 }
                 switch(squares[index]){
                     case WHITE_KING:
-                        result << "K";
+                        fen << "K";
                         break;
                     case BLACK_KING:
-                        result << "k";
+                        fen << "k";
                         break;
                     case WHITE_QUEEN:
-                        result << "Q";
+                        fen << "Q";
                         break;
                     case BLACK_QUEEN:
-                        result << "q";
+                        fen << "q";
                         break;
                     case WHITE_ROOK:
-                        result << "R";
+                        fen << "R";
                         break;
                     case BLACK_ROOK:
-                        result << "r";
+                        fen << "r";
                         break;
                     case WHITE_BISHOP:
-                        result << "B";
+                        fen << "B";
                         break;
                     case BLACK_BISHOP:
-                        result << "b";
+                        fen << "b";
                         break;
                     case WHITE_KNIGHT:
-                        result << "N";
+                        fen << "N";
                         break;
                     case BLACK_KNIGHT:
-                        result << "n";
+                        fen << "n";
                         break;
                     case WHITE_PAWN:
-                        result << "P";
+                        fen << "P";
                         break;
                     case BLACK_PAWN:
-                        result << "p";
+                        fen << "p";
                         break;
                     default:;
                 }
             }
         }
         if(emptys != 0){
-            result << emptys;
+            fen << emptys;
         }
         if(i != 1){
-            result << "/";
+            fen << "/";
         }
     }
 
     // color to move
-    result << " ";
-    toMove == WHITE ? result << "w" : result << "b";
+    fen << " ";
+    toMove == WHITE ? fen << "w" : fen << "b";
 
     // castles
-    result << " ";
+    fen << " ";
     if(whcstl + blcstl == 0){
-        result << "-";
+        fen << "-";
     }
     else{
         if(whcstl | SHORT_CASTLE_MOVE)
-            result << "K";
+            fen << "K";
         if(whcstl | LONG_CASTLE_MOVE)
-            result << "Q";
+            fen << "Q";
         if(blcstl | SHORT_CASTLE_MOVE)
-            result << "k";
+            fen << "k";
         if(blcstl | LONG_CASTLE_MOVE)
-            result << "q";
+            fen << "q";
     }
     // en passant position
-    result << " ";
-    enPassant == -1 ? result << "-" : result << Ind2Not(enPassant);
+    fen << " ";
+    enPassant == -1 ? fen << "-" : fen << Ind2Not(enPassant);
 
     // half move clock
-    result << " ";
-    result << halfMoveClock;
+    fen << " ";
+    fen << halfMoveClock;
 
     // full move counter
-    result << " ";
-    result << fullMoveCounter;
+    fen << " ";
+    fen << fullMoveCounter;
 
-    return std::string(result.str());
+    return std::string(fen.str());
 }
 
 Position::~Position(){}

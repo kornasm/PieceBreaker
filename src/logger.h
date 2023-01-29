@@ -31,7 +31,7 @@ class Logger{
         void Log(std::string msg, int level = 1);
 
         int GetLevel() { return logging_level ;}
-        int SetLevel(int l) { logging_level = l; }
+        void SetLevel(int l) { logging_level = l; }
 };
 
 #endif
