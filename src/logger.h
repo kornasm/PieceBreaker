@@ -29,6 +29,9 @@ class Logger{
         Logger(int level = 1);
         void LogEvaluation(Node *node);
         void Log(std::string msg, int level = 1);
+
+        int GetLevel() { return logging_level ;}
+        int SetLevel(int l) { logging_level = l; }
 };
 
 #endif

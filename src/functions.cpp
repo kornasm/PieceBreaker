@@ -6,10 +6,13 @@
 #include "position.h"
 #include "search.h"
 #include "input_provider.h"
+#include "logger.h"
+
 #include <cmath>
 #include <boost/program_options.hpp>
 
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
+extern Logger logger;
 
 char GetPieceSymbol(int piece_number){
     //std::cerr << "Getting symbol   idx   " << piece_number + SYMBOLS_OFFSET << std::endl;
@@ -60,7 +63,9 @@ namespace PieceBreaker{
 	        desc.add_options()
 	            ("help,h", "Show this help message")
 	        	("input-source,i", po::value<std::string>(), "specify path to input source (used for testing)")
-                ("output,o", "redirect diagnostic output messages from stderr to stdout")
+                ("show-analysis,a", "show additional analysis data")
+                ("show-debug,d", "show additional data for debugging")
+                ("quiet,q", "don't log any data except those explicitly called (it will overrite -a and -d options")
 	        ;
 
 	        po::variables_map vm;
@@ -78,9 +83,18 @@ namespace PieceBreaker{
 	            InputProvider::SetInstance();
 	        }
 
-	        if(vm.count("output") == 0){
-                freopen("/dev/null", "w", stderr);
-                std::cout << "Hiding stderr from output\n";
+	        if(vm.count("show-analysis")){
+                int level = logger.GetLevel();
+                level |= 2;
+                logger.SetLevel(level);
+	        }
+            if(vm.count("show-debug")){
+                int level = logger.GetLevel();
+                level |= 4;
+                logger.SetLevel(level);
+	        }
+            if(vm.count("quiet")){
+                logger.SetLevel(0);
 	        }
         }
         MoveCheckHandler::Init();
