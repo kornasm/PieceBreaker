@@ -15,7 +15,7 @@ const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', '
 extern Logger logger;
 
 char GetPieceSymbol(int piece_number){
-    //std::cerr << "Getting symbol   idx   " << piece_number + SYMBOLS_OFFSET << std::endl;
+    logger << LogDest(LOG_DEBUG) << "Getting symbol   idx   " << piece_number + SYMBOLS_OFFSET << "\n";
     return PiecesSymbols[piece_number + SYMBOLS_OFFSET];
 }
 
@@ -73,7 +73,7 @@ namespace PieceBreaker{
 	        po::notify(vm);    
 
 	        if (vm.count("help")) {
-	            std::cout << desc << "\n";
+                logger << LogDest(LOG_ALWAYS) << desc << "\n";
 	            exit(0);
 	        }
 
@@ -85,16 +85,16 @@ namespace PieceBreaker{
 
 	        if(vm.count("show-analysis")){
                 int level = logger.GetLevel();
-                level |= 2;
+                level |= LOG_ANALYSIS;
                 logger.SetLevel(level);
 	        }
             if(vm.count("show-debug")){
                 int level = logger.GetLevel();
-                level |= 4;
+                level |= LOG_DEBUG;
                 logger.SetLevel(level);
 	        }
             if(vm.count("quiet")){
-                logger.SetLevel(0);
+                logger.SetLevel(LOG_QUIET);
 	        }
         }
         MoveCheckHandler::Init();
@@ -116,12 +116,13 @@ namespace PieceBreaker{
 }
 void PrintMoveList(std::list<Move>* moves){
     auto it = moves->begin();
-    std::cout << "available places:\n";
+    logger << LogDest(LOG_ANALYSIS) << "available places:\n";
+
     while(it != moves->end()){
-        std::cout << "  " << *it;
+        logger << LogDest(LOG_ANALYSIS) << "  " << *it;
         it++;
     }
-    std::cout << '\n';
+    logger << LogDest(LOG_ANALYSIS) << "\n";
 }
 
 bool InBetweenEmpty(const Position& pos, int from, int to, bool checkForRook, bool checkForBishop){

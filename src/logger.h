@@ -46,15 +46,15 @@ class Logger{
         int GetLevel() { return logging_level ;}
         void SetLevel(int l) { logging_level = l; }
 
-        // such implementation doesn't support some common used types (char, std::endl)
+        // even though this implementation covers most case, some additional function are needed
         template<typename T>
-        Logger& operator<<(T& object){
+        Logger& operator<<(T object){
             if(ShouldLog(msg_level)){
                 *out << object;
             }
             return *this;
         }
-        Logger& operator<<(LogDest ld);
+        Logger& operator<<(Node& nd);
 
         // logging with streams is preferred
         // Use functions below only when it's impossible to use streams
@@ -64,5 +64,8 @@ class Logger{
 
         void LogEvaluation(Node *node, int level = LOG_ANALYSIS);
 };
+
+template<>
+Logger& Logger::operator<<(LogDest ld);
 
 #endif

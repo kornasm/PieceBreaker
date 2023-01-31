@@ -43,7 +43,21 @@ void Logger::LogEvaluation(Node *node, int level){
     }
 }
 
+template<>
 Logger& Logger::operator<<(LogDest ld){
     this->msg_level = ld.level;
+    return *this;
+}
+/*Logger& Logger::operator<<(std::string str){
+    if(ShouldLog(msg_level)){
+        *out << str;
+    }
+    return *this;
+}//*/
+
+Logger& Logger::operator<<(Node& nd){
+    if(ShouldLog(msg_level)){
+        *out << nd;
+    }
     return *this;
 }

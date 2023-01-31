@@ -57,7 +57,7 @@ class Position{
         void MakeSoftBack(Move *toExecute, int takenPiece);
         bool IsPlaceAttacked(int attackedplace, int atackingcolor) const;
         
-        void ShowBoard(std::ostream& out = std::cout) const;
+        void ShowBoard(std::ostream& out) const;
         std::ostream& ShowTinyBoard(std::ostream& out) const;
         void CheckCheck();
         std::list<Move>* GenerateAllLegalMoves(bool searchAtLeastOne = false);

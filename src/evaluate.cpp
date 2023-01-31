@@ -5,17 +5,19 @@
 #include "functions.h"
 #include "movegenerators.h"
 #include "move.h"
+#include "logger.h"
 
 #include <iomanip>
 #include <cmath>
 
 extern const int mailbox[64];
 const double material[NO_PIECES] = {0, -9, -3, -3, -5, -1, 0, 1, 5, 3, 3, 9, 0};
+extern Logger logger;
 
 long long Evaluator::hashInfo = 0;
 float Evaluator::Evaluate(const Position& position){
-    //std::cout << "EVALUATING    " << position.GetPositionHash() << "\n";
-    //std::cout << "h    " << hashInfo << '\n';
+    logger << LogDest(LOG_ANALYSIS) << "EVALUATING    " << position.GetPositionHash() << "\n";
+    logger << LogDest(LOG_ANALYSIS) << "h    " << hashInfo << '\n';
     if(position.GetGameResult() != ONGOING){
         if(position.GetGameResult() == DRAW){
             return 0;
@@ -35,25 +37,25 @@ float Evaluator::Evaluate(const Position& position){
         result += material[pieceind];
         if(piece == WHITE_PAWN){
             result += ((double)(row(ind) - 2)) / 10;
-            // std::cerr << "white pawn  " << ((double)(row(ind) - 2)) / 10 << '\n';
+            // logger << LogDest(LOG_DEBUG) << "white pawn  " << ((double)(row(ind) - 2)) / 10 << '\n';
         }
         if(piece == BLACK_PAWN){
             result += ((double)(row(ind) - 7)) / 10;
-            // std::cerr << ind << "   " << row(ind) << '\n';
-            // std::cerr << "black pawn  " << ((double)(row(ind) - 7)) / 10 << '\n';
+            // logger << LogDest(LOG_DEBUG) << ind << "   " << row(ind) << '\n';
+            // logger << LogDest(LOG_DEBUG) << "black pawn  " << ((double)(row(ind) - 7)) / 10 << '\n';
         }
-        // std::cout << "result   " << result << '\n';
+        logger << LogDest(LOG_ANALYSIS) << "result   " << result << '\n';
     }
-    // std::cout << "result   " << result << '\n';
+    logger << LogDest(LOG_ANALYSIS) << "result   " << result << '\n';
     //double plus = (double)(position.ToMove()) / 10;
     int side = position.ToMove();
-    //std::cerr << "Material   " << result << '\n';
+    //logger << LogDest(LOG_ANALYSIS) << "Material   " << result << '\n';
     std::list<Move> *moves = AllMovesGenerator::GenerateMoves(position);
     std::list<Move> *oppMoves = AllMovesGenerator::GenerateMoves(position, true);
-    //std::cerr << "eval    " << result << '\n';
+    //logger << LogDest(LOG_ANALYSIS) << "eval    " << result << '\n';
     float pos = (float)((int)(moves->size()) - (int)(oppMoves->size())) / 5 * (float)(position.ToMove());
     result += pos;
-    //std::cerr << "eval    " << result << '\n';
+    //logger << LogDest(LOG_ANALYSIS) << "eval    " << result << '\n';
     int heatmap[121] = {};
     for(auto move : *moves){
         heatmap[move.To()] += side;
@@ -82,21 +84,21 @@ float Evaluator::Evaluate(const Position& position){
         int a = 0;
         a++;
         for(auto m : *moves){
-            std::cerr << m << "\n";
+            logger << LogDest(LOG_ANALYSIS) << m << "\n";
         }
-        std::cerr << "\n\n";
+        logger << LogDest(LOG_ANALYSIS) << "\n\n";
         for(auto m : *oppMoves){
-            std::cerr << m << "\n";
+            logger << LogDest(LOG_ANALYSIS) << m << "\n";
         }
         for(int r = 8; r > 0; r--){
             for(int c = 1; c <= 8; c++){
                 if(heatmap[ColRow2Ind(c, r)] >= 0)
-                    std::cerr << " ";
-                std::cerr << std::fixed << std::setprecision(1) << heatmap[ColRow2Ind(c, r)] << " ";
+                    logger << LogDest(LOG_ANALYSIS) << " ";
+                logger << LogDest(LOG_ANALYSIS) << std::fixed << heatmap[ColRow2Ind(c, r)] << " ";
             }
-            std::cerr << '\n';
+            logger << LogDest(LOG_ANALYSIS) << '\n';
         }
-        std::cerr << "\n\n";
+        logger << LogDest(LOG_ANALYSIS) << "\n\n";
     }
 
     delete moves;

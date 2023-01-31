@@ -1,9 +1,12 @@
 #include "input_provider.h"
 
+#include "logger.h"
+
 #include <string>
 #include <filesystem>
 
 InputProvider *InputProvider::instance = nullptr;
+extern Logger logger;
 
 InputProvider* InputProvider::GetInstance(){
     if(!instance){
@@ -14,7 +17,7 @@ InputProvider* InputProvider::GetInstance(){
 
 void InputProvider::SetInstance(bool fileProvider, std::string filePath){
     if(instance){
-        std::cerr << "Input Provider already exists" << std::endl;
+        logger << LogDest(LOG_ERROR) << "Input Provider already exists\n";
         return;
     }
     if(fileProvider){
@@ -27,7 +30,7 @@ void InputProvider::SetInstance(bool fileProvider, std::string filePath){
 
 std::string UserInputProvider::GetNextCommand(){
     std::string cmd;
-    std::cout << "> ";
+    logger << LogDest(LOG_UCI) << "> ";
     std::getline(std::cin, cmd);
     return cmd;
 }
@@ -35,10 +38,11 @@ std::string UserInputProvider::GetNextCommand(){
 FileInputProvider::FileInputProvider(std::string file_path){
     std::filesystem::path path(file_path);
     input.open(file_path);
-    std::cout << file_path << "\n";
+    logger << LogDest(LOG_DEBUG) << file_path << "\n";
+
     if(!input.good()){
-        std::cout << "Bad input file: quitting";
-        exit(0);
+        logger << LogDest(LOG_BAD_INPUT) << "Bad input file: quitting";
+        exit(1);
     }
 }
 
@@ -52,6 +56,6 @@ std::string FileInputProvider::GetNextCommand(){
     if(!input.good()){
         return std::string("quit"); // quit the program if eof is reached
     }
-    std::cerr << "Input: " << command << "\n";
+    logger << LogDest(LOG_DEBUG) << "Input: " << command << "\n";
     return command;
 }

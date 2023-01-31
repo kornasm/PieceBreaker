@@ -2,12 +2,15 @@
 
 #include "declarations.h"
 #include "move.h"
+#include "logger.h"
 
 #include <iostream>
 
 SearchTree* SearchTree::instance = nullptr;
 std::string SearchTree::fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 const std::string SearchTree::startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+extern Logger logger;
 
 void executeSearching(int depth){
     SearchTree* tree = SearchTree::GetInstance();
@@ -76,7 +79,7 @@ void SearchTree::Search(int maxdepth){
         Node *searched = nodesToSearch.top();
         auto it = nodeTable.find(searched);
         if(it == nodeTable.end()){
-            std::cout << "Trying to search a node not found in node table" << std::endl;
+            logger << LogDest(LOG_ERROR) << "Trying to search a node not found in node table\n";
             nodeTable.insert(std::make_pair(searched, 0));
         }
         else{
@@ -87,34 +90,34 @@ void SearchTree::Search(int maxdepth){
                 it->second = 1;
             }
             else if(it->second == 1){
-                std::cout << "Searching a node second time    " << std::endl;
+                logger << LogDest(LOG_ERROR) << "Searching a node second time\n";
                 Explore(searched, "", 0, 1);
                 exit(EXIT_SUCCESS); // just to see if it happens
             }
             else if(it->second == 2){
-                std::cout << "node table erasing:  " << it->first << std::endl;
+                logger << LogDest(LOG_DEBUG) << "node table erasing:  " << it->first << "\n";
                 nodeTable.erase(it->first);
             }
         }
     }
-    std::cerr << "End Eval: " << entryNode->partialEval << '\n';
+    logger << LogDest(LOG_ANALYSIS) << "End Eval: " << entryNode->partialEval << '\n';
     Explore(entryNode, "", 10, 0);
     PrintResult();
     Clear();
     status = THREAD_READY_TO_JOIN;
 }
 
-void SearchTree::PrintResult(){
-    std::cout << "Full path  : ";
+void SearchTree::PrintResult(int level){
+    logger << LogDest(level) << "Full path  : ";
     Node *current = entryNode->bestmove;
     while(current){
-        std::cout << *(current->moveMade) << ' ';
+        logger << LogDest(level) << *(current->moveMade) << ' ';
         current = current->bestmove;
     }
-    std::cout << "\nbestmove " << *(entryNode->bestmove->moveMade);
+    logger << LogDest(LOG_UCI) << "\nbestmove " << *(entryNode->bestmove->moveMade);
     if(entryNode->bestmove->bestmove)
-        std::cout << " ponder " << *(entryNode->bestmove->bestmove->moveMade);
-    std::cout << std::endl;
+        logger << LogDest(LOG_UCI) << " ponder " << *(entryNode->bestmove->bestmove->moveMade);
+    logger << LogDest(LOG_ALWAYS) << "\n";
 }
 
 void SearchTree::AddNodeToQueue(Node* node){
@@ -122,8 +125,8 @@ void SearchTree::AddNodeToQueue(Node* node){
     nodeTable.insert(std::make_pair(node, 0));
 }
 
-void SearchTree::ShowBoard(){ 
-    std::cout << *entryNode << '\n';
-    std::cout << entryNode->GetFen() << '\n';
-    std::cout << *root << '\n';
+void SearchTree::ShowBoard(int level){ 
+    logger << LogDest(level) << *entryNode << '\n';
+    logger << LogDest(level) << entryNode->GetFen() << '\n';
+    logger << LogDest(level) << *root << '\n';
 }

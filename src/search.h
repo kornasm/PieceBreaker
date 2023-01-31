@@ -2,6 +2,7 @@
 #define SEARCH_H_
 
 #include "node.h"
+#include "logger.h"
 
 #include <queue>
 #include <string>
@@ -10,6 +11,7 @@
 #include <map>
 
 class Node;
+class Logger;
 
 class NodePtr{
     public:
@@ -52,8 +54,8 @@ class SearchTree{
         int GetThreadStatus() { return status; }
         void SetThreadStatus(int s){ status = s; }
 
-        void PrintResult();
-        void ShowBoard();
+        void PrintResult(int level = LOG_ANALYSIS);
+        void ShowBoard(int level = LOG_ANALYSIS);
         Node *GetEntryNode() { return entryNode; }
 };
 
