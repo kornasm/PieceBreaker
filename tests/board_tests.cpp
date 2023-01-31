@@ -11,10 +11,10 @@
 class BoardTests: public ::testing::Test {
     protected:
         BoardTests() {
-           Init();
+           PieceBreaker::Init(0, nullptr);
         }
         ~BoardTests() override {
-           Cleanup();
+           PieceBreaker::Cleanup();
         }
 };
 
@@ -25,7 +25,7 @@ TEST_F(BoardTests, BoardIndiciesConverting){
     std::vector<int> columns = {1, 1, 2, 2, 3, 3, 3, 5, 6, 8, 8};
     std::vector<int> indicies = {22, 62, 53, 93, 24, 34, 44, 56, 77, 29, 99};
     std::vector<std::string> notations = {"a1", "a5", "b4", "b8", "c1", "c2", "c3", "e4", "f6", "h1", "h8"};
-    for(int i = 0; i < indicies.size(); i++){
+    for(uint i = 0; i < indicies.size(); i++){
         EXPECT_EQ(Not2Ind(notations[i]), indicies[i]);
         EXPECT_EQ(Ind2Not(indicies[i]), notations[i]);
         EXPECT_EQ(columns[i], column(indicies[i]));

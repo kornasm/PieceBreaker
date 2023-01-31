@@ -51,7 +51,6 @@ std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Pos
     if(col == WHITE){
         if((position.WhiteCstl() & SHORT_CASTLE_MOVE) != 0){
             if(position.GetSquareColor(originSquare + 1) == EMPTY_SQUARE && position.GetSquareColor(originSquare + 2) == EMPTY_SQUARE){
-                //std::cout << Ind2Not(originSquare + 1) << "  " << PiecesSymbols[position.GetSquareValue(originSquare + 1) + SYMBOLS_OFFSET] << '\n';
                 if(position.IsPlaceAttacked(originSquare, -col) == false && 
                    position.IsPlaceAttacked(originSquare + 1, -col) == false && 
                    position.IsPlaceAttacked(originSquare + 2, -col) == false){

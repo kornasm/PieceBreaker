@@ -16,10 +16,10 @@
 class MoveValidationTests: public ::testing::Test {
     protected:
         MoveValidationTests() {
-           Init();
+           PieceBreaker::Init(0, nullptr);
         }
         ~MoveValidationTests() override {
-           Cleanup();
+           PieceBreaker::Cleanup();
         }
 };
 

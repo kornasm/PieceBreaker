@@ -23,8 +23,10 @@ int ColRow2Ind(int column, int row);
 
 bool NotationValid(std::string pos);
 
-void Init();
-void Cleanup();
+namespace PieceBreaker{
+    void Init(int argc, char **argv);
+    void Cleanup();
+}
 
 void PrintMoveList(std::list<Move>* moves);
 

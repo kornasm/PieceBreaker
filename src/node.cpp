@@ -5,6 +5,7 @@
 #include "move.h"
 #include "evaluate.h"
 #include "search.h"
+#include "logger.h"
 
 #include <iomanip>
 #include <iostream>
@@ -14,6 +15,8 @@
 
 int Node::noNodes = 0;
 int Node::noActiveNodes = 0;
+
+extern Logger logger;
 
 Node::Node() :children(&CompareNodesDescending){
     position = new Position();
@@ -98,13 +101,13 @@ void Node::Search(int maxDepth){
 
 void Node::PassValueBackwards(Node *from){
     if(from == nullptr){
-        //std::cerr << "\npassing back   from\n" << *this;
+        logger << LogDest(LOG_DEBUG) << "\npassing back   from\n" << *this;
         if(prev){
             prev->PassValueBackwards(this);
         }
         return;
     }
-    //std::cerr << "passing back   to   depth  " << this->depth << '\n';
+    logger << LogDest(LOG_DEBUG) << "passing back   to   depth  " << this->depth << '\n';
 
     bool changed = false;
     if(this->position->ToMove() == WHITE){
@@ -159,12 +162,12 @@ void Node::PassValueBackwards(Node *from){
         }
         if(depth == 0){
             //Explore(this, "", 1);
-            std::cerr << "best path changed    from   " << *this->bestmove->moveMade << "   eval    " << this->bestmove->partialEval << '\n';
+            logger << LogDest(LOG_ANALYSIS) << "best path changed    from   " << *this->bestmove->moveMade << "   eval    " << this->bestmove->partialEval << '\n';
             Node *current = this->bestmove;
-            std::cerr << bestmove << "\t" << partialEval << '\n';
-            std::cerr << "moves  \n";
+            logger << bestmove << "\t" << partialEval << '\n';
+            logger << "moves  \n";
             while(current){
-                std::cerr << *(current->moveMade) << '\n';
+                logger << *(current->moveMade) << '\n';
                 current = current->bestmove;
             }
         }
@@ -204,28 +207,16 @@ std::ostream& operator <<(std::ostream& out, const Node& node){
     return out;
 }
 
-void Explore(Node *nd, std::string prefix, int maxdepth, int outstream){
-    if(outstream == 0){
-        std::cerr << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << std::setprecision(1) << nd->partialEval << "\tbest " << nd->bestmove << "\t";
-        if(nd->moveMade){
-            std::cerr << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To() << "   priority   " << nd->priority;
-        }
-        std::cerr << '\n';
-        if(nd->GetDepth() < maxdepth){
-            for(auto node = nd->children.begin(); node != nd->children.end(); ++node){
-                Explore(*node, prefix + '\t', maxdepth, outstream);
-            }
-        }
-        return;
-    }
-    std::cout << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << std::setprecision(1) << nd->partialEval << "\tbest " << nd->bestmove << "\t";
+void Explore(Node *nd, std::string prefix, int maxdepth, int log_level){
+
+    logger << LogDest(log_level) << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << nd->partialEval << "\tbest " << nd->bestmove << "\t";
     if(nd->moveMade){
-        std::cout << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To() << "   priority   " << nd->priority;
+        logger << LogDest(log_level) << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To() << "   priority   " << nd->priority;
     }
-    std::cout << '\n';
+    logger << LogDest(log_level) << '\n';
     if(nd->GetDepth() < maxdepth){
         for(auto node = nd->children.begin(); node != nd->children.end(); ++node){
-            Explore(*node, prefix + '\t', maxdepth, outstream);
+            Explore(*node, prefix + '\t', maxdepth, log_level);
         }
     }
     return;

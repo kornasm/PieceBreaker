@@ -2,11 +2,14 @@
 
 #include "declarations.h"
 #include "functions.h"
+#include "logger.h"
 
 #include <iostream>
 
 const char PromotionSymbols[4] = {'q', 'r', 'n', 'b'};
 const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP};
+
+extern Logger logger;
 
 Move::Move(int f, int t, int tp, int pr) :from(f), to(t), type(tp), promo(pr){}
 
@@ -27,7 +30,7 @@ Move* Move::String2Move(std::string notation){
         }
     }
     if(from < 0 || from > 120){
-        std::cout << "index out of range\n";
+        logger << LogDest(LOG_BAD_INPUT) << "index out of range\n";
         return nullptr;
     }
     Move *result = new Move(from, to, REGULAR_MOVE, promo);

@@ -20,9 +20,9 @@ add_executable(endings_tests endings_tests.cpp)
 
 target_link_libraries(GTest::GTest INTERFACE gtest_main)
 
-target_link_libraries(board_tests PRIVATE GTest::GTest libpcbr)
-target_link_libraries(move_validation_tests PRIVATE GTest::GTest libpcbr)
-target_link_libraries(endings_tests PRIVATE GTest::GTest libpcbr)
+target_link_libraries(board_tests PRIVATE GTest::GTest libpcbr boost_program_options)
+target_link_libraries(move_validation_tests PRIVATE GTest::GTest libpcbr boost_program_options)
+target_link_libraries(endings_tests PRIVATE GTest::GTest libpcbr boost_program_options)
 
 enable_testing()
 

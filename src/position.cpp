@@ -4,6 +4,7 @@
 #include "move.h"
 #include "movecheck.h"
 #include "movegenerators.h"
+#include "logger.h"
 
 #include <cmath>
 #include <sstream>
@@ -18,6 +19,8 @@ const int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
                          92, 93, 94, 95, 96, 97, 98, 99};
 
 const int drawMaterial[NO_PIECES] = {0, 10, 1, 1, 10, 10, 0, 10, 10, 1, 1, 10, 0};
+
+extern Logger logger;
 
 Position::Position(){
     toMove = WHITE;
@@ -222,7 +225,7 @@ Position::Position(std::stringstream& strFen){
 }
 
 std::string Position::GetFen() const{
-    std::stringstream result;
+    std::stringstream fen;
 
     unsigned int index = 0;
     for(int i = 8; i >= 1; i--){
@@ -234,90 +237,90 @@ std::string Position::GetFen() const{
             }
             else{
                 if(emptys != 0){
-                    result << emptys;
+                    fen << emptys;
                     emptys = 0;
                 }
                 switch(squares[index]){
                     case WHITE_KING:
-                        result << "K";
+                        fen << "K";
                         break;
                     case BLACK_KING:
-                        result << "k";
+                        fen << "k";
                         break;
                     case WHITE_QUEEN:
-                        result << "Q";
+                        fen << "Q";
                         break;
                     case BLACK_QUEEN:
-                        result << "q";
+                        fen << "q";
                         break;
                     case WHITE_ROOK:
-                        result << "R";
+                        fen << "R";
                         break;
                     case BLACK_ROOK:
-                        result << "r";
+                        fen << "r";
                         break;
                     case WHITE_BISHOP:
-                        result << "B";
+                        fen << "B";
                         break;
                     case BLACK_BISHOP:
-                        result << "b";
+                        fen << "b";
                         break;
                     case WHITE_KNIGHT:
-                        result << "N";
+                        fen << "N";
                         break;
                     case BLACK_KNIGHT:
-                        result << "n";
+                        fen << "n";
                         break;
                     case WHITE_PAWN:
-                        result << "P";
+                        fen << "P";
                         break;
                     case BLACK_PAWN:
-                        result << "p";
+                        fen << "p";
                         break;
                     default:;
                 }
             }
         }
         if(emptys != 0){
-            result << emptys;
+            fen << emptys;
         }
         if(i != 1){
-            result << "/";
+            fen << "/";
         }
     }
 
     // color to move
-    result << " ";
-    toMove == WHITE ? result << "w" : result << "b";
+    fen << " ";
+    toMove == WHITE ? fen << "w" : fen << "b";
 
     // castles
-    result << " ";
+    fen << " ";
     if(whcstl + blcstl == 0){
-        result << "-";
+        fen << "-";
     }
     else{
         if(whcstl | SHORT_CASTLE_MOVE)
-            result << "K";
+            fen << "K";
         if(whcstl | LONG_CASTLE_MOVE)
-            result << "Q";
+            fen << "Q";
         if(blcstl | SHORT_CASTLE_MOVE)
-            result << "k";
+            fen << "k";
         if(blcstl | LONG_CASTLE_MOVE)
-            result << "q";
+            fen << "q";
     }
     // en passant position
-    result << " ";
-    enPassant == -1 ? result << "-" : result << Ind2Not(enPassant);
+    fen << " ";
+    enPassant == -1 ? fen << "-" : fen << Ind2Not(enPassant);
 
     // half move clock
-    result << " ";
-    result << halfMoveClock;
+    fen << " ";
+    fen << halfMoveClock;
 
     // full move counter
-    result << " ";
-    result << fullMoveCounter;
+    fen << " ";
+    fen << fullMoveCounter;
 
-    return std::string(result.str());
+    return std::string(fen.str());
 }
 
 Position::~Position(){}
@@ -401,7 +404,7 @@ void Position::MakeSoftBack(Move *toExecute, int takenPiece){
 Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty){
     int PieceColor = GetSquareColor(checkedmove->From());
     if(toMove != PieceColor){
-        std::cout << "wrong piece chosen (wrong color)\n";
+        logger << LogDest(LOG_ERROR) << "wrong piece chosen (wrong color)\n";
         return nullptr;
     }
     Move *expectedmove = nullptr;
@@ -417,7 +420,7 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
     if((expectedmove->Type()) & PROMOTION_MOVE){
         if(checkedmove->Promo() == 0){
             delete expectedmove;
-            std::cout << "no promo char entered\n";
+            logger << LogDest(LOG_BAD_INPUT) << "no promo char entered\n";
             return nullptr;
         }
     }
@@ -503,7 +506,7 @@ void Position::CheckEndings(){
             count++;
             if(count>= 3){
                 result = GameResult::DRAW;
-                //std::cout << "draw (repetition)\n";
+                logger << LogDest(LOG_ANALYSIS) << "draw (repetition)\n";
                 return;
             }
         }
@@ -522,16 +525,16 @@ void Position::CheckEndings(){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){
                 result = GameResult::BLACK_WIN;
-                //std::cout << "black win (checkmate)\n";
+                logger << LogDest(LOG_ANALYSIS) << "black win (checkmate)\n";
             }
             else{
                 result = GameResult::WHITE_WIN;
-                //std::cout << "white win (checkmate)\n";
+                logger << LogDest(LOG_ANALYSIS) << "white win (checkmate)\n";
             }
         }
         else{ // Stalemate
             result = GameResult::DRAW;
-            //std::cout << "draw (stalemate)\n";            
+            logger << LogDest(LOG_ANALYSIS) << "draw (stalemate)\n";
         }
     }
     delete possiblemoves;
@@ -553,7 +556,7 @@ void Position::CheckEndings(){
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
         result = DRAW;
-        //std::cout << "draw (material)\n";
+        logger << LogDest(LOG_ANALYSIS) << "draw (material)\n";
         return;
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] == 2 && colmaterial[BLACK + 1] == colmaterial[WHITE + 1]){
@@ -567,7 +570,7 @@ void Position::CheckEndings(){
             }
             if(isknight == false){
                 result = DRAW;
-                //std::cout << "draw (material)\n";
+                logger << LogDest(LOG_ANALYSIS) << "draw (material)\n";
             }
         }
     }
@@ -584,15 +587,16 @@ void Position::CalculatePositionHash(){
 }
 
 char Position::GetPiece(int column, int row) const{
-    //std::cerr << "Get piece     " << GetSquareValue(column, row) << "   " << column << "  " << row << std::endl;
+    //logger << LogDest(LOG_DEBUG) << "Get piece     " << GetSquareValue(column, row) << "   " << column << "  " << row << "\n";
     return GetPieceSymbol(GetSquareValue(column, row));
 }
 
 int Position::GetSquareValue(int column, int row) const{
     if(column < 1 || column > 8 || row < 1 || row > 8){
-        std::cout << "function    Position::GetSquareValue error    " << column << " " << row << std::endl;
+        logger << "function    Position::GetSquareValue error    " << column << " " << row << "\n";
+        exit(1);
     }
-    //std::cerr << "Get Square value    from   "  << 11 + 10 * row + column << "     " << squares[11 + 10 * row + column] << std::endl;
+    //logger << LogDest(LOG_DEBUG) << "Get Square value    from   "  << 11 + 10 * row + column << "     " << squares[11 + 10 * row + column] << std::endl;
     return squares[11 + 10 * row + column];
 }
 

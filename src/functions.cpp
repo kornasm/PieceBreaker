@@ -5,13 +5,17 @@
 #include "movecheck.h"
 #include "position.h"
 #include "search.h"
+#include "input_provider.h"
+#include "logger.h"
 
 #include <cmath>
+#include <boost/program_options.hpp>
 
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
+extern Logger logger;
 
 char GetPieceSymbol(int piece_number){
-    //std::cerr << "Getting symbol   idx   " << piece_number + SYMBOLS_OFFSET << std::endl;
+    logger << LogDest(LOG_DEBUG) << "Getting symbol   idx   " << piece_number + SYMBOLS_OFFSET << "\n";
     return PiecesSymbols[piece_number + SYMBOLS_OFFSET];
 }
 
@@ -50,31 +54,75 @@ bool NotationValid(std::string pos){
     }
     return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
 }
+namespace PieceBreaker{
+    // if this function is called in unit tests, enter (0, nullptr) as arguments
+    void Init(int argc, char **argv){
+        if(argc != 0){ // 0 is provided explicitly during unit tests execution
+            namespace po = boost::program_options;
+            po::options_description desc("Available options");
+	        desc.add_options()
+	            ("help,h", "Show this help message")
+	        	("input-source,i", po::value<std::string>(), "specify path to input source (used for testing)")
+                ("show-analysis,a", "show additional analysis data")
+                ("show-debug,d", "show additional data for debugging")
+                ("quiet,q", "don't log any data except those explicitly called (it will overrite -a and -d options")
+	        ;
 
-void Init(){
-    MoveCheckHandler::Init();
-    MoveGeneratorHandler::Init();
-    SearchTree::Init();
-    return;
+	        po::variables_map vm;
+	        po::store(po::parse_command_line(argc, argv, desc), vm);
+	        po::notify(vm);    
+
+	        if (vm.count("help")) {
+                logger << LogDest(LOG_ALWAYS) << desc << "\n";
+	            exit(0);
+	        }
+
+	        if (vm.count("input-source")) {
+                InputProvider::SetInstance(true, vm["input-source"].as<std::string>());
+	        } else {
+	            InputProvider::SetInstance();
+	        }
+
+	        if(vm.count("show-analysis")){
+                int level = logger.GetLevel();
+                level |= LOG_ANALYSIS;
+                logger.SetLevel(level);
+	        }
+            if(vm.count("show-debug")){
+                int level = logger.GetLevel();
+                level |= LOG_DEBUG;
+                logger.SetLevel(level);
+	        }
+            if(vm.count("quiet")){
+                logger.SetLevel(LOG_QUIET);
+	        }
+        }
+        MoveCheckHandler::Init();
+        MoveGeneratorHandler::Init();
+        SearchTree::Init();
+        return;
+    }
+    
+    void Cleanup(){
+        MoveGeneratorHandler::Cleanup();
+        MoveCheckHandler::Cleanup();
+        SearchTree *tree = SearchTree::GetInstance();
+        tree->Clear();
+        delete tree;
+        InputProvider *ip = InputProvider::GetInstance();
+        delete ip;
+        return;
+    }
 }
-
-void Cleanup(){
-    MoveGeneratorHandler::Cleanup();
-    MoveCheckHandler::Cleanup();
-    SearchTree *tree = SearchTree::GetInstance();
-    tree->Clear();
-    delete tree;
-    return;
-}
-
 void PrintMoveList(std::list<Move>* moves){
     auto it = moves->begin();
-    std::cout << "available places:\n";
+    logger << LogDest(LOG_ANALYSIS) << "available places:\n";
+
     while(it != moves->end()){
-        std::cout << "  " << *it;
+        logger << LogDest(LOG_ANALYSIS) << "  " << *it;
         it++;
     }
-    std::cout << '\n';
+    logger << LogDest(LOG_ANALYSIS) << "\n";
 }
 
 bool InBetweenEmpty(const Position& pos, int from, int to, bool checkForRook, bool checkForBishop){

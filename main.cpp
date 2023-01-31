@@ -8,13 +8,7 @@
 #include "src/uci.h"
 
 int main(int argc, char **argv){
-    if(argc == 1){
-        freopen("/dev/null", "w", stderr);
-    }
-    if(argc > 1){
-        freopen(argv[1], "r", stdin);
-    }
-    Init();
+    PieceBreaker::Init(argc, argv);
     Uci::loop();
-    Cleanup();
+    PieceBreaker::Cleanup();
 }

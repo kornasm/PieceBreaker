@@ -4,10 +4,13 @@
 #include "move.h"
 #include "movegenerators.h"
 #include "functions.h"
+#include "logger.h"
 
 #include <cmath>
 
 MoveChecker* MoveCheckHandler::checkers[] = {};
+
+extern Logger logger;
 
 void MoveCheckHandler::Init(){
     checkers[0] = new KingMoveChecker();
@@ -38,7 +41,7 @@ Move* MoveCheckHandler::CheckMove(const Position& position, int from, int to){
     if(position.GetSquareValue(to) == OUTSIDE_BOARD){
         return nullptr;
     }
-    //std::cout << "checkmovehandler  " << position.GetSquareValue(from) << "   " << from << '\n';
+    logger << LogDest(LOG_DEBUG) << "checkmovehandler  " << position.GetSquareValue(from) << "   " << from << '\n';
     return checkers[position.GetSquareValue(from) + SYMBOLS_OFFSET]->CheckMoveLegality(position, from, to);
 }
 
