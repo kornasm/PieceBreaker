@@ -17,8 +17,7 @@ InputProvider* InputProvider::GetInstance(){
 
 void InputProvider::SetInstance(bool fileProvider, std::string filePath){
     if(instance){
-        logger << LogDest(LOG_ERROR) << "Input Provider already exists\n";
-        return;
+        delete instance;
     }
     if(fileProvider){
         instance = new FileInputProvider(filePath);
@@ -48,6 +47,7 @@ FileInputProvider::FileInputProvider(std::string file_path){
 
 FileInputProvider::~FileInputProvider(){
     input.close();
+    instance = nullptr;
 }
 
 std::string FileInputProvider::GetNextCommand(){

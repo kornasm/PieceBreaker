@@ -20,6 +20,7 @@ class InputProvider{
 class UserInputProvider: InputProvider{
     public:
         std::string GetNextCommand() override;
+        ~UserInputProvider() { instance = nullptr; };
     private:
         friend InputProvider;
         UserInputProvider(){};
