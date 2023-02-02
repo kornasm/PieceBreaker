@@ -11,6 +11,7 @@
 #include <thread>
 #include <iostream>
 #include <sstream>
+#include <chrono>
 
 extern Logger logger;
 
@@ -18,6 +19,7 @@ void Uci::loop(){
     bool running = false;
     std::string command, option;
     std::unique_ptr<std::thread> st = nullptr;
+    std::unique_ptr<std::thread> side_thr = nullptr;
     SearchTree *tree = SearchTree::GetInstance();
     InputProvider *ip = InputProvider::GetInstance();
 
@@ -26,6 +28,11 @@ void Uci::loop(){
 
         sstr >> option;
 
+        if(option == "explore"){
+            int depth = 1;
+            sstr >> depth;
+            Explore(tree->GetEntryNode(), "", depth, LOG_ALWAYS);
+        }
         // join the searching thread if search has completed without "stop" command
         if(running){
             if(THREAD_READY_TO_JOIN == tree->GetThreadStatus()){
@@ -35,6 +42,9 @@ void Uci::loop(){
                     running = false;
                     SearchTree::Init();
                     tree = SearchTree::GetInstance();
+                }
+                if(side_thr->joinable()){
+                    side_thr->join();
                 }
             }
         }
@@ -82,6 +92,7 @@ void Uci::loop(){
                 running = true;
                 tree->SetThreadStatus(THREAD_RUNNING);
                 st = std::make_unique<std::thread>(std::thread(executeSearching, depth));
+                side_thr = std::make_unique<std::thread>(std::thread(executeSideThread));
             }
         }
 
@@ -93,6 +104,7 @@ void Uci::loop(){
             if(running){
                 tree->SetThreadStatus(THREAD_STOP);
                 st->join();
+                side_thr->join();
                 tree->SetThreadStatus(THREAD_IDLE);
                 running = false;
             }
@@ -101,10 +113,11 @@ void Uci::loop(){
         if(option == "ponderhit"){
             // nothing yet
         }
-        if(option == "quit"){
+        if(option == "quit" || option == "q"){
             if(running){
                 tree->SetThreadStatus(THREAD_STOP);
                 st->join();
+                side_thr->join();
             }
             break;
         }
@@ -122,6 +135,13 @@ void Uci::loop(){
         if(option == "sethash"){
             std::cin >> Evaluator::hashInfo;
         }
+#ifdef DEBUG
+        if(option == "sleep"){
+            int millis;
+            sstr >> millis;
+            std::this_thread::sleep_for(std::chrono::milliseconds(millis));
+        }
+#endif
     }
     return;
 }
