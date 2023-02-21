@@ -23,10 +23,10 @@ float Evaluator::Evaluate(const Position& position){
             return 0;
         }
         if(position.GetGameResult() == WHITE_WIN){
-            return 12345;
+            return WHITE_WIN;
         }
         if(position.GetGameResult() == BLACK_WIN){
-            return -12345;
+            return BLACK_WIN;
         }
     }
     double result = 0;

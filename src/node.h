@@ -1,6 +1,8 @@
 #ifndef NODE_H_
 #define NODE_H_
 
+#include "logger.h"
+
 #include <string>
 #include <set>
 
@@ -20,6 +22,7 @@ class Node{
         Move *moveMade = nullptr;
         Node *prev = nullptr;
         Node *bestmove = nullptr;
+        Node *bestmovePrevious = nullptr;
         std::set<Node*, decltype(&CompareNodesAscending)> children;
         float partialEval;
         int depth = 0;
@@ -57,7 +60,7 @@ class Node{
         friend class SearchTree;
 };
 
-void Explore(Node *nd, std::string prefix = "", int maxdepth = 10, int outstream = 0);
+void Explore(Node *nd, std::string prefix = "", int maxdepth = 10, int loge_level = LOG_ANALYSIS);
 
 std::ostream& operator <<(std::ostream& out, const Node& node);
 
