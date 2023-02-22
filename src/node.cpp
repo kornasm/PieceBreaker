@@ -197,7 +197,8 @@ void Node::PassValueBackwards(Node *from){
 }
 
 void Node::Evaluate(){
-    partialEval = Evaluator::Evaluate(*position);
+    Evaluator evaluator(this->position);
+    partialEval = evaluator.Evaluate();
     //bestval = partialEval;
 }
 

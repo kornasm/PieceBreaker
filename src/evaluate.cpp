@@ -9,30 +9,47 @@
 
 #include <iomanip>
 #include <cmath>
+#include <cassert>
 
 extern const int mailbox[64];
 const double material[NO_PIECES] = {0, -9, -3, -3, -5, -1, 0, 1, 5, 3, 3, 9, 0};
 extern Logger logger;
 
 long long Evaluator::hashInfo = 0;
-float Evaluator::Evaluate(const Position& position){
-    logger << LogDest(LOG_ANALYSIS) << "EVALUATING    " << position.GetPositionHash() << "\n";
-    logger << LogDest(LOG_ANALYSIS) << "h    " << hashInfo << '\n';
-    if(position.GetGameResult() != ONGOING){
-        if(position.GetGameResult() == DRAW){
-            return 0;
-        }
-        if(position.GetGameResult() == WHITE_WIN){
-            return WHITE_WIN;
-        }
-        if(position.GetGameResult() == BLACK_WIN){
-            return BLACK_WIN;
-        }
+
+Evaluator::Evaluator(Position* pos){
+    assert(pos != nullptr && "Nullptr was passed to evaluator");
+    position = pos;
+    
+    GeneratePossibleMoves();
+    FillHeatMap();
+}
+
+Evaluator::~Evaluator(){
+    delete moves;
+    delete oppMoves;
+}
+
+void Evaluator::GeneratePossibleMoves(){
+    moves = AllMovesGenerator::GenerateMoves(*position);
+    oppMoves = AllMovesGenerator::GenerateMoves(*position, true);
+}
+
+void Evaluator::FillHeatMap(){
+    for(auto move : *moves){
+        heatmap[move.To()] += position->ToMove();
+
     }
+    for(auto move : *oppMoves){
+        heatmap[move.To()] -= position->ToMove();
+    }
+}
+
+double Evaluator::CountMaterial(){
     double result = 0;
     for(int i = 0; i < 64; i++){
         int ind = mailbox[i];
-        int piece = position.GetSquareValue(ind);
+        int piece = position->GetSquareValue(ind);
         int pieceind = piece + SYMBOLS_OFFSET;
         result += material[pieceind];
         if(piece == WHITE_PAWN){
@@ -46,41 +63,54 @@ float Evaluator::Evaluate(const Position& position){
         }
         logger << LogDest(LOG_ANALYSIS) << "result   " << result << '\n';
     }
-    logger << LogDest(LOG_ANALYSIS) << "result   " << result << '\n';
-    //double plus = (double)(position.ToMove()) / 10;
-    int side = position.ToMove();
+
     //logger << LogDest(LOG_ANALYSIS) << "Material   " << result << '\n';
-    std::list<Move> *moves = AllMovesGenerator::GenerateMoves(position);
-    std::list<Move> *oppMoves = AllMovesGenerator::GenerateMoves(position, true);
-    //logger << LogDest(LOG_ANALYSIS) << "eval    " << result << '\n';
-    float pos = (float)((int)(moves->size()) - (int)(oppMoves->size())) / 5 * (float)(position.ToMove());
-    result += pos;
-    //logger << LogDest(LOG_ANALYSIS) << "eval    " << result << '\n';
-    int heatmap[121] = {};
+    return result;
+}
+
+float Evaluator::Evaluate(){
+    logger << LogDest(LOG_ANALYSIS) << "EVALUATING    " << position->GetPositionHash() << "\n";
+    logger << LogDest(LOG_ANALYSIS) << "h    " << hashInfo << '\n';
+    
+    if(position->GetGameResult() != ONGOING){
+        return position->GetGameResult();
+    }
+
+    double result = 0;
+
+    result += CountMaterial();
+    
+    float noMoves = (float)((int)(moves->size()) - (int)(oppMoves->size())) / 5 * (float)(position->ToMove());
+    result += noMoves;
+
+    // check if weaker piece can capture the stronger one
     for(auto move : *moves){
-        heatmap[move.To()] += side;
-        int movingPiece = position.GetSquareValue(move.From());
-        int targetPiece = position.GetSquareValue(move.To());
-        if(sgn(targetPiece) == -position.ToMove()){
+        int movingPiece = position->GetSquareValue(move.From());
+        int targetPiece = position->GetSquareValue(move.To());
+        if(sgn(targetPiece) == -position->ToMove()){
             if(std::abs(targetPiece) > std::abs(movingPiece)){
-                result += (std::abs(targetPiece) - std::abs(movingPiece)) * position.ToMove();
+                result += (std::abs(targetPiece) - std::abs(movingPiece)) * position->ToMove();
             }
         }
     }
-    for(auto move : *oppMoves){
-        heatmap[move.To()] -= side;
-    }
+
+    // simple board control calculation based on heatmap
     for(int i = 0; i < 64; i++){
-        int color = position.GetSquareColor(mailbox[i]);
+        int color = position->GetSquareColor(mailbox[i]);
         if(sgn(color) != sgn(heatmap[mailbox[i]])){
             result -= color * std::abs(heatmap[mailbox[i]]);
         }
-    }//*/
-    
+    }
 
     result = round(result * 100) / 100;
 
-    if(position.GetPositionHash() == hashInfo){
+    DisplayExtraInfo();
+
+    return (float)result;
+}
+
+void Evaluator::DisplayExtraInfo(){
+    if(position->GetPositionHash() == hashInfo){
         int a = 0;
         a++;
         for(auto m : *moves){
@@ -100,8 +130,4 @@ float Evaluator::Evaluate(const Position& position){
         }
         logger << LogDest(LOG_ANALYSIS) << "\n\n";
     }
-
-    delete moves;
-    delete oppMoves;
-    return (float)result;
 }

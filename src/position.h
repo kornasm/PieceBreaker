@@ -7,7 +7,7 @@
 #include <list>
 #include <iostream>
 
-enum GameResult{ONGOING, WHITE_WIN = 10000, DRAW, BLACK_WIN = -10000};
+enum GameResult{ONGOING = 1, WHITE_WIN = 10000, DRAW = 0, BLACK_WIN = -10000};
 class Move;
 class MoveGenerator;
 
