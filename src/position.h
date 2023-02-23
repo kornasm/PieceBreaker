@@ -74,6 +74,8 @@ class Position{
         int GetSquareColor(int index) const;
         int WhiteCstl() const { return whcstl; }
         int BlackCstl() const { return blcstl; }
+        int GetWhiteKingPos() const { return whiteKingPos; }
+        int GetBlackKingPos() const { return blackKingPos; }
         int EnPassantPos() const { return enPassant; }
         int ToMove() const { return toMove; }
         GameResult GetGameResult() const { return result; }

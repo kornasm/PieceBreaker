@@ -1,9 +1,12 @@
 #ifndef EVALUATE_H_
 #define EVALUATE_H_
 
+#include "logger.h"
+
+#include <list>
+
 class Position;
 class Move;
-#include <list>
 
 class Evaluator{
     public:
@@ -14,7 +17,7 @@ class Evaluator{
         static long long hashInfo;
     
     private:
-        Position *position;
+        const Position *position;
 
         std::list<Move> *moves = nullptr;
         std::list<Move> *oppMoves = nullptr;
@@ -25,6 +28,11 @@ class Evaluator{
         void DisplayExtraInfo();
 
         double CountMaterial();
+
+        inline double AddEvalForWhite(double val);
+        inline double AddEvalForBlack(double val);
+
+        void PrintHeat(int LogLevel = LOG_ANALYSIS);
 };
 
 #endif

@@ -15,6 +15,7 @@ extern const int mailbox[64];
 const double material[NO_PIECES] = {0, -9, -3, -3, -5, -1, 0, 1, 5, 3, 3, 9, 0};
 extern Logger logger;
 
+
 long long Evaluator::hashInfo = 0;
 
 Evaluator::Evaluator(Position* pos){
@@ -61,17 +62,24 @@ double Evaluator::CountMaterial(){
             // logger << LogDest(LOG_DEBUG) << ind << "   " << row(ind) << '\n';
             // logger << LogDest(LOG_DEBUG) << "black pawn  " << ((double)(row(ind) - 7)) / 10 << '\n';
         }
-        logger << LogDest(LOG_ANALYSIS) << "result   " << result << '\n';
     }
 
     //logger << LogDest(LOG_ANALYSIS) << "Material   " << result << '\n';
     return result;
 }
 
+double Evaluator::AddEvalForWhite(double val){
+    return std::abs(val);
+}
+
+double Evaluator::AddEvalForBlack(double val){
+    return -std::abs(val);
+}
+
 float Evaluator::Evaluate(){
     logger << LogDest(LOG_ANALYSIS) << "EVALUATING    " << position->GetPositionHash() << "\n";
     logger << LogDest(LOG_ANALYSIS) << "h    " << hashInfo << '\n';
-    
+
     if(position->GetGameResult() != ONGOING){
         return position->GetGameResult();
     }
@@ -80,8 +88,10 @@ float Evaluator::Evaluate(){
 
     result += CountMaterial();
     
-    float noMoves = (float)((int)(moves->size()) - (int)(oppMoves->size())) / 5 * (float)(position->ToMove());
+    logger << LogDest(LOG_ANALYSIS) << "result(material)    " << result << '\n';
+    float noMoves = (float)((int)(moves->size()) - (int)(oppMoves->size())) / 10 * (float)(position->ToMove());
     result += noMoves;
+    logger << LogDest(LOG_ANALYSIS) << "result(+moves  )    " << result << '\n';
 
     // check if weaker piece can capture the stronger one
     for(auto move : *moves){
@@ -93,19 +103,48 @@ float Evaluator::Evaluate(){
             }
         }
     }
+    logger << LogDest(LOG_ANALYSIS) << "result(+str/weak)   " << result << '\n';
 
     // simple board control calculation based on heatmap
     for(int i = 0; i < 64; i++){
         int color = position->GetSquareColor(mailbox[i]);
         if(sgn(color) != sgn(heatmap[mailbox[i]])){
-            result -= color * std::abs(heatmap[mailbox[i]]);
+            result -= static_cast<double>(color * std::abs(heatmap[mailbox[i]])) / 5;
         }
     }
+    logger << LogDest(LOG_ANALYSIS) << "result(+control)    " << result << '\n';
+
+    // calculate white king safety
+    int kingPos = position->GetWhiteKingPos();
+    for(auto squareDiff: KingMoveGenerator::KingPossibleSquares){
+        double threat = heatmap[kingPos + squareDiff];
+        if(sgn(threat) == BLACK){
+            result += AddEvalForBlack(std::exp(std::abs(threat) - 1.5 - (position->ToMove() == WHITE)));
+        }
+        else{
+            result += AddEvalForWhite(threat / 5);
+        }
+    }
+    logger << LogDest(LOG_ANALYSIS) << "result(+wKS)        " << result << '\n';
+
+    // calculate black king safety
+    kingPos = position->GetBlackKingPos();
+    for(auto squareDiff: KingMoveGenerator::KingPossibleSquares){
+        double threat = heatmap[kingPos + squareDiff];
+        if(sgn(threat) == WHITE){
+            result += AddEvalForWhite(std::exp(std::abs(threat) - 1.5 - (position->ToMove() == BLACK)));
+        }
+        else{
+            result += AddEvalForBlack(threat / 5);
+        }
+    }
+    logger << LogDest(LOG_ANALYSIS) << "result(+bKS)        " << result << '\n';
 
     result = round(result * 100) / 100;
 
+    logger << LogDest(LOG_ANALYSIS) << "result(final)       " << result << '\n';
     DisplayExtraInfo();
-
+    PrintHeat();
     return (float)result;
 }
 
@@ -130,4 +169,15 @@ void Evaluator::DisplayExtraInfo(){
         }
         logger << LogDest(LOG_ANALYSIS) << "\n\n";
     }
+}
+
+void Evaluator::PrintHeat(int logLevel){
+    for(int row = 8; row > 0; row--){
+        logger << LogDest(logLevel) << " ";
+        for(int col = 1; col <= 8; col++){
+            logger << heatmap[11 + 10 * row + col] << " ";
+        }
+        logger << '\n';
+    }
+    logger << '\n';
 }
