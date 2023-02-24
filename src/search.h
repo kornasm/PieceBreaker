@@ -20,6 +20,7 @@ class NodePtr{
 };
 
 void executeSearching(int depth);
+void executeSideThread();
 
 class SearchTree{
     private:
@@ -46,9 +47,13 @@ class SearchTree{
         Node *root;
         long long operationNumber = 0;
 
+        // stats
+        int noNodes = 0;
+
     public:
         bool ForwardTo(Move *move);
         void Search(int maxdepth);
+        void sideThreadJob();
         void AddNodeToQueue(Node* node);
 
         int GetThreadStatus() { return status; }
@@ -57,6 +62,10 @@ class SearchTree{
         void PrintResult(int level = LOG_ANALYSIS);
         void ShowBoard(int level = LOG_ANALYSIS);
         Node *GetEntryNode() { return entryNode; }
+
+        //stats
+        inline void IncreaseNodeCount() { noNodes++; }
+        
 };
 
 #endif

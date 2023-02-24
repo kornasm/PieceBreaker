@@ -80,6 +80,7 @@ Node* Node::MakeMove(Move *move, Position *newposition){
 void Node::Search(int maxDepth){
     PassValueBackwards(nullptr);
     SearchTree* searchTree = SearchTree::GetInstance();
+    searchTree->IncreaseNodeCount();
     if(depth >= maxDepth || position->GetGameResult() != ONGOING){
         return;
     }
@@ -95,6 +96,7 @@ void Node::Search(int maxDepth){
     }
     for(auto nd = this->children.begin(); nd != this->children.end(); ++nd){
         searchTree->AddNodeToQueue(*nd);
+
     }
     delete moves;
 }
@@ -113,7 +115,13 @@ void Node::PassValueBackwards(Node *from){
     if(this->position->ToMove() == WHITE){
         if(from->partialEval > partialEval){
             changed = true;
-            partialEval = from->partialEval;
+            if(from->partialEval > CHECKMATE_LIMIT){
+                logger << LogDest(LOG_ANALYSIS) << "checkmate passing back from  " << from << "\n";
+                partialEval = from->partialEval - 1;
+            }
+            else{
+                partialEval = from->partialEval;
+            }
             bestmove = from;
         }
         else{
@@ -128,6 +136,7 @@ void Node::PassValueBackwards(Node *from){
                     }
                 }
                 changed = true;
+                this->bestmovePrevious = this->bestmove;
                 this->partialEval = maxval;
                 this->bestmove = best;
             }
@@ -136,7 +145,12 @@ void Node::PassValueBackwards(Node *from){
     else{
         if(from->partialEval < partialEval){
             changed = true;
-            partialEval = from->partialEval;
+            if(from->partialEval < -CHECKMATE_LIMIT){
+                partialEval = from->partialEval - 1;
+            }
+            else{
+                partialEval = from->partialEval;
+            }
             bestmove = from;
         }
         else{
@@ -150,6 +164,7 @@ void Node::PassValueBackwards(Node *from){
                     }
                 }
                 changed = true;
+                this->bestmovePrevious = this->bestmove;
                 this->partialEval = maxval;
                 this->bestmove = best;
             }
@@ -162,7 +177,14 @@ void Node::PassValueBackwards(Node *from){
         }
         if(depth == 0){
             //Explore(this, "", 1);
-            logger << LogDest(LOG_ANALYSIS) << "best path changed    from   " << *this->bestmove->moveMade << "   eval    " << this->bestmove->partialEval << '\n';
+            if(this->bestmovePrevious != this->bestmove){
+                logger << LogDest(LOG_ANALYSIS) << "Best move chenged from  ";
+                if(this->bestmovePrevious){
+                    logger << *(this->bestmovePrevious->moveMade);
+                }
+                logger << "\n" <<                  "                    to  " << *this->bestmove->moveMade << "\n"; 
+            }
+            logger << "New eval          " << this->bestmove->partialEval << '\n';
             Node *current = this->bestmove;
             logger << bestmove << "\t" << partialEval << '\n';
             logger << "moves  \n";
@@ -175,7 +197,8 @@ void Node::PassValueBackwards(Node *from){
 }
 
 void Node::Evaluate(){
-    partialEval = Evaluator::Evaluate(*position);
+    Evaluator evaluator(this->position);
+    partialEval = evaluator.Evaluate();
     //bestval = partialEval;
 }
 

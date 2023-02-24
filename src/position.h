@@ -7,7 +7,7 @@
 #include <list>
 #include <iostream>
 
-enum GameResult{ONGOING, WHITE_WIN, DRAW, BLACK_WIN};
+enum GameResult{ONGOING = 1, WHITE_WIN = 10000, DRAW = 0, BLACK_WIN = -10000};
 class Move;
 class MoveGenerator;
 
@@ -74,6 +74,8 @@ class Position{
         int GetSquareColor(int index) const;
         int WhiteCstl() const { return whcstl; }
         int BlackCstl() const { return blcstl; }
+        int GetWhiteKingPos() const { return whiteKingPos; }
+        int GetBlackKingPos() const { return blackKingPos; }
         int EnPassantPos() const { return enPassant; }
         int ToMove() const { return toMove; }
         GameResult GetGameResult() const { return result; }

@@ -5,6 +5,8 @@
 #include "logger.h"
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 SearchTree* SearchTree::instance = nullptr;
 std::string SearchTree::fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -17,9 +19,41 @@ void executeSearching(int depth){
     tree->Search(depth);
 }
 
+void executeSideThread(){
+    SearchTree* tree = SearchTree::GetInstance();
+    tree->sideThreadJob();
+}
+void SearchTree::sideThreadJob(){
+    Logger sideThrLog(LOG_UCI);
+    auto start = std::chrono::steady_clock::now();
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    while(!nodesToSearch.empty() && status == THREAD_RUNNING){
+        auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
+        //auto millis = std::chrono::duration_cast<
+        sideThrLog << LogDest(LOG_UCI) << "info ";
+        sideThrLog << "nodes " << noNodes << " ";
+        double secs = (double)(std::chrono::duration_cast<std::chrono::seconds>(diff).count());
+        int nps = (int)((double)(noNodes) / secs);
+        volatile Node *current = entryNode->bestmove;
+        sideThrLog << "nps " << nps << " ";
+        sideThrLog << "time " << diff.count() << " ";
+        sideThrLog << "pv ";
+        
+        
+        while(current){
+            sideThrLog << *(current->moveMade) << " ";
+            current = current->bestmove;
+        }
+        std::cout << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+}
+
 SearchTree::SearchTree() :nodesToSearch(&CompareNodesAscending) {}
 
 SearchTree::~SearchTree(void){
+    Clear();
     instance = nullptr;
 }
 
@@ -103,7 +137,7 @@ void SearchTree::Search(int maxdepth){
     logger << LogDest(LOG_ANALYSIS) << "End Eval: " << entryNode->partialEval << '\n';
     Explore(entryNode, "", 10, 0);
     PrintResult();
-    Clear();
+    //Clear();
     status = THREAD_READY_TO_JOIN;
 }
 
@@ -114,7 +148,8 @@ void SearchTree::PrintResult(int level){
         logger << LogDest(level) << *(current->moveMade) << ' ';
         current = current->bestmove;
     }
-    logger << LogDest(LOG_UCI) << "\nbestmove " << *(entryNode->bestmove->moveMade);
+    logger << LogDest(level) << "\n";
+    logger << LogDest(LOG_UCI) << "bestmove " << *(entryNode->bestmove->moveMade);
     if(entryNode->bestmove->bestmove)
         logger << LogDest(LOG_UCI) << " ponder " << *(entryNode->bestmove->bestmove->moveMade);
     logger << LogDest(LOG_ALWAYS) << "\n";
