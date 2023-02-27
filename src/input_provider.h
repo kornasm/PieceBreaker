@@ -4,9 +4,11 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <optional>
 
 class InputProvider{
     public:
+        static void Init(std::optional<std::string> file_path);
         static InputProvider* instance;
         static InputProvider* GetInstance();
         static void SetInstance(bool fileProvider = false, std::string filePath = "");

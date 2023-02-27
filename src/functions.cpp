@@ -77,11 +77,10 @@ namespace PieceBreaker{
 	            exit(0);
 	        }
 
-	        if (vm.count("input-source")) {
-                InputProvider::SetInstance(true, vm["input-source"].as<std::string>());
-	        } else {
-	            InputProvider::SetInstance();
-	        }
+            std::optional<std::string> file = std::nullopt;
+	        if (vm.count("input-source"))
+                file = vm["input-source"].as<std::string>();
+            InputProvider::Init(file);
 
 	        if(vm.count("show-analysis")){
                 int level = logger.GetLevel();
@@ -95,7 +94,7 @@ namespace PieceBreaker{
 	        }
             if(vm.count("quiet")){
                 logger.SetLevel(LOG_QUIET);
-	        }
+            }
         }
         MoveCheckHandler::Init();
         MoveGeneratorHandler::Init();
