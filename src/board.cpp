@@ -7,12 +7,12 @@
 extern Logger logger;
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
 
-char GetPieceSymbol(int piece_number){
+char Board::GetPieceSymbol(int piece_number){
     logger << LogDest(LOG_DEBUG) << "Getting symbol   idx   " << piece_number + SYMBOLS_OFFSET << "\n";
     return PiecesSymbols[piece_number + SYMBOLS_OFFSET];
 }
 
-std::string Ind2Not(int index){
+std::string Board::Ind2Not(int index){
     int column = index % 10 - 1;
     int row = index / 10 - 1;
     char col = (char)(column + 'a' - 1);
@@ -22,33 +22,33 @@ std::string Ind2Not(int index){
     result += roww;
     return result;
 }
-int Not2Ind(std::string notation){
+int Board::Not2Ind(std::string notation){
     int row = notation[1] - '0' - 1;
     int col = notation[0] - 'a' + 1;
     int result = row * 10 + 20 + col + 1;
     return result;    
 }
 
-int row(int position){
+int Board::row(int position){
     return (position - 10) / 10;
 }
-int column(int position){
+int Board::column(int position){
     return position % 10 - 1;
 }
 
-int ColRow2Ind(int column, int row){
+int Board::ColRow2Ind(int column, int row){
     return 11 + 10 * row + column;
 }
 
 
-bool NotationValid(std::string pos){
+bool Board::NotationValid(std::string pos){
     if(pos.length() != 2){
         return false;
     }
     return (pos[0] >= 'a' && pos[0] <= 'h' && pos[1] >= '1' && pos[1] <= '8');
 }
 
-bool InBetweenEmpty(const Position& pos, int from, int to, bool checkForRook, bool checkForBishop){
+bool Board::InBetweenEmpty(const Position& pos, int from, int to, bool checkForRook, bool checkForBishop){
     if(from == to){
         return false;
     }

@@ -31,10 +31,10 @@ TEST_F(BoardTests, BoardIndiciesConverting){
     std::vector<int> indicies = {22, 62, 53, 93, 24, 34, 44, 56, 77, 29, 99};
     std::vector<std::string> notations = {"a1", "a5", "b4", "b8", "c1", "c2", "c3", "e4", "f6", "h1", "h8"};
     for(uint i = 0; i < indicies.size(); i++){
-        EXPECT_EQ(Not2Ind(notations[i]), indicies[i]);
-        EXPECT_EQ(Ind2Not(indicies[i]), notations[i]);
-        EXPECT_EQ(columns[i], column(indicies[i]));
-        EXPECT_EQ(rows[i], row(indicies[i]));
+        EXPECT_EQ(Board::Not2Ind(notations[i]), indicies[i]);
+        EXPECT_EQ(Board::Ind2Not(indicies[i]), notations[i]);
+        EXPECT_EQ(columns[i], Board::column(indicies[i]));
+        EXPECT_EQ(rows[i], Board::row(indicies[i]));
     }
 }
 

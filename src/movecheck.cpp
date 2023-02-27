@@ -46,8 +46,8 @@ Move* MoveCheckHandler::CheckMove(const Position& position, int from, int to){
 }
 
 Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
-    int coldiff = std::abs(column(from) - column(to));
-    int rowdiff = std::abs(row(from) - row(to));
+    int coldiff = std::abs(Board::column(from) - Board::column(to));
+    int rowdiff = std::abs(Board::row(from) - Board::row(to));
     if(coldiff <= 1 && rowdiff <= 1){
         Move* m = new Move(from, to, REGULAR_MOVE);
         if(position.GetSquareValue(to) != EMPTY_SQUARE){
@@ -119,7 +119,7 @@ Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int
 }
 
 Move* RookMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
-    if(InBetweenEmpty(position, from, to, true, false)){
+    if(Board::InBetweenEmpty(position, from, to, true, false)){
         Move *m = new Move(from, to, REGULAR_MOVE);
         if(position.GetSquareColor(to) != EMPTY_SQUARE){
             m->IncreaseType(CAPTURE_MOVE);
@@ -130,7 +130,7 @@ Move* RookMoveChecker::CheckMoveLegality(const Position& position, int from, int
 }
 
 Move* BishopMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
-    if(InBetweenEmpty(position, from, to, false, true)){
+    if(Board::InBetweenEmpty(position, from, to, false, true)){
         Move *m = new Move(from, to, REGULAR_MOVE);
         if(position.GetSquareColor(to) != EMPTY_SQUARE){
             m->IncreaseType(CAPTURE_MOVE);
@@ -141,7 +141,7 @@ Move* BishopMoveChecker::CheckMoveLegality(const Position& position, int from, i
 }
 
 Move* QueenMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
-    if(InBetweenEmpty(position, from, to, true, true)){
+    if(Board::InBetweenEmpty(position, from, to, true, true)){
         Move *m = new Move(from, to, REGULAR_MOVE);
         if(position.GetSquareColor(to) != EMPTY_SQUARE){
             m->IncreaseType(CAPTURE_MOVE);
@@ -152,8 +152,8 @@ Move* QueenMoveChecker::CheckMoveLegality(const Position& position, int from, in
 }
 
 Move* KnightMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
-    int colDiff = std::abs(column(from) - column(to));
-    int rowDiff = std::abs(row(from) - row(to));
+    int colDiff = std::abs(Board::column(from) - Board::column(to));
+    int rowDiff = std::abs(Board::row(from) - Board::row(to));
     if(colDiff != 0 && rowDiff != 0 && colDiff + rowDiff == 3){
         Move *m = new Move(from, to, REGULAR_MOVE);
         if(position.GetSquareValue(to) != EMPTY_SQUARE){
@@ -166,7 +166,7 @@ Move* KnightMoveChecker::CheckMoveLegality(const Position& position, int from, i
 
 Move* WhitePawnMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     Move *m = new Move(from, to, PAWN_MOVE);
-    if(row(from) == 7){
+    if(Board::row(from) == 7){
         m->IncreaseType(PROMOTION_MOVE);
     }
     if(to == from + 10){
@@ -174,7 +174,7 @@ Move* WhitePawnMoveChecker::CheckMoveLegality(const Position& position, int from
             return m;
         }
     }
-    if(to == from + 20 && row(from) == 2){
+    if(to == from + 20 && Board::row(from) == 2){
         if(position.GetSquareValue(to) == EMPTY_SQUARE && position.GetSquareValue(from + 10) == EMPTY_SQUARE){
             m->IncreaseType(PAWN_DOUBLE_MOVE);
             return m;
@@ -196,7 +196,7 @@ Move* WhitePawnMoveChecker::CheckMoveLegality(const Position& position, int from
 
 Move* BlackPawnMoveChecker::CheckMoveLegality(const Position& position, int from, int to){
     Move *m = new Move(from, to, PAWN_MOVE);
-    if(row(from) == 2){
+    if(Board::row(from) == 2){
         m->IncreaseType(PROMOTION_MOVE);
     }
     if(to == from - 10){
@@ -204,7 +204,7 @@ Move* BlackPawnMoveChecker::CheckMoveLegality(const Position& position, int from
             return m;
         }
     }
-    if(to == from - 20 && row(from) == 7){
+    if(to == from - 20 && Board::row(from) == 7){
         if(position.GetSquareValue(to) == EMPTY_SQUARE && position.GetSquareValue(from - 10) == EMPTY_SQUARE){
             m->IncreaseType(PAWN_DOUBLE_MOVE);
             return m;

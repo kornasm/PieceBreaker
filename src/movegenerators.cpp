@@ -204,20 +204,20 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, cons
     std::list<Move>* moves = new std::list<Move>();
     if(position.GetSquareColor(originSquare + 10) == EMPTY_SQUARE){
         Move m(originSquare, originSquare + 10, PAWN_MOVE | (position.GetSquareColor(originSquare + 10) != EMPTY_SQUARE));
-        if(row(originSquare) == 7){
+        if(Board::row(originSquare) == 7){
             m.IncreaseType(PROMOTION_MOVE);
             AddPromoMoves(moves, m, WHITE);
         }
         else{
             moves->push_back(m);
         }
-        if(row(originSquare) == 2 && position.GetSquareColor(originSquare + 20) == EMPTY_SQUARE){
+        if(Board::row(originSquare) == 2 && position.GetSquareColor(originSquare + 20) == EMPTY_SQUARE){
             moves->push_back(Move(originSquare, originSquare + 20, PAWN_MOVE | PAWN_DOUBLE_MOVE));
         }
     }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare + 9))){
         Move m(originSquare, originSquare + 9, PAWN_MOVE | CAPTURE_MOVE);
-        if(row(originSquare) == 7){
+        if(Board::row(originSquare) == 7){
             m.IncreaseType(PROMOTION_MOVE);
             AddPromoMoves(moves, m, WHITE);
         }
@@ -227,7 +227,7 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, cons
     }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare + 11))){
         Move m(originSquare, originSquare + 11, PAWN_MOVE | CAPTURE_MOVE);
-        if(row(originSquare) == 7){
+        if(Board::row(originSquare) == 7){
             m.IncreaseType(PROMOTION_MOVE);
             AddPromoMoves(moves, m, WHITE);
         }
@@ -235,10 +235,10 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, cons
             moves->push_back(m);
         }
     }
-    if(position.EnPassantPos() == (originSquare + 9) && position.GetSquareColor(originSquare + 9) == EMPTY_SQUARE && row(originSquare) == 5){
+    if(position.EnPassantPos() == (originSquare + 9) && position.GetSquareColor(originSquare + 9) == EMPTY_SQUARE && Board::row(originSquare) == 5){
         moves->push_back(Move(originSquare, originSquare + 9, PAWN_MOVE | EN_PASSANT_MOVE));
     }
-    if(position.EnPassantPos() == (originSquare + 11) && position.GetSquareColor(originSquare + 11) == EMPTY_SQUARE && row(originSquare) == 5){
+    if(position.EnPassantPos() == (originSquare + 11) && position.GetSquareColor(originSquare + 11) == EMPTY_SQUARE && Board::row(originSquare) == 5){
         moves->push_back(Move(originSquare, originSquare + 11, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     return moves;
@@ -248,21 +248,21 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, cons
     std::list<Move>* moves = new std::list<Move>();
     if(position.GetSquareColor(originSquare - 10) == EMPTY_SQUARE){
         Move m(originSquare, originSquare - 10, PAWN_MOVE | (position.GetSquareColor(originSquare - 10) != EMPTY_SQUARE));
-        if(row(originSquare) == 2){
+        if(Board::row(originSquare) == 2){
             m.IncreaseType(PROMOTION_MOVE);
             AddPromoMoves(moves, m, BLACK);
         }
         else{
             moves->push_back(m);
         }
-        if(row(originSquare) == 7 && position.GetSquareColor(originSquare - 20) == EMPTY_SQUARE){
+        if(Board::row(originSquare) == 7 && position.GetSquareColor(originSquare - 20) == EMPTY_SQUARE){
             moves->push_back(Move(originSquare, originSquare - 20, PAWN_MOVE | PAWN_DOUBLE_MOVE));
         }
         
     }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare - 9))){
         Move m(originSquare, originSquare - 9, PAWN_MOVE | CAPTURE_MOVE);
-        if(row(originSquare) == 2){
+        if(Board::row(originSquare) == 2){
             m.IncreaseType(PROMOTION_MOVE);
             AddPromoMoves(moves, m, BLACK);
         }
@@ -272,7 +272,7 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, cons
     }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare - 11))){
         Move m(originSquare, originSquare - 11, PAWN_MOVE | CAPTURE_MOVE);
-        if(row(originSquare) == 2){
+        if(Board::row(originSquare) == 2){
             m.IncreaseType(PROMOTION_MOVE);
             AddPromoMoves(moves, m, BLACK);
         }
@@ -280,10 +280,10 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, cons
             moves->push_back(m);
         }
     }
-    if(position.EnPassantPos() == (originSquare - 9) && position.GetSquareColor(originSquare - 9) == EMPTY_SQUARE && row(originSquare) == 4){
+    if(position.EnPassantPos() == (originSquare - 9) && position.GetSquareColor(originSquare - 9) == EMPTY_SQUARE && Board::row(originSquare) == 4){
         moves->push_back(Move(originSquare, originSquare - 9, PAWN_MOVE | EN_PASSANT_MOVE));
     }
-    if(position.EnPassantPos() == (originSquare - 11) && position.GetSquareColor(originSquare - 11) == EMPTY_SQUARE && row(originSquare) == 4){
+    if(position.EnPassantPos() == (originSquare - 11) && position.GetSquareColor(originSquare - 11) == EMPTY_SQUARE && Board::row(originSquare) == 4){
         moves->push_back(Move(originSquare, originSquare - 11, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     return moves;

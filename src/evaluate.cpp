@@ -54,11 +54,11 @@ double Evaluator::CountMaterial(){
         int pieceind = piece + SYMBOLS_OFFSET;
         result += material[pieceind];
         if(piece == WHITE_PAWN){
-            result += ((double)(row(ind) - 2)) / 10;
+            result += ((double)(Board::row(ind) - 2)) / 10;
             // logger << LogDest(LOG_DEBUG) << "white pawn  " << ((double)(row(ind) - 2)) / 10 << '\n';
         }
         if(piece == BLACK_PAWN){
-            result += ((double)(row(ind) - 7)) / 10;
+            result += ((double)(Board::row(ind) - 7)) / 10;
             // logger << LogDest(LOG_DEBUG) << ind << "   " << row(ind) << '\n';
             // logger << LogDest(LOG_DEBUG) << "black pawn  " << ((double)(row(ind) - 7)) / 10 << '\n';
         }
@@ -161,9 +161,9 @@ void Evaluator::DisplayExtraInfo(){
         }
         for(int r = 8; r > 0; r--){
             for(int c = 1; c <= 8; c++){
-                if(heatmap[ColRow2Ind(c, r)] >= 0)
+                if(heatmap[Board::ColRow2Ind(c, r)] >= 0)
                     logger << LogDest(LOG_ANALYSIS) << " ";
-                logger << LogDest(LOG_ANALYSIS) << std::fixed << heatmap[ColRow2Ind(c, r)] << " ";
+                logger << LogDest(LOG_ANALYSIS) << std::fixed << heatmap[Board::ColRow2Ind(c, r)] << " ";
             }
             logger << LogDest(LOG_ANALYSIS) << '\n';
         }

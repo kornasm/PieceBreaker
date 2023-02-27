@@ -24,8 +24,8 @@ extern Logger logger;
 
 Position::Position(){
     toMove = WHITE;
-    whiteKingPos = Not2Ind("e1");
-    blackKingPos = Not2Ind("e8");
+    whiteKingPos = Board::Not2Ind("e1");
+    blackKingPos = Board::Not2Ind("e8");
     whcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
     blcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
     enPassant = -1;
@@ -51,7 +51,7 @@ Position::Position(Position& pr, Move *m, int promo){
     squares[m->To()] = squares[m->From()];
     squares[m->From()] = EMPTY_SQUARE;
     if(m->Type() & EN_PASSANT_MOVE){
-        if(column(m->From()) < column(m->To())){
+        if(Board::column(m->From()) < Board::column(m->To())){
             squares[m->From() + 1] = 0;
         }
         else{
@@ -76,22 +76,22 @@ Position::Position(Position& pr, Move *m, int promo){
     }
 
     if(whcstl & SHORT_CASTLE_MOVE){
-        if(m->From() == Not2Ind("e1") || GetSquareValue(Not2Ind("h1")) != WHITE_ROOK){
+        if(m->From() == Board::Not2Ind("e1") || GetSquareValue(Board::Not2Ind("h1")) != WHITE_ROOK){
             whcstl -= SHORT_CASTLE_MOVE;
         }
     }
     if(whcstl & LONG_CASTLE_MOVE){
-        if(m->From() == Not2Ind("e1") || GetSquareValue(Not2Ind("a1")) != WHITE_ROOK){
+        if(m->From() == Board::Not2Ind("e1") || GetSquareValue(Board::Not2Ind("a1")) != WHITE_ROOK){
             whcstl -= LONG_CASTLE_MOVE;
         }
     }
     if(blcstl & SHORT_CASTLE_MOVE){
-        if(m->From() == Not2Ind("e8") || GetSquareValue(Not2Ind("h8")) != BLACK_ROOK){
+        if(m->From() == Board::Not2Ind("e8") || GetSquareValue(Board::Not2Ind("h8")) != BLACK_ROOK){
             blcstl -= SHORT_CASTLE_MOVE;
         }
     }
     if(blcstl & LONG_CASTLE_MOVE){
-        if(m->From() == Not2Ind("e8") || GetSquareValue(Not2Ind("a8")) != BLACK_ROOK){
+        if(m->From() == Board::Not2Ind("e8") || GetSquareValue(Board::Not2Ind("a8")) != BLACK_ROOK){
             blcstl -= LONG_CASTLE_MOVE;
         }
     }
@@ -207,7 +207,7 @@ Position::Position(std::stringstream& strFen){
 
     // en passant position
     strFen >> fen;
-    fen[0] == '-' ? enPassant = -1 : enPassant = Not2Ind(fen.substr(0, 2));
+    fen[0] == '-' ? enPassant = -1 : enPassant = Board::Not2Ind(fen.substr(0, 2));
 
     // half move clock
     strFen >> fen;
@@ -231,7 +231,7 @@ std::string Position::GetFen() const{
     for(int i = 8; i >= 1; i--){
         int emptys = 0;
         for(int j = 1; j <= 8; j++){
-            index = ColRow2Ind(j, i);
+            index = Board::ColRow2Ind(j, i);
             if(squares[index] == EMPTY_SQUARE){
                 emptys++;
             }
@@ -310,7 +310,7 @@ std::string Position::GetFen() const{
     }
     // en passant position
     fen << " ";
-    enPassant == -1 ? fen << "-" : fen << Ind2Not(enPassant);
+    enPassant == -1 ? fen << "-" : fen << Board::Ind2Not(enPassant);
 
     // half move clock
     fen << " ";
@@ -430,7 +430,7 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
         int kingPos = 0;
         toMove == WHITE ? kingPos = whiteKingPos : kingPos = blackKingPos;
         bool ownCheckAfter = false;
-        /*if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || row(kingPos) == row(expectedmove->From())){
+        /*if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || Board::row(kingPos) == Board::row(expectedmove->From())){
             ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
         }//*/
         ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
@@ -588,7 +588,7 @@ void Position::CalculatePositionHash(){
 
 char Position::GetPiece(int column, int row) const{
     //logger << LogDest(LOG_DEBUG) << "Get piece     " << GetSquareValue(column, row) << "   " << column << "  " << row << "\n";
-    return GetPieceSymbol(GetSquareValue(column, row));
+    return Board::GetPieceSymbol(GetSquareValue(column, row));
 }
 
 int Position::GetSquareValue(int column, int row) const{
@@ -611,7 +611,7 @@ int Position::GetSquareColor(int column, int row) const{
 }
 
 char Position::GetPiece(int index) const{
-    return GetPieceSymbol(squares[index]);
+    return Board::GetPieceSymbol(squares[index]);
 }
 
 int Position::GetSquareValue(int index) const{

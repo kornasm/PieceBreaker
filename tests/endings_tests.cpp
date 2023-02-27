@@ -74,7 +74,7 @@ TEST_F(EndingsTests, 50MoveRule){
 
     //Move *move = new Move(Not2Ind("e2"), Not2Ind("d2"), 0);
 
-    std::unique_ptr<Move> move(new Move(Not2Ind("e2"), Not2Ind("d2"), 0));
+    std::unique_ptr<Move> move(new Move(Board::Not2Ind("e2"), Board::Not2Ind("d2"), 0));
     std::unique_ptr<Position> position2(new Position(*(position1.get()), move.get()));
 
     ASSERT_NE(position2.get(), nullptr);
@@ -85,10 +85,10 @@ TEST_F(EndingsTests, RepetitionDraw){
     std::string fen = "6k1/6r1/2ppp3/1qq1qp1Q/1qq5/8/8/7K w - - 0 1";
     std::stringstream sstr(fen);
 
-    std::unique_ptr<Move> move1(new Move(Not2Ind("h5"), Not2Ind("e8"), 0));
-    std::unique_ptr<Move> move3(new Move(Not2Ind("e8"), Not2Ind("h5"), 0));
-    std::unique_ptr<Move> move4(new Move(Not2Ind("h7"), Not2Ind("g8"), 0));
-    std::unique_ptr<Move> move2(new Move(Not2Ind("g8"), Not2Ind("h7"), 0));
+    std::unique_ptr<Move> move1(new Move(Board::Not2Ind("h5"), Board::Not2Ind("e8"), 0));
+    std::unique_ptr<Move> move3(new Move(Board::Not2Ind("e8"), Board::Not2Ind("h5"), 0));
+    std::unique_ptr<Move> move4(new Move(Board::Not2Ind("h7"), Board::Not2Ind("g8"), 0));
+    std::unique_ptr<Move> move2(new Move(Board::Not2Ind("g8"), Board::Not2Ind("h7"), 0));
 
     std::unique_ptr<Position> position1(new Position(sstr));
     std::unique_ptr<Position> position2(new Position(*(position1.get()), move1.get()));
