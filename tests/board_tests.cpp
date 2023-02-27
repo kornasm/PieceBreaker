@@ -5,16 +5,21 @@
 #include <vector>
 #include <algorithm>
 
-#include "../src/functions.h"
+#include "../src/board.h"
+#include "../src/movegenerators.h"
+#include "../src/movecheck.h"
 #include "../src/node.h"
+#include "../src/move.h"
 
 class BoardTests: public ::testing::Test {
     protected:
         BoardTests() {
-           PieceBreaker::Init(0, nullptr);
+            MoveCheckHandler::Init();
+            MoveGeneratorHandler::Init();
         }
         ~BoardTests() override {
-           PieceBreaker::Cleanup();
+           MoveCheckHandler::Cleanup();
+           MoveGeneratorHandler::Cleanup();
         }
 };
 

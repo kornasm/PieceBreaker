@@ -1,7 +1,6 @@
 #include "uci.h"
 
 #include "search.h"
-#include "functions.h"
 #include "evaluate.h"
 #include "position.h"
 #include "move.h"

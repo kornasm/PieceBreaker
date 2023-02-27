@@ -1,6 +1,6 @@
 #include "position.h"
 
-#include "functions.h"
+#include "board.h"
 #include "move.h"
 #include "movecheck.h"
 #include "movegenerators.h"

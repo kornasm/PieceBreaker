@@ -163,5 +163,5 @@ void SearchTree::AddNodeToQueue(Node* node){
 void SearchTree::ShowBoard(int level){ 
     logger << LogDest(level) << *entryNode << '\n';
     logger << LogDest(level) << entryNode->GetFen() << '\n';
-    logger << LogDest(level) << *root << '\n';
+    //logger << LogDest(level) << *root << '\n';
 }

@@ -2,7 +2,7 @@
 
 #include "position.h"
 #include "move.h"
-#include "functions.h"
+#include "board.h"
 
 const int KingMoveGenerator::KingPossibleSquares[] = {-11, -10, -9, -1, 1, 9, 10, 11};
 const int RookMoveGenerator::RookLeftSquares[] = {-1, -2, -3, -4, -5, -6, -7};

@@ -2,7 +2,7 @@
 
 #include "declarations.h"
 #include "position.h"
-#include "functions.h"
+#include "board.h"
 #include "movegenerators.h"
 #include "move.h"
 #include "logger.h"

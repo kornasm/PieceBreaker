@@ -3,7 +3,7 @@
 #include "position.h"
 #include "move.h"
 #include "movegenerators.h"
-#include "functions.h"
+#include "board.h"
 #include "logger.h"
 
 #include <cmath>

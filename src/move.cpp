@@ -1,7 +1,7 @@
 #include "move.h"
 
 #include "declarations.h"
-#include "functions.h"
+#include "board.h"
 #include "logger.h"
 
 #include <iostream>
