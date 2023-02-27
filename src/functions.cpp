@@ -82,19 +82,12 @@ namespace PieceBreaker{
                 file = vm["input-source"].as<std::string>();
             InputProvider::Init(file);
 
-	        if(vm.count("show-analysis")){
-                int level = logger.GetLevel();
-                level |= LOG_ANALYSIS;
-                logger.SetLevel(level);
-	        }
-            if(vm.count("show-debug")){
-                int level = logger.GetLevel();
-                level |= LOG_DEBUG;
-                logger.SetLevel(level);
-	        }
-            if(vm.count("quiet")){
+	        if(vm.count("show-analysis"))
+                logger.AddLevel(LOG_ANALYSIS);
+            if(vm.count("show-debug"))
+                logger.AddLevel(LOG_DEBUG);
+            if(vm.count("quiet"))
                 logger.SetLevel(LOG_QUIET);
-            }
         }
         MoveCheckHandler::Init();
         MoveGeneratorHandler::Init();
