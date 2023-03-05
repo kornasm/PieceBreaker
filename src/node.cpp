@@ -112,6 +112,13 @@ void Node::PassValueBackwards(Node *from){
     logger << LogDest(LOG_DEBUG) << "passing back   to   depth  " << this->depth << '\n';
 
     bool changed = false;
+
+    if(bestmove == nullptr){
+        changed = true;
+        bestmove = from;
+        partialEval = from->partialEval;
+    }
+
     if(this->position->ToMove() == WHITE){
         if(from->partialEval > partialEval){
             changed = true;
