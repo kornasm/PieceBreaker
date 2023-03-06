@@ -116,18 +116,18 @@ void Node::PassValueBackwards(Node *from){
     if(bestmove == nullptr){
         changed = true;
         bestmove = from;
-        partialEval = from->partialEval;
+        searchEval = from->searchEval;
     }
 
     if(this->position->ToMove() == WHITE){
-        if(from->partialEval > partialEval){
+        if(from->searchEval > searchEval){
             changed = true;
-            if(from->partialEval > CHECKMATE_LIMIT){
+            if(from->searchEval > CHECKMATE_LIMIT){
                 logger << LogDest(LOG_ANALYSIS) << "checkmate passing back from  " << from << "\n";
-                partialEval = from->partialEval - 1;
+                searchEval = from->searchEval - 1;
             }
             else{
-                partialEval = from->partialEval;
+                searchEval = from->searchEval;
             }
             bestmove = from;
         }
@@ -137,26 +137,26 @@ void Node::PassValueBackwards(Node *from){
                 Node* best = nullptr;
                 //for(auto nd : this->children){
                 for(auto nd = this->children.begin(); nd != this->children.end(); ++nd){
-                    if((*nd)->partialEval > maxval){
-                        maxval = (*nd)->partialEval;
+                    if((*nd)->searchEval > maxval){
+                        maxval = (*nd)->searchEval;
                         best = *nd;
                     }
                 }
                 changed = true;
                 this->bestmovePrevious = this->bestmove;
-                this->partialEval = maxval;
+                this->searchEval = maxval;
                 this->bestmove = best;
             }
         }
     }
     else{
-        if(from->partialEval < partialEval){
+        if(from->searchEval < searchEval){
             changed = true;
-            if(from->partialEval < -CHECKMATE_LIMIT){
-                partialEval = from->partialEval - 1;
+            if(from->searchEval < -CHECKMATE_LIMIT){
+                searchEval = from->searchEval - 1;
             }
             else{
-                partialEval = from->partialEval;
+                searchEval = from->searchEval;
             }
             bestmove = from;
         }
@@ -165,14 +165,14 @@ void Node::PassValueBackwards(Node *from){
                 float maxval = 1e6;
                 Node* best = nullptr;
                 for(auto nd : this->children){
-                    if(nd->partialEval < maxval){
-                        maxval = nd->partialEval;
+                    if(nd->searchEval < maxval){
+                        maxval = nd->searchEval;
                         best = nd;
                     }
                 }
                 changed = true;
                 this->bestmovePrevious = this->bestmove;
-                this->partialEval = maxval;
+                this->searchEval = maxval;
                 this->bestmove = best;
             }
         }
@@ -191,9 +191,9 @@ void Node::PassValueBackwards(Node *from){
                 }
                 logger << "\n" <<                  "                    to  " << *this->bestmove->moveMade << "\n"; 
             }
-            logger << "New eval          " << this->bestmove->partialEval << '\n';
+            logger << "New eval          " << this->bestmove->searchEval << '\n';
             Node *current = this->bestmove;
-            logger << bestmove << "\t" << partialEval << '\n';
+            logger << bestmove << "\t" << searchEval << '\n';
             logger << "moves  \n";
             while(current){
                 logger << *(current->moveMade) << '\n';
@@ -205,8 +205,8 @@ void Node::PassValueBackwards(Node *from){
 
 void Node::Evaluate(){
     Evaluator evaluator(this->position);
-    partialEval = evaluator.Evaluate();
-    //bestval = partialEval;
+    searchEval = evaluator.Evaluate();
+    //bestval = searchEval;
 }
 
 void Node::Isolate(){
@@ -216,11 +216,11 @@ void Node::Isolate(){
 
 double Node::CalcPriority(){
     double val = std::exp(-static_cast<double>(depth));
-    double eval = -partialEval * static_cast<float>(position->ToMove());
+    double eval = -searchEval * static_cast<float>(position->ToMove());
     return val * eval;
 }
 
-std::string Node::GetFen(){
+std::string Node::GetFen() const{
     return position->GetFen();
 }
 
@@ -231,7 +231,7 @@ long long Node::GetHash() const {
 std::ostream& operator <<(std::ostream& out, const Node& node){
     out << "--NODE--    depth   " << node.depth << std::endl;
     node.position->ShowTinyBoard(out);
-        out << "Eval:  " << node.partialEval << std::endl;
+        out << "Eval:  " << node.searchEval << std::endl;
    // }
     
     return out;
@@ -239,7 +239,7 @@ std::ostream& operator <<(std::ostream& out, const Node& node){
 
 void Explore(Node *nd, std::string prefix, int maxdepth, int log_level){
 
-    logger << LogDest(log_level) << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << nd->partialEval << "\tbest " << nd->bestmove << "\t";
+    logger << LogDest(log_level) << prefix  << "NODE " << nd << "\tprev " << nd->prev << "\tdepth " << nd->depth << "\teval " << std::fixed << nd->searchEval << "\tbest " << nd->bestmove << "\t";
     if(nd->moveMade){
         logger << LogDest(log_level) << *(nd->moveMade) << "   " << nd->moveMade->From() << "    " << nd->moveMade->To() << "   priority   " << nd->priority;
     }
@@ -254,9 +254,9 @@ void Explore(Node *nd, std::string prefix, int maxdepth, int log_level){
 
 
 bool CompareNodesAscending(Node* nd1, Node* nd2){
-    return nd1->priority < nd2->priority;
+    return nd1->GetPriority() < nd2->GetPriority();
 }
 
 bool CompareNodesDescending(Node* nd1, Node* nd2){
-    return nd1->priority >= nd2->priority;
+    return nd1->GetPriority() >= nd2->GetPriority();
 }

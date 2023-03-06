@@ -42,7 +42,7 @@ Move* MoveCheckHandler::CheckMove(const Position& position, int from, int to){
         return nullptr;
     }
     logger << LogDest(LOG_DEBUG) << "checkmovehandler  " << position.GetSquareValue(from) << "   " << from << '\n';
-    return checkers[position.GetSquareValue(from) + SYMBOLS_OFFSET]->CheckMoveLegality(position, from, to);
+    return checkers[LookUpTableIndex(position.GetSquareValue(from))]->CheckMoveLegality(position, from, to);
 }
 
 Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int to){

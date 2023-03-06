@@ -7,37 +7,47 @@
 #include <optional>
 
 class InputProvider{
-    public:
-        static void Init(std::optional<std::string> file_path);
+    protected:
         static InputProvider* instance;
+
+    protected:
+        InputProvider(){};
+
+    public:
+
+        virtual ~InputProvider(){};
+
+        static void Init(std::optional<std::string> file_path);
         static InputProvider* GetInstance();
         static void SetInstance(bool fileProvider = false, std::string filePath = "");
         virtual std::string GetNextCommand() = 0;
-        virtual ~InputProvider(){};
-    protected:
-        InputProvider(){};
 
 };
 
 class UserInputProvider: InputProvider{
-    public:
-        std::string GetNextCommand() override;
-        ~UserInputProvider() { instance = nullptr; };
     private:
-        friend InputProvider;
         UserInputProvider(){};
+
+    public:
+        ~UserInputProvider() { instance = nullptr; }
+
+        std::string GetNextCommand() override;
+
+        friend InputProvider;
 };
 
 class FileInputProvider: InputProvider{
+    private:
+        std::ifstream input;
+
+        FileInputProvider(std::string file_path);
+
     public:
-        std::string GetNextCommand() override;
         ~FileInputProvider();
 
-    private:
-        
-        FileInputProvider(std::string file_path);
+        std::string GetNextCommand() override;
+
         friend InputProvider;
-        std::ifstream input;
 };
 
 #endif

@@ -51,7 +51,7 @@ double Evaluator::CountMaterial(){
     for(int i = 0; i < 64; i++){
         int ind = mailbox[i];
         int piece = position->GetSquareValue(ind);
-        int pieceind = piece + SYMBOLS_OFFSET;
+        int pieceind = LookUpTableIndex(piece);
         result += material[pieceind];
         if(piece == WHITE_PAWN){
             result += ((double)(Board::row(ind) - 2)) / 10;

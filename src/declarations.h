@@ -1,7 +1,6 @@
 #ifndef DECLARATIONS_H_
 #define DECLARATIONS_H_
 
-#define SYMBOLS_OFFSET 6
 #define NO_PIECES 13
 
 // colors
@@ -33,12 +32,6 @@
 #define CAPTURE_MOVE 16
 #define EN_PASSANT_MOVE 32
 #define PROMOTION_MOVE 64
-
-// evaluation results from GameResult class
-// WHITE_WIN = 10000
-// BLACK_WIN = -10000
-// evaluation with absolute value over this value will mean checkmate was found during a search
-#define CHECKMATE_LIMIT 9900
 
 // thread status
 #define THREAD_IDLE 0 

@@ -8,8 +8,8 @@ extern Logger logger;
 const char PiecesSymbols[NO_PIECES] = {'k', 'q', 'b', 'n', 'r', 'p', '-', 'P', 'R', 'N', 'B', 'Q', 'K'};
 
 char Board::GetPieceSymbol(int piece_number){
-    logger << LogDest(LOG_DEBUG) << "Getting symbol   idx   " << piece_number + SYMBOLS_OFFSET << "\n";
-    return PiecesSymbols[piece_number + SYMBOLS_OFFSET];
+    //logger << LogDest(LOG_DEBUG) << "Getting symbol   idx   " << LookUpTableIndex(piece_number) << "\n";
+    return PiecesSymbols[LookUpTableIndex(piece_number)];
 }
 
 std::string Board::Ind2Not(int index){
@@ -81,4 +81,8 @@ bool Board::InBetweenEmpty(const Position& pos, int from, int to, bool checkForR
             return false;
         }
     }
+}
+
+int LookUpTableIndex(int piece){
+    return piece + SYMBOLS_OFFSET;
 }

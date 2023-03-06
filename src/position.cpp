@@ -551,8 +551,8 @@ void Position::CheckEndings(){
             col = 1 - col;
         }
         int ind = mailbox[i];
-        sqmaterial[col & 1] += drawMaterial[squares[ind] + SYMBOLS_OFFSET];
-        colmaterial[GetSquareColor(ind) + 1] += drawMaterial[squares[ind] + SYMBOLS_OFFSET];
+        sqmaterial[col & 1] += drawMaterial[LookUpTableIndex(squares[ind])];
+        colmaterial[GetSquareColor(ind) + 1] += drawMaterial[LookUpTableIndex(squares[ind])];
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
         result = DRAW;

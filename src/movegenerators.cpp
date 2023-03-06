@@ -36,7 +36,7 @@ void MoveGeneratorHandler::Cleanup(){
 }
 
 std::list<Move>* MoveGeneratorHandler::GenerateMoves(int originSquare, const Position& position){
-    return generators[position.GetSquareValue(originSquare) + SYMBOLS_OFFSET]->GenerateMoveList(originSquare, position);
+    return generators[LookUpTableIndex(position.GetSquareValue(originSquare))]->GenerateMoveList(originSquare, position);
 }
 
 std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
@@ -299,7 +299,7 @@ std::list<Move>* AllMovesGenerator::GenerateMoves(const Position&position, bool 
         }
         if(position.GetSquareColor(ind) == movingColor){
             std::list<Move> *m = MoveGeneratorHandler::GenerateMoves(ind, position);
-             //generators[position.GetSquareValue(ind) + SYMBOLS_OFFSET]->GenerateMoveListVirtual(ind, position);
+             //generators[LookUpTableIndex(position.GetSquareValue(ind))]->GenerateMoveListVirtual(ind, position);
             moves->splice(moves->end(), *m);
             delete m;
         }

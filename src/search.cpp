@@ -7,6 +7,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <cassert>
 
 SearchTree* SearchTree::instance = nullptr;
 std::string SearchTree::fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -108,7 +109,7 @@ bool SearchTree::ForwardTo(Move *move){
 
 void SearchTree::Search(int maxdepth){
     nodesToSearch.push(entryNode);
-    nodeTable.insert(std::make_pair(entryNode, 0));
+    nodeTable.insert(std::make_pair(entryNode, NODE_NOT_SEARCHED));
     while(!nodesToSearch.empty() && status == THREAD_RUNNING){
         Node *searched = nodesToSearch.top();
         auto it = nodeTable.find(searched);
@@ -121,27 +122,28 @@ void SearchTree::Search(int maxdepth){
             if(it->second == 0){
                 searched->Search(maxdepth);
                 Explore(searched, "", 0);
-                it->second = 1;
+                it->second = NODE_SEARCHED;
             }
-            else if(it->second == 1){
+            else if(it->second == NODE_SEARCHED){
                 logger << LogDest(LOG_ERROR) << "Searching a node second time\n";
                 Explore(searched, "", 0, 1);
-                exit(EXIT_SUCCESS); // just to see if it happens
+
+                assert(0 == 1 && "searching a node the second time");
             }
-            else if(it->second == 2){
+            else if(it->second == NODE_DELETED){
                 logger << LogDest(LOG_DEBUG) << "node table erasing:  " << it->first << "\n";
                 nodeTable.erase(it->first);
             }
         }
     }
-    logger << LogDest(LOG_ANALYSIS) << "End Eval: " << entryNode->partialEval << '\n';
+    logger << LogDest(LOG_ANALYSIS) << "End Eval: " << entryNode->searchEval << '\n';
     Explore(entryNode, "", 10, 0);
     PrintResult();
     //Clear();
     status = THREAD_READY_TO_JOIN;
 }
 
-void SearchTree::PrintResult(int level){
+void SearchTree::PrintResult(int level) const{
     logger << LogDest(level) << "Full path  : ";
     Node *current = entryNode->bestmove;
     while(current){
@@ -160,8 +162,7 @@ void SearchTree::AddNodeToQueue(Node* node){
     nodeTable.insert(std::make_pair(node, 0));
 }
 
-void SearchTree::ShowBoard(int level){ 
+void SearchTree::ShowBoard(int level) const{
     logger << LogDest(level) << *entryNode << '\n';
     logger << LogDest(level) << entryNode->GetFen() << '\n';
-    //logger << LogDest(level) << *root << '\n';
 }

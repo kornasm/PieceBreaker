@@ -39,15 +39,17 @@ class Position{
         int fullMoveCounter;
         int whiteKingPos;
         int blackKingPos;
+
     public:
-        //construcotrs, destructor
         Position();
         Position(Position& prev, Move *m, int promo = 0);
         Position(std::stringstream& issfen);
-        ~Position();
-
         Position(const Position& position) = delete;
         Position operator=(const Position& position) = delete;
+
+        ~Position();
+
+        
         
         // move making/checking
         Position* MakeMove(Move* checkedmove);

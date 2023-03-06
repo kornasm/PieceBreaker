@@ -127,7 +127,7 @@ void Uci::loop(){
         }
         if(option == "eval"){
             tree->GetEntryNode()->Evaluate();
-            logger << LogDest(LOG_ALWAYS) << tree->GetEntryNode()->partialEval << "\n";
+            logger << LogDest(LOG_ALWAYS) << tree->GetEntryNode()->GetEval() << "\n";
         }
         if(option == "hash"){
             logger << LogDest(LOG_ALWAYS) << tree->GetEntryNode()->GetHash() << '\n';

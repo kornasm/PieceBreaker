@@ -31,4 +31,7 @@ template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
+#define SYMBOLS_OFFSET 6
+int LookUpTableIndex(int piece);
+
 #endif
