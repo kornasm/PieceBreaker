@@ -19,7 +19,8 @@ void Uci::loop(){
     std::string command, option;
     std::unique_ptr<std::thread> st = nullptr;
     std::unique_ptr<std::thread> side_thr = nullptr;
-    SearchTree *tree = SearchTree::GetInstance();
+    std::unique_ptr<SearchTree> tree(new SearchTree());
+    tree->Init();
     InputProvider *ip = InputProvider::GetInstance();
 
     while(true){
@@ -39,8 +40,7 @@ void Uci::loop(){
                     st->join();
                     tree->SetThreadStatus(THREAD_IDLE);
                     running = false;
-                    SearchTree::Init();
-                    tree = SearchTree::GetInstance();
+                    tree->Init();
                 }
                 if(side_thr->joinable()){
                     side_thr->join();
@@ -57,10 +57,10 @@ void Uci::loop(){
             std::string rootstr;
             sstr >> rootstr;
             if(rootstr == "startpos"){
-                SearchTree::Init();
+                tree->Init();
             }
             else{
-                SearchTree::Init(sstr);
+                tree->Init(sstr);
             }
             sstr >> option; // read "moves" word
             while(sstr.good()){
@@ -71,7 +71,7 @@ void Uci::loop(){
                         sstr.clear();
                         logger << LogDest(LOG_ERROR) << "Illegal sequence of moves\n";
                         delete mov;
-                        SearchTree::Init();
+                        tree->Init();
                     }
                 }
                 else{
@@ -90,13 +90,13 @@ void Uci::loop(){
                 }
                 running = true;
                 tree->SetThreadStatus(THREAD_RUNNING);
-                st = std::make_unique<std::thread>(std::thread(executeSearching, depth));
-                side_thr = std::make_unique<std::thread>(std::thread(executeSideThread));
+                st = std::make_unique<std::thread>(std::thread(&SearchTree::Search, tree.get(), depth));
+                side_thr = std::make_unique<std::thread>(std::thread(&SearchTree::sideThreadJob, tree.get()));
             }
         }
 
         if(option == "ucinewgame"){
-            SearchTree::Init();
+            tree->Init();
         }
 
         if(option == "stop"){

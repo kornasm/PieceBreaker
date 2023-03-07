@@ -9,6 +9,7 @@
 class Position;
 class Move;
 class Node;
+class SearchTree;
 
 bool CompareNodesAscending(Node *nd1, Node *nd2);
 bool CompareNodesDescending(Node* nd1, Node* nd2);
@@ -41,7 +42,7 @@ class Node{
 
         Node* CheckMove(Move *move);
         Node* MakeMove(Move *move, Position *newposition = nullptr);
-        void Search(int maxDepth);
+        void Search(SearchTree *searchTree, int maxDepth);
         void PassValueBackwards(Node *from);
         void Evaluate();
         void Isolate(); // prepare a root node to be searched

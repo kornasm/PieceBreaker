@@ -23,14 +23,11 @@ class NodePtr{
         int status; // 0 - not searched, 1 - searched, 2 - deleted
 };
 
-void executeSearching(int depth);
-void executeSideThread();
-
 class SearchTree{
     private:
-        static SearchTree* instance;
-        static std::string fen;
-
+        std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        const std::string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        bool initialized = 0;
         std::map<Node*, int> nodeTable; // map storing node status (not searched, searched, to delete)
                                         // used to avoid memory problems (dereferencing deleted nodes, double frees)
 
@@ -42,19 +39,12 @@ class SearchTree{
         long long operationNumber = 0;
 
     public:
-        static const std::string startFen;
-        
         SearchTree();
-        static void Init();
-        static void Init(std::stringstream& strFen);
-        static SearchTree* GetInstance();
-        
+        void Init();
+        void Init(std::stringstream& strFen);
+
         ~SearchTree(void);
-        
-        static void Clear();
-        
-
-
+        void Clear();
 
         // stats
         int noNodes = 0;

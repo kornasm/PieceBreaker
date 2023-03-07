@@ -77,9 +77,9 @@ Node* Node::MakeMove(Move *move, Position *newposition){
     return newNode;
 }
 
-void Node::Search(int maxDepth){
+void Node::Search(SearchTree *searchTree, int maxDepth){
     PassValueBackwards(nullptr);
-    SearchTree* searchTree = SearchTree::GetInstance();
+
     searchTree->IncreaseNodeCount();
     if(depth >= maxDepth || position->GetGameResult() != ONGOING){
         return;

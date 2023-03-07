@@ -9,21 +9,8 @@
 #include <thread>
 #include <cassert>
 
-SearchTree* SearchTree::instance = nullptr;
-std::string SearchTree::fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-const std::string SearchTree::startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
 extern Logger logger;
 
-void executeSearching(int depth){
-    SearchTree* tree = SearchTree::GetInstance();
-    tree->Search(depth);
-}
-
-void executeSideThread(){
-    SearchTree* tree = SearchTree::GetInstance();
-    tree->sideThreadJob();
-}
 void SearchTree::sideThreadJob(){
     Logger sideThrLog(LOG_UCI);
     auto start = std::chrono::steady_clock::now();
@@ -36,7 +23,7 @@ void SearchTree::sideThreadJob(){
         sideThrLog << "nodes " << noNodes << " ";
         double secs = (double)(std::chrono::duration_cast<std::chrono::seconds>(diff).count());
         int nps = (int)((double)(noNodes) / secs);
-        volatile Node *current = entryNode->bestmove;
+        Node *current = entryNode->bestmove;
         sideThrLog << "nps " << nps << " ";
         sideThrLog << "time " << diff.count() << " ";
         sideThrLog << "pv ";
@@ -55,45 +42,38 @@ SearchTree::SearchTree() :nodesToSearch(&CompareNodesAscending) {}
 
 SearchTree::~SearchTree(void){
     Clear();
-    instance = nullptr;
 }
 
 void SearchTree::Init(){
-    if(instance != nullptr){
+    if(initialized)
         Clear();
-    }
-    SearchTree* tree = GetInstance();
-    tree->root = new Node();
-    tree->entryNode = tree->root;
-    tree->status = THREAD_IDLE;
+    initialized = true;
+
+    SearchTree* tree = this;
+    root = new Node();
+    entryNode = tree->root;
+    status = THREAD_IDLE;
 }
 
 void SearchTree::Init(std::stringstream& strFen){
-    if(instance != nullptr){
+    if(initialized)
         Clear();
-    }
-    SearchTree* tree = GetInstance();
-    tree->root = new Node(strFen);
-    tree->entryNode = tree->root;
-    tree->status = THREAD_IDLE;
-}
+    initialized = true;
 
-SearchTree* SearchTree::GetInstance(){
-    if(!instance){
-        instance = new SearchTree();
-    }
-    return instance;
+    root = new Node(strFen);
+    entryNode = root;
+    status = THREAD_IDLE;
 }
 
 void SearchTree::Clear(){
-    SearchTree *tree = GetInstance();
-    while(!tree->nodesToSearch.empty()){
-        tree->nodesToSearch.pop();
+    while(!nodesToSearch.empty()){
+        nodesToSearch.pop();
     }
-    tree->nodeTable.clear();
-    tree->entryNode = nullptr;
-    delete tree->root;
-    tree->root = nullptr;
+
+    nodeTable.clear();
+    entryNode = nullptr;
+    delete root;
+    root = nullptr;
 }
 
 bool SearchTree::ForwardTo(Move *move){
@@ -120,7 +100,7 @@ void SearchTree::Search(int maxdepth){
         else{
             nodesToSearch.pop();
             if(it->second == 0){
-                searched->Search(maxdepth);
+                searched->Search(this, maxdepth);
                 Explore(searched, "", 0);
                 it->second = NODE_SEARCHED;
             }

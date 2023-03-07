@@ -50,16 +50,11 @@ namespace PieceBreaker{
 
         MoveCheckHandler::Init();
         MoveGeneratorHandler::Init();
-        SearchTree::Init();
     }
 
     void Cleanup(){
         MoveGeneratorHandler::Cleanup();
         MoveCheckHandler::Cleanup();
-
-        SearchTree *tree = SearchTree::GetInstance();
-        tree->Clear();
-        delete tree;
 
         InputProvider *ip = InputProvider::GetInstance();
         delete ip;
