@@ -63,6 +63,7 @@ namespace PieceBreaker{
 
 int main(int argc, char **argv){
     PieceBreaker::Init(argc, argv);
-    Uci::loop();
+    Uci uci;
+    uci.Loop();
     PieceBreaker::Cleanup();
 }
