@@ -11,8 +11,8 @@ class Move;
 class Evaluator{
     private:
         const Position *position;
-        std::list<Move> *moves = nullptr;
-        std::list<Move> *oppMoves = nullptr;
+        std::list<Move> moves;
+        std::list<Move> oppMoves;
         int heatmap[121] = {};
 
     public:
@@ -20,8 +20,6 @@ class Evaluator{
         static long long hashInfo;
         
         Evaluator(Position* pos);
-        
-        ~Evaluator();
 
         float Evaluate();
     

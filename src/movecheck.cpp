@@ -62,27 +62,23 @@ Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int
     if(col == WHITE){
         if((position.WhiteCstl() & SHORT_CASTLE_MOVE) && to == from + 2){
             if(position.GetSquareColor(from + 1) == EMPTY_SQUARE && position.GetSquareColor(from + 2) == EMPTY_SQUARE){
-                std::list<Move>* attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
-                for(auto move : *attackedPlaces){
+                std::list<Move> attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
+                for(auto move : attackedPlaces){
                     if(move.To() == from || move.To() == from + 1 || move.To() == from + 2){
-                        delete attackedPlaces;
                         return nullptr;
                     }
                 }
-                delete attackedPlaces;
                 return new Move(from, from + 2, SHORT_CASTLE_MOVE);
             }
         }
         if((position.WhiteCstl() & LONG_CASTLE_MOVE) && to == from - 2){
             if(position.GetSquareColor(from - 1) == EMPTY_SQUARE && position.GetSquareColor(from - 2) == EMPTY_SQUARE){
-                std::list<Move>* attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
-                for(auto move : *attackedPlaces){
+                std::list<Move> attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
+                for(auto move : attackedPlaces){
                     if(move.To() == from || move.To() == from - 1 || move.To() == from - 2){
-                        delete attackedPlaces;
                         return nullptr;
                     }
                 }
-                delete attackedPlaces;
                 return new Move(from, from - 2, LONG_CASTLE_MOVE);
             }
         }
@@ -90,27 +86,23 @@ Move* KingMoveChecker::CheckMoveLegality(const Position& position, int from, int
     if(col == BLACK){
         if((position.BlackCstl() & SHORT_CASTLE_MOVE) && to == from + 2){
             if(position.GetSquareColor(from + 1) == EMPTY_SQUARE && position.GetSquareColor(from + 2) == EMPTY_SQUARE){
-                std::list<Move>* attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
-                for(auto move : *attackedPlaces){
+                std::list<Move> attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
+                for(auto move : attackedPlaces){
                     if(move.To() == from || move.To() == from + 1 || move.To() == from + 2){
-                        delete attackedPlaces;
                         return nullptr;
                     }
                 }
-                delete attackedPlaces;
                 return new Move(from, from + 2, SHORT_CASTLE_MOVE);
             }
         }
         if((position.BlackCstl() & LONG_CASTLE_MOVE) && to == from - 2){
             if(position.GetSquareColor(from - 1) == EMPTY_SQUARE && position.GetSquareColor(from - 2) == EMPTY_SQUARE){
-                std::list<Move>* attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
-                for(auto move : *attackedPlaces){
+                std::list<Move> attackedPlaces = AllMovesGenerator::GenerateMoves(position, true);
+                for(auto move : attackedPlaces){
                     if(move.To() == from || move.To() == from - 1 || move.To() == from - 2){
-                        delete attackedPlaces;
                         return nullptr;
                     }
                 }
-                delete attackedPlaces;
                 return new Move(from, from - 2, LONG_CASTLE_MOVE);
             }
         }

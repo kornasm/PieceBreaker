@@ -26,22 +26,17 @@ Evaluator::Evaluator(Position* pos){
     FillHeatMap();
 }
 
-Evaluator::~Evaluator(){
-    delete moves;
-    delete oppMoves;
-}
-
 void Evaluator::GeneratePossibleMoves(){
     moves = AllMovesGenerator::GenerateMoves(*position);
     oppMoves = AllMovesGenerator::GenerateMoves(*position, true);
 }
 
 void Evaluator::FillHeatMap(){
-    for(auto move : *moves){
+    for(auto move : moves){
         heatmap[move.To()] += position->ToMove();
 
     }
-    for(auto move : *oppMoves){
+    for(auto move : oppMoves){
         heatmap[move.To()] -= position->ToMove();
     }
 }
@@ -89,12 +84,12 @@ float Evaluator::Evaluate(){
     result += CountMaterial();
     
     logger << LogDest(LOG_ANALYSIS) << "result(material)    " << result << '\n';
-    float noMoves = (float)((int)(moves->size()) - (int)(oppMoves->size())) / 10 * (float)(position->ToMove());
+    float noMoves = (float)((int)(moves.size()) - (int)(oppMoves.size())) / 10 * (float)(position->ToMove());
     result += noMoves;
     logger << LogDest(LOG_ANALYSIS) << "result(+moves  )    " << result << '\n';
 
     // check if weaker piece can capture the stronger one
-    for(auto move : *moves){
+    for(auto move : moves){
         int movingPiece = position->GetSquareValue(move.From());
         int targetPiece = position->GetSquareValue(move.To());
         if(sgn(targetPiece) == -position->ToMove()){
@@ -152,11 +147,11 @@ void Evaluator::DisplayExtraInfo(){
     if(position->GetPositionHash() == hashInfo){
         int a = 0;
         a++;
-        for(auto m : *moves){
+        for(auto m : moves){
             logger << LogDest(LOG_ANALYSIS) << m << "\n";
         }
         logger << LogDest(LOG_ANALYSIS) << "\n\n";
-        for(auto m : *oppMoves){
+        for(auto m : oppMoves){
             logger << LogDest(LOG_ANALYSIS) << m << "\n";
         }
         for(int r = 8; r > 0; r--){

@@ -84,8 +84,8 @@ void Node::Search(SearchTree *searchTree, int maxDepth){
     if(depth >= maxDepth || position->GetGameResult() != ONGOING){
         return;
     }
-    std::list<Move>* moves = position->GenerateAllLegalMoves();
-    for(auto m : *moves){
+    std::list<Move> moves = position->GenerateAllLegalMoves();
+    for(auto m : moves){
         Move *move = new Move(m);
         MakeMove(move);
     }
@@ -98,7 +98,6 @@ void Node::Search(SearchTree *searchTree, int maxDepth){
         searchTree->AddNodeToQueue(*nd);
 
     }
-    delete moves;
 }
 
 void Node::PassValueBackwards(Node *from){

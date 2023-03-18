@@ -35,16 +35,16 @@ void MoveGeneratorHandler::Cleanup(){
     }
 }
 
-std::list<Move>* MoveGeneratorHandler::GenerateMoves(int originSquare, const Position& position){
+std::list<Move> MoveGeneratorHandler::GenerateMoves(int originSquare, const Position& position){
     return generators[LookUpTableIndex(position.GetSquareValue(originSquare))]->GenerateMoveList(originSquare, position);
 }
 
-std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
-    std::list<Move>* moves = new std::list<Move>();
+std::list<Move> KingMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
+    std::list<Move> moves;
     for(auto move : KingPossibleSquares){
         if(position.GetSquareValue(originSquare + move) != OUTSIDE_BOARD && 
            position.GetSquareColor(originSquare + move) != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare + move, position.GetSquareColor(originSquare + move) != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare + move, position.GetSquareColor(originSquare + move) != EMPTY_SQUARE));
         }
     }
     int col = position.GetSquareColor(originSquare);
@@ -54,7 +54,7 @@ std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Pos
                 if(position.IsPlaceAttacked(originSquare, -col) == false && 
                    position.IsPlaceAttacked(originSquare + 1, -col) == false && 
                    position.IsPlaceAttacked(originSquare + 2, -col) == false){
-                    moves->push_back(Move(originSquare, originSquare + 2, SHORT_CASTLE_MOVE));
+                    moves.push_back(Move(originSquare, originSquare + 2, SHORT_CASTLE_MOVE));
                 }
             }
         }
@@ -63,7 +63,7 @@ std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Pos
                 if(position.IsPlaceAttacked(originSquare, -col) == false && 
                    position.IsPlaceAttacked(originSquare - 1, -col) == false && 
                    position.IsPlaceAttacked(originSquare - 2, -col) == false){
-                    moves->push_back(Move(originSquare, originSquare - 2, LONG_CASTLE_MOVE));
+                    moves.push_back(Move(originSquare, originSquare - 2, LONG_CASTLE_MOVE));
                 }
             }
         }
@@ -74,7 +74,7 @@ std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Pos
                 if(position.IsPlaceAttacked(originSquare, -col) == false && 
                    position.IsPlaceAttacked(originSquare + 1, -col) == false && 
                    position.IsPlaceAttacked(originSquare + 2, -col) == false){
-                    moves->push_back(Move(originSquare, originSquare + 2, SHORT_CASTLE_MOVE));
+                    moves.push_back(Move(originSquare, originSquare + 2, SHORT_CASTLE_MOVE));
                 }
             }
         }
@@ -83,7 +83,7 @@ std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Pos
                 if(position.IsPlaceAttacked(originSquare, -col) == false && 
                    position.IsPlaceAttacked(originSquare - 1, -col) == false && 
                    position.IsPlaceAttacked(originSquare - 2, -col) == false){
-                    moves->push_back(Move(originSquare, originSquare - 2, LONG_CASTLE_MOVE));
+                    moves.push_back(Move(originSquare, originSquare - 2, LONG_CASTLE_MOVE));
                 }
             }
         }
@@ -91,12 +91,12 @@ std::list<Move>* KingMoveGenerator::GenerateMoveList(int originSquare, const Pos
     return moves;
 }
 
-std::list<Move>* RookMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
-    std::list<Move>* moves = new std::list<Move>();
+std::list<Move> RookMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
+    std::list<Move> moves;
     for(auto move : RookLeftSquares){
         int TargetColor = position.GetSquareColor(originSquare + move);
         if(position.GetSquareValue(originSquare + move) != OUTSIDE_BOARD && TargetColor != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare + move, TargetColor != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare + move, TargetColor != EMPTY_SQUARE));
             if(TargetColor != EMPTY_SQUARE)
                 break;
         }
@@ -106,7 +106,7 @@ std::list<Move>* RookMoveGenerator::GenerateMoveList(int originSquare, const Pos
     for(auto move : RookUpSquares){
         int TargetColor = position.GetSquareColor(originSquare + move);
         if(position.GetSquareValue(originSquare + move) != OUTSIDE_BOARD && TargetColor != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare + move, TargetColor != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare + move, TargetColor != EMPTY_SQUARE));
             if(TargetColor != EMPTY_SQUARE)
                 break;
         }
@@ -116,7 +116,7 @@ std::list<Move>* RookMoveGenerator::GenerateMoveList(int originSquare, const Pos
     for(auto move : RookLeftSquares){
         int TargetColor = position.GetSquareColor(originSquare - move);
         if(position.GetSquareValue(originSquare - move) != OUTSIDE_BOARD && TargetColor != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare - move, TargetColor != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare - move, TargetColor != EMPTY_SQUARE));
             if(TargetColor != EMPTY_SQUARE)
                 break;
         }
@@ -126,7 +126,7 @@ std::list<Move>* RookMoveGenerator::GenerateMoveList(int originSquare, const Pos
     for(auto move : RookUpSquares){
         int TargetColor = position.GetSquareColor(originSquare - move);
         if(position.GetSquareValue(originSquare - move) != OUTSIDE_BOARD && TargetColor != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare - move, TargetColor != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare - move, TargetColor != EMPTY_SQUARE));
             if(TargetColor != EMPTY_SQUARE)
                 break;
         }
@@ -136,12 +136,12 @@ std::list<Move>* RookMoveGenerator::GenerateMoveList(int originSquare, const Pos
     return moves; 
 }
 
-std::list<Move>* BishopMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
-    std::list<Move> *moves = new std::list<Move>();
+std::list<Move> BishopMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
+    std::list<Move> moves;
     for(auto move : BishopUpRightSquares){
         int TargetColor = position.GetSquareColor(originSquare + move);
         if(position.GetSquareValue(originSquare + move) != OUTSIDE_BOARD && TargetColor != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare + move, TargetColor != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare + move, TargetColor != EMPTY_SQUARE));
             if(TargetColor != EMPTY_SQUARE)
                 break;
         }
@@ -151,7 +151,7 @@ std::list<Move>* BishopMoveGenerator::GenerateMoveList(int originSquare, const P
     for(auto move : BishopUpLeftSquares){
         int TargetColor = position.GetSquareColor(originSquare + move);
         if(position.GetSquareValue(originSquare + move) != OUTSIDE_BOARD && TargetColor != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare + move, TargetColor != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare + move, TargetColor != EMPTY_SQUARE));
             if(TargetColor != EMPTY_SQUARE)
                 break;
         }
@@ -161,7 +161,7 @@ std::list<Move>* BishopMoveGenerator::GenerateMoveList(int originSquare, const P
     for(auto move : BishopUpRightSquares){
         int TargetColor = position.GetSquareColor(originSquare - move);
         if(position.GetSquareValue(originSquare - move) != OUTSIDE_BOARD && TargetColor != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare - move, TargetColor != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare - move, TargetColor != EMPTY_SQUARE));
             if(TargetColor != EMPTY_SQUARE)
                 break;
         }
@@ -171,7 +171,7 @@ std::list<Move>* BishopMoveGenerator::GenerateMoveList(int originSquare, const P
     for(auto move : BishopUpLeftSquares){
         int TargetColor = position.GetSquareColor(originSquare - move);
         if(position.GetSquareValue(originSquare - move) != OUTSIDE_BOARD && TargetColor != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare - move, TargetColor != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare - move, TargetColor != EMPTY_SQUARE));
             if(TargetColor != EMPTY_SQUARE)
                 break;
         }
@@ -181,27 +181,26 @@ std::list<Move>* BishopMoveGenerator::GenerateMoveList(int originSquare, const P
     return moves;
 }
 
-std::list<Move>* QueenMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
-    std::list<Move>* rookmoves = RookMoveGenerator().GenerateMoveList(originSquare, position);
-    std::list<Move>* bishmoves = BishopMoveGenerator().GenerateMoveList(originSquare, position);
-    rookmoves->splice(rookmoves->end(), *bishmoves);
-    delete bishmoves;
+std::list<Move> QueenMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
+    std::list<Move> rookmoves = RookMoveGenerator().GenerateMoveList(originSquare, position);
+    std::list<Move> bishmoves = BishopMoveGenerator().GenerateMoveList(originSquare, position);
+    rookmoves.splice(rookmoves.end(), bishmoves);
     return rookmoves;
 }
 
-std::list<Move>* KnightMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
-    std::list<Move>* moves = new std::list<Move>();
+std::list<Move> KnightMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
+    std::list<Move> moves;
     for(auto move : KnightSquares){
         if(position.GetSquareValue(originSquare + move) != OUTSIDE_BOARD && 
            position.GetSquareColor(originSquare + move) != position.GetSquareColor(originSquare)){
-            moves->push_back(Move(originSquare, originSquare + move, position.GetSquareColor(originSquare + move) != EMPTY_SQUARE));
+            moves.push_back(Move(originSquare, originSquare + move, position.GetSquareColor(originSquare + move) != EMPTY_SQUARE));
         }
     }
     return moves;
 }
 
-std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
-    std::list<Move>* moves = new std::list<Move>();
+std::list<Move> WhitePawnMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
+    std::list<Move> moves;
     if(position.GetSquareColor(originSquare + 10) == EMPTY_SQUARE){
         Move m(originSquare, originSquare + 10, PAWN_MOVE | (position.GetSquareColor(originSquare + 10) != EMPTY_SQUARE));
         if(Board::row(originSquare) == 7){
@@ -209,10 +208,10 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, cons
             AddPromoMoves(moves, m, WHITE);
         }
         else{
-            moves->push_back(m);
+            moves.push_back(m);
         }
         if(Board::row(originSquare) == 2 && position.GetSquareColor(originSquare + 20) == EMPTY_SQUARE){
-            moves->push_back(Move(originSquare, originSquare + 20, PAWN_MOVE | PAWN_DOUBLE_MOVE));
+            moves.push_back(Move(originSquare, originSquare + 20, PAWN_MOVE | PAWN_DOUBLE_MOVE));
         }
     }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare + 9))){
@@ -222,7 +221,7 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, cons
             AddPromoMoves(moves, m, WHITE);
         }
         else{
-            moves->push_back(m);
+            moves.push_back(m);
         }
     }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare + 11))){
@@ -232,20 +231,20 @@ std::list<Move>* WhitePawnMoveGenerator::GenerateMoveList(int originSquare, cons
             AddPromoMoves(moves, m, WHITE);
         }
         else{
-            moves->push_back(m);
+            moves.push_back(m);
         }
     }
     if(position.EnPassantPos() == (originSquare + 9) && position.GetSquareColor(originSquare + 9) == EMPTY_SQUARE && Board::row(originSquare) == 5){
-        moves->push_back(Move(originSquare, originSquare + 9, PAWN_MOVE | EN_PASSANT_MOVE));
+        moves.push_back(Move(originSquare, originSquare + 9, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     if(position.EnPassantPos() == (originSquare + 11) && position.GetSquareColor(originSquare + 11) == EMPTY_SQUARE && Board::row(originSquare) == 5){
-        moves->push_back(Move(originSquare, originSquare + 11, PAWN_MOVE | EN_PASSANT_MOVE));
+        moves.push_back(Move(originSquare, originSquare + 11, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     return moves;
 }
 
-std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
-    std::list<Move>* moves = new std::list<Move>();
+std::list<Move> BlackPawnMoveGenerator::GenerateMoveList(int originSquare, const Position& position) const{
+    std::list<Move> moves;
     if(position.GetSquareColor(originSquare - 10) == EMPTY_SQUARE){
         Move m(originSquare, originSquare - 10, PAWN_MOVE | (position.GetSquareColor(originSquare - 10) != EMPTY_SQUARE));
         if(Board::row(originSquare) == 2){
@@ -253,10 +252,10 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, cons
             AddPromoMoves(moves, m, BLACK);
         }
         else{
-            moves->push_back(m);
+            moves.push_back(m);
         }
         if(Board::row(originSquare) == 7 && position.GetSquareColor(originSquare - 20) == EMPTY_SQUARE){
-            moves->push_back(Move(originSquare, originSquare - 20, PAWN_MOVE | PAWN_DOUBLE_MOVE));
+            moves.push_back(Move(originSquare, originSquare - 20, PAWN_MOVE | PAWN_DOUBLE_MOVE));
         }
         
     }
@@ -267,7 +266,7 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, cons
             AddPromoMoves(moves, m, BLACK);
         }
         else{
-            moves->push_back(m);
+            moves.push_back(m);
         }  
     }
     if(position.GetSquareColor(originSquare) == -(position.GetSquareColor(originSquare - 11))){
@@ -277,20 +276,20 @@ std::list<Move>* BlackPawnMoveGenerator::GenerateMoveList(int originSquare, cons
             AddPromoMoves(moves, m, BLACK);
         }
         else{
-            moves->push_back(m);
+            moves.push_back(m);
         }
     }
     if(position.EnPassantPos() == (originSquare - 9) && position.GetSquareColor(originSquare - 9) == EMPTY_SQUARE && Board::row(originSquare) == 4){
-        moves->push_back(Move(originSquare, originSquare - 9, PAWN_MOVE | EN_PASSANT_MOVE));
+        moves.push_back(Move(originSquare, originSquare - 9, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     if(position.EnPassantPos() == (originSquare - 11) && position.GetSquareColor(originSquare - 11) == EMPTY_SQUARE && Board::row(originSquare) == 4){
-        moves->push_back(Move(originSquare, originSquare - 11, PAWN_MOVE | EN_PASSANT_MOVE));
+        moves.push_back(Move(originSquare, originSquare - 11, PAWN_MOVE | EN_PASSANT_MOVE));
     }
     return moves;
 }
 
-std::list<Move>* AllMovesGenerator::GenerateMoves(const Position&position, bool inverted){
-    std::list<Move> *moves = new std::list<Move>();
+std::list<Move> AllMovesGenerator::GenerateMoves(const Position&position, bool inverted){
+    std::list<Move> moves;
     for(int i = 0; i < 64; i++){
         int ind = mailbox[i];
         int movingColor = position.ToMove();
@@ -298,22 +297,21 @@ std::list<Move>* AllMovesGenerator::GenerateMoves(const Position&position, bool 
             movingColor *= (-1);
         }
         if(position.GetSquareColor(ind) == movingColor){
-            std::list<Move> *m = MoveGeneratorHandler::GenerateMoves(ind, position);
+            std::list<Move> m = MoveGeneratorHandler::GenerateMoves(ind, position);
              //generators[LookUpTableIndex(position.GetSquareValue(ind))]->GenerateMoveListVirtual(ind, position);
-            moves->splice(moves->end(), *m);
-            delete m;
+            moves.splice(moves.end(), m);
         }
     }
     return moves;
 }
 
-void AddPromoMoves(std::list<Move>* moves, Move baseMove, int color){
+void AddPromoMoves(std::list<Move>& moves, Move baseMove, int color){
     baseMove.SetPromo(WHITE_ROOK * color);
-    moves->push_back(baseMove);
+    moves.push_back(baseMove);
     baseMove.SetPromo(WHITE_BISHOP * color);
-    moves->push_back(baseMove);
+    moves.push_back(baseMove);
     baseMove.SetPromo(WHITE_QUEEN * color);
-    moves->push_back(baseMove);
+    moves.push_back(baseMove);
     baseMove.SetPromo(WHITE_KNIGHT * color);
-    moves->push_back(baseMove);
+    moves.push_back(baseMove);
 }

@@ -468,25 +468,23 @@ void Position::CheckCheck(){
     }
 }
 
-std::list<Move>* Position::GenerateAllLegalMoves(bool searchAtLeastOne){
-    std::list<Move>* moves = AllMovesGenerator::GenerateMoves(*this);
-    std::list<Move>* results = new std::list<Move>();
+std::list<Move> Position::GenerateAllLegalMoves(bool searchAtLeastOne){
+    std::list<Move> moves = AllMovesGenerator::GenerateMoves(*this);
+    std::list<Move> results;
     Move *temp;
-    auto it = moves->begin();
+    auto it = moves.begin();
     bool found = false;
-    while(it != moves->end()){
+    while(it != moves.end()){
         if((temp = CheckIfMoveFullLegal(&(*it), false))){
             found = true;
             delete temp;
-            results->push_back(*it);
+            results.push_back(*it);
         }
         if(found && searchAtLeastOne){
-            delete moves;
             return results;
         }
         ++it;
     }
-    delete moves;
     return results;
 }
 
@@ -520,8 +518,8 @@ void Position::CheckEndings(){
             current = current->prev;
         }
     }
-    std::list<Move>* possiblemoves = GenerateAllLegalMoves(true);
-    if(possiblemoves->size() == 0){
+    std::list<Move> possiblemoves = GenerateAllLegalMoves(true);
+    if(possiblemoves.size() == 0){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){
                 result = GameResult::BLACK_WIN;
@@ -537,7 +535,6 @@ void Position::CheckEndings(){
             logger << LogDest(LOG_ANALYSIS) << "draw (stalemate)\n";
         }
     }
-    delete possiblemoves;
     if(result != GameResult::ONGOING){
         return;
     }
