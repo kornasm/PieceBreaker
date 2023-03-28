@@ -4,6 +4,8 @@
 #include "move.h"
 #include "board.h"
 
+extern const std::array<int, 64> mailbox;
+
 const int KingMoveGenerator::KingPossibleSquares[] = {-11, -10, -9, -1, 1, 9, 10, 11};
 const int RookMoveGenerator::RookLeftSquares[] = {-1, -2, -3, -4, -5, -6, -7};
 const int RookMoveGenerator::RookUpSquares[] = {10, 20, 30, 40, 50, 60, 70};

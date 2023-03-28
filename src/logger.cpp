@@ -39,7 +39,7 @@ void Logger::Log(boost::format fmt, int level){
 
 void Logger::LogEvaluation(Node *node, int level){
     if(ShouldLog(level)){
-        Print(std::to_string(node->partialEval));
+        Print(std::to_string(node->GetEval()));
     }
 }
 

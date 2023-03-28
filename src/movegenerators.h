@@ -11,8 +11,6 @@ class Position;
 class Move;
 class Evaluator;
 
-extern const int mailbox[64];
-
 class MoveGenerator{
     public:
         virtual std::list<Move> GenerateMoveList(int originSquare, const Position& position) const{

@@ -9,32 +9,23 @@
 #include <cmath>
 #include <sstream>
 
-const std::array<int, 64> mailbox = {22, 23, 24, 25, 26, 27, 28, 29,
-                                     32, 33, 34, 35, 36, 37, 38, 39,
-                                     42, 43, 44, 45, 46, 47, 48, 49,
-                                     52, 53, 54, 55, 56, 57, 58, 59,
-                                     62, 63, 64, 65, 66, 67, 68, 69,
-                                     72, 73, 74, 75, 76, 77, 78, 79,
-                                     82, 83, 84, 85, 86, 87, 88, 89,
-                                     92, 93, 94, 95, 96, 97, 98, 99};
-
 const std::array<int, NO_PIECES> drawMaterial = {0, 10, 1, 1, 10, 10, 0, 10, 10, 1, 1, 10, 0};
 
 extern Logger logger;
 
 Position::Position()
    :toMove(WHITE),
-    whiteKingPos(Board::Not2Ind("e1")),
-    blackKingPos(Board::Not2Ind("e8")),
     whcstl(SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE),
     blcstl(SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE),
-    enPassantPosition(NULL),
+    enPassantPosition(0),
+    underCheck(false),
     prev(nullptr),
     result(ONGOING),
-    underCheck(false),
+    searchBackRepetitions(false),
     halfMoveClock(0),
     fullMoveCounter(1),
-    searchBackRepetitions(false)
+    whiteKingPos(Board::Not2Ind("e1")),
+    blackKingPos(Board::Not2Ind("e8"))
 {
     CalculatePositionHash();
 }
@@ -42,7 +33,7 @@ Position::Position()
 Position::Position(Position& pr, Move *m, int promo)
    :prev(&pr)
 {
-    std::copy(prev->squares.begin(), prev->squares.end(), squares);
+    std::copy(prev->squares.begin(), prev->squares.end(), squares.begin());
     whiteKingPos = pr.whiteKingPos;
     blackKingPos = pr.blackKingPos;
     toMove = prev->toMove * (-1);

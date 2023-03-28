@@ -11,7 +11,8 @@
 #include <cmath>
 #include <cassert>
 
-extern const int mailbox[64];
+extern const std::array<int, 64> mailbox;
+
 const double material[NO_PIECES] = {0, -9, -3, -3, -5, -1, 0, 1, 5, 3, 3, 9, 0};
 extern Logger logger;
 

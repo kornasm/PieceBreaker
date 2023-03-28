@@ -19,26 +19,26 @@ int Node::noActiveNodes = 0;
 extern Logger logger;
 
 Node::Node()
-   :children(&CompareNodesDescending),
-    position(new Position()),
+   :position(new Position()),
+    moveMade(nullptr),
     prev(nullptr),
-    moveMade(nullptr)
+    children(&CompareNodesDescending)
 {
     OnConstructing();
 }
 
 Node::Node(std::stringstream& strFen)
-   :children(&CompareNodesDescending),
-    position(new Position(strFen)),
-    prev(nullptr)
+   :position(new Position(strFen)),
+    prev(nullptr),
+    children(&CompareNodesDescending)
 {
     OnConstructing();
 }
 
 Node::Node(Position *pos, Node* pr)
-   :children(&CompareNodesDescending),
+   :position(pos),
     prev(pr),
-    position(pos)
+    children(&CompareNodesDescending)
 {
     if(prev){
         depth = prev->depth + 1;
