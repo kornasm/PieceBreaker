@@ -5,12 +5,12 @@
 #include <vector>
 #include <algorithm>
 
-#include "../src/board.h"
-#include "../src/node.h"
-#include "../src/position.h"
-#include "../src/move.h"
-#include "../src/movegenerators.h"
-#include "../src/movecheck.h"
+#include "board.h"
+#include "node.h"
+#include "position.h"
+#include "move.h"
+#include "movegenerators.h"
+#include "movecheck.h"
 
 class EndingsTests: public ::testing::Test {
     protected:

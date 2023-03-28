@@ -8,12 +8,12 @@
 #include <list>
 #include <string>
 
-#include "../src/board.h"
-#include "../src/node.h"
-#include "../src/move.h"
-#include "../src/position.h"
-#include "../src/movegenerators.h"
-#include "../src/movecheck.h"
+#include "board.h"
+#include "node.h"
+#include "move.h"
+#include "position.h"
+#include "movegenerators.h"
+#include "movecheck.h"
 
 class MoveValidationTests: public ::testing::Test {
     protected:

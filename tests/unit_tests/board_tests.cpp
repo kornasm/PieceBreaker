@@ -5,11 +5,11 @@
 #include <vector>
 #include <algorithm>
 
-#include "../src/board.h"
-#include "../src/movegenerators.h"
-#include "../src/movecheck.h"
-#include "../src/node.h"
-#include "../src/move.h"
+#include "board.h"
+#include "movegenerators.h"
+#include "movecheck.h"
+#include "node.h"
+#include "move.h"
 
 class BoardTests: public ::testing::Test {
     protected:

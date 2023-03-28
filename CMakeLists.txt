@@ -13,7 +13,7 @@ add_subdirectory(src)
 
 enable_testing()
 
-add_subdirectory(tests)
+add_subdirectory(tests/unit_tests)
 
 add_executable(${This} main.cpp)
 target_link_libraries(${This} libpcbr)

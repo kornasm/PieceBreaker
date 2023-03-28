@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
+include_directories("../../src")
 set(This PieceBreakerTest)
 set(Sources test.cpp)
 
