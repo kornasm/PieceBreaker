@@ -1,7 +1,7 @@
 #include "move.h"
 
 #include "declarations.h"
-#include "functions.h"
+#include "board.h"
 #include "logger.h"
 
 #include <iostream>
@@ -11,14 +11,19 @@ const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_B
 
 extern Logger logger;
 
-Move::Move(int f, int t, int tp, int pr) :from(f), to(t), type(tp), promo(pr){}
+Move::Move(int f, int t, int tp, int pr)
+   :from(f),
+    to(t),
+    type(tp),
+    promo(pr)
+{}
 
 Move* Move::String2Move(std::string notation){
     if(notation.length() < 4 || notation.length() > 5){
         return nullptr;
     }
-    int from = Not2Ind(notation.substr(0, 2));
-    int to = Not2Ind(notation.substr(2, 2));
+    int from = Board::Not2Ind(notation.substr(0, 2));
+    int to = Board::Not2Ind(notation.substr(2, 2));
     int promo(EMPTY_SQUARE);
     if(notation.length() == 5){
         char promosymbol = notation[4];
@@ -48,19 +53,19 @@ void Move::IncreaseType(int i){
 }
 
 std::ostream& Move::ShowMove(std::ostream& out) const{
-    out << "move  " << Ind2Not(From()) << Ind2Not(To());
+    out << "move  " << Board::Ind2Not(From()) << Board::Ind2Not(To());
     out << "     type   " << Type();
     if(Promo() != EMPTY_SQUARE){
-        out << "     promo    " << GetPieceSymbol(Promo());
+        out << "     promo    " << Board::GetPieceSymbol(Promo());
     }
     out << '\n';
     return out;
 }
 
 std::ostream& operator <<(std::ostream& out, const Move& move){
-    out << Ind2Not(move.From()) << Ind2Not(move.To());
+    out << Board::Ind2Not(move.From()) << Board::Ind2Not(move.To());
     if(move.Promo() != EMPTY_SQUARE){
-        char c = GetPieceSymbol(move.Promo());
+        char c = Board::GetPieceSymbol(move.Promo());
         if(c <= 'Z'){
             c = static_cast<char>(c + 32);
         }

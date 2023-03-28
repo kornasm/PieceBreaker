@@ -1,6 +1,6 @@
 #include "position.h"
 
-#include "functions.h"
+#include "board.h"
 #include "move.h"
 #include "movecheck.h"
 #include "movegenerators.h"
@@ -9,39 +9,31 @@
 #include <cmath>
 #include <sstream>
 
-const int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
-                         32, 33, 34, 35, 36, 37, 38, 39,
-                         42, 43, 44, 45, 46, 47, 48, 49,
-                         52, 53, 54, 55, 56, 57, 58, 59,
-                         62, 63, 64, 65, 66, 67, 68, 69,
-                         72, 73, 74, 75, 76, 77, 78, 79,
-                         82, 83, 84, 85, 86, 87, 88, 89,
-                         92, 93, 94, 95, 96, 97, 98, 99};
-
-const int drawMaterial[NO_PIECES] = {0, 10, 1, 1, 10, 10, 0, 10, 10, 1, 1, 10, 0};
+const std::array<int, NO_PIECES> drawMaterial = {0, 10, 1, 1, 10, 10, 0, 10, 10, 1, 1, 10, 0};
 
 extern Logger logger;
 
-Position::Position(){
-    toMove = WHITE;
-    whiteKingPos = Not2Ind("e1");
-    blackKingPos = Not2Ind("e8");
-    whcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
-    blcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
-    enPassant = -1;
-    prev = nullptr;
-    result = ONGOING;
-    underCheck = false;
-    halfMoveClock = 0;
-    fullMoveCounter = 1;
-    searchBackRepetitions = false;
+Position::Position()
+   :toMove(WHITE),
+    whcstl(SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE),
+    blcstl(SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE),
+    enPassantPosition(0),
+    underCheck(false),
+    prev(nullptr),
+    result(ONGOING),
+    searchBackRepetitions(false),
+    halfMoveClock(0),
+    fullMoveCounter(1),
+    whiteKingPos(Board::Not2Ind("e1")),
+    blackKingPos(Board::Not2Ind("e8"))
+{
     CalculatePositionHash();
 }
 
-Position::Position(Position& pr, Move *m, int promo){
-    prev = &pr;
-
-    std::copy(prev->squares, prev->squares + 122, squares);
+Position::Position(Position& pr, Move *m, int promo)
+   :prev(&pr)
+{
+    std::copy(prev->squares.begin(), prev->squares.end(), squares.begin());
     whiteKingPos = pr.whiteKingPos;
     blackKingPos = pr.blackKingPos;
     toMove = prev->toMove * (-1);
@@ -51,7 +43,7 @@ Position::Position(Position& pr, Move *m, int promo){
     squares[m->To()] = squares[m->From()];
     squares[m->From()] = EMPTY_SQUARE;
     if(m->Type() & EN_PASSANT_MOVE){
-        if(column(m->From()) < column(m->To())){
+        if(Board::column(m->From()) < Board::column(m->To())){
             squares[m->From() + 1] = 0;
         }
         else{
@@ -75,41 +67,36 @@ Position::Position(Position& pr, Move *m, int promo){
         }
     }
 
-    if(whcstl & SHORT_CASTLE_MOVE){
-        if(m->From() == Not2Ind("e1") || GetSquareValue(Not2Ind("h1")) != WHITE_ROOK){
+    if(whcstl & SHORT_CASTLE_MOVE)
+        if(m->From() == Board::Not2Ind("e1") || GetSquareValue(Board::Not2Ind("h1")) != WHITE_ROOK)
             whcstl -= SHORT_CASTLE_MOVE;
-        }
-    }
-    if(whcstl & LONG_CASTLE_MOVE){
-        if(m->From() == Not2Ind("e1") || GetSquareValue(Not2Ind("a1")) != WHITE_ROOK){
+
+    if(whcstl & LONG_CASTLE_MOVE)
+        if(m->From() == Board::Not2Ind("e1") || GetSquareValue(Board::Not2Ind("a1")) != WHITE_ROOK)
             whcstl -= LONG_CASTLE_MOVE;
-        }
-    }
-    if(blcstl & SHORT_CASTLE_MOVE){
-        if(m->From() == Not2Ind("e8") || GetSquareValue(Not2Ind("h8")) != BLACK_ROOK){
+
+    if(blcstl & SHORT_CASTLE_MOVE)
+        if(m->From() == Board::Not2Ind("e8") || GetSquareValue(Board::Not2Ind("h8")) != BLACK_ROOK)
             blcstl -= SHORT_CASTLE_MOVE;
-        }
-    }
-    if(blcstl & LONG_CASTLE_MOVE){
-        if(m->From() == Not2Ind("e8") || GetSquareValue(Not2Ind("a8")) != BLACK_ROOK){
+
+    if(blcstl & LONG_CASTLE_MOVE)
+        if(m->From() == Board::Not2Ind("e8") || GetSquareValue(Board::Not2Ind("a8")) != BLACK_ROOK)
             blcstl -= LONG_CASTLE_MOVE;
-        }
-    }
 
     if(m->Type() & PAWN_DOUBLE_MOVE)
-        enPassant = (m->From() + m->To()) / 2;
+        enPassantPosition = (m->From() + m->To()) / 2;
     else
-        enPassant = -1;
-    if(m->From() == whiteKingPos){
+        enPassantPosition = -1;
+
+    if(m->From() == whiteKingPos)
         whiteKingPos = m->To();
-    }
-    if(m->From() == blackKingPos){
+    if(m->From() == blackKingPos)
         blackKingPos = m->To();
-    }
+
     fullMoveCounter = prev->fullMoveCounter;
-    if(toMove == WHITE){
+    if(toMove == WHITE)
         fullMoveCounter++;
-    }
+
     if(m->Type() < PAWN_MOVE){ // only regular moves and castles (no captures)
         halfMoveClock = prev->halfMoveClock + 1;
         searchBackRepetitions = true;
@@ -126,7 +113,6 @@ Position::Position(Position& pr, Move *m, int promo){
 Position::Position(std::stringstream& strFen){
     std::string fen;
 
-    // pieces
     strFen >> fen;
     unsigned int index = 0;
     for(int i = 7; i >= 0; i--){
@@ -207,7 +193,7 @@ Position::Position(std::stringstream& strFen){
 
     // en passant position
     strFen >> fen;
-    fen[0] == '-' ? enPassant = -1 : enPassant = Not2Ind(fen.substr(0, 2));
+    fen[0] == '-' ? enPassantPosition = -1 : enPassantPosition = Board::Not2Ind(fen.substr(0, 2));
 
     // half move clock
     strFen >> fen;
@@ -231,7 +217,7 @@ std::string Position::GetFen() const{
     for(int i = 8; i >= 1; i--){
         int emptys = 0;
         for(int j = 1; j <= 8; j++){
-            index = ColRow2Ind(j, i);
+            index = Board::ColRow2Ind(j, i);
             if(squares[index] == EMPTY_SQUARE){
                 emptys++;
             }
@@ -310,7 +296,7 @@ std::string Position::GetFen() const{
     }
     // en passant position
     fen << " ";
-    enPassant == -1 ? fen << "-" : fen << Ind2Not(enPassant);
+    enPassantPosition == -1 ? fen << "-" : fen << Board::Ind2Not(enPassantPosition);
 
     // half move clock
     fen << " ";
@@ -367,10 +353,10 @@ int Position::MakeSoftMove(Move *toExecute){
     squares[toExecute->From()] = EMPTY_SQUARE;
     if(toExecute->Type() & EN_PASSANT_MOVE){
         if(toMove == WHITE){
-            squares[enPassant - 10] = EMPTY_SQUARE;
+            squares[enPassantPosition - 10] = EMPTY_SQUARE;
         }
         else{
-            squares[enPassant + 10] = EMPTY_SQUARE;
+            squares[enPassantPosition + 10] = EMPTY_SQUARE;
         }
     }
     if(toExecute->From() == whiteKingPos){
@@ -387,10 +373,10 @@ void Position::MakeSoftBack(Move *toExecute, int takenPiece){
     squares[toExecute->To()] = takenPiece;
     if(toExecute->Type() & EN_PASSANT_MOVE){
         if(toMove == WHITE){
-            squares[enPassant - 10] = BLACK_PAWN;
+            squares[enPassantPosition - 10] = BLACK_PAWN;
         }
         else{
-            squares[enPassant + 10] = WHITE_PAWN;
+            squares[enPassantPosition + 10] = WHITE_PAWN;
         }
     }
     if(toExecute->To() == whiteKingPos){
@@ -430,7 +416,7 @@ Move* Position::CheckIfMoveFullLegal(Move* checkedmove, bool pseudoLegalWarranty
         int kingPos = 0;
         toMove == WHITE ? kingPos = whiteKingPos : kingPos = blackKingPos;
         bool ownCheckAfter = false;
-        /*if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || row(kingPos) == row(expectedmove->From())){
+        /*if(InBetweenEmpty(*this, kingPos, expectedmove->From(), true, true) || Board::row(kingPos) == Board::row(expectedmove->From())){
             ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
         }//*/
         ownCheckAfter = IsPlaceAttacked(kingPos, -toMove);
@@ -468,25 +454,23 @@ void Position::CheckCheck(){
     }
 }
 
-std::list<Move>* Position::GenerateAllLegalMoves(bool searchAtLeastOne){
-    std::list<Move>* moves = AllMovesGenerator::GenerateMoves(*this);
-    std::list<Move>* results = new std::list<Move>();
+std::list<Move> Position::GenerateAllLegalMoves(bool searchAtLeastOne){
+    std::list<Move> moves = AllMovesGenerator::GenerateMoves(*this);
+    std::list<Move> results;
     Move *temp;
-    auto it = moves->begin();
+    auto it = moves.begin();
     bool found = false;
-    while(it != moves->end()){
+    while(it != moves.end()){
         if((temp = CheckIfMoveFullLegal(&(*it), false))){
             found = true;
             delete temp;
-            results->push_back(*it);
+            results.push_back(*it);
         }
         if(found && searchAtLeastOne){
-            delete moves;
             return results;
         }
         ++it;
     }
-    delete moves;
     return results;
 }
 
@@ -520,8 +504,8 @@ void Position::CheckEndings(){
             current = current->prev;
         }
     }
-    std::list<Move>* possiblemoves = GenerateAllLegalMoves(true);
-    if(possiblemoves->size() == 0){
+    std::list<Move> possiblemoves = GenerateAllLegalMoves(true);
+    if(possiblemoves.size() == 0){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){
                 result = GameResult::BLACK_WIN;
@@ -537,7 +521,6 @@ void Position::CheckEndings(){
             logger << LogDest(LOG_ANALYSIS) << "draw (stalemate)\n";
         }
     }
-    delete possiblemoves;
     if(result != GameResult::ONGOING){
         return;
     }
@@ -551,8 +534,8 @@ void Position::CheckEndings(){
             col = 1 - col;
         }
         int ind = mailbox[i];
-        sqmaterial[col & 1] += drawMaterial[squares[ind] + SYMBOLS_OFFSET];
-        colmaterial[GetSquareColor(ind) + 1] += drawMaterial[squares[ind] + SYMBOLS_OFFSET];
+        sqmaterial[col & 1] += drawMaterial[LookUpTableIndex(squares[ind])];
+        colmaterial[GetSquareColor(ind) + 1] += drawMaterial[LookUpTableIndex(squares[ind])];
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
         result = DRAW;
@@ -588,7 +571,7 @@ void Position::CalculatePositionHash(){
 
 char Position::GetPiece(int column, int row) const{
     //logger << LogDest(LOG_DEBUG) << "Get piece     " << GetSquareValue(column, row) << "   " << column << "  " << row << "\n";
-    return GetPieceSymbol(GetSquareValue(column, row));
+    return Board::GetPieceSymbol(GetSquareValue(column, row));
 }
 
 int Position::GetSquareValue(int column, int row) const{
@@ -611,7 +594,7 @@ int Position::GetSquareColor(int column, int row) const{
 }
 
 char Position::GetPiece(int index) const{
-    return GetPieceSymbol(squares[index]);
+    return Board::GetPieceSymbol(squares[index]);
 }
 
 int Position::GetSquareValue(int index) const{

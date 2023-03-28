@@ -6,30 +6,40 @@
 #include <string>
 #include <list>
 #include <iostream>
+#include <array>
 
+const std::array<int, 64> mailbox = {22, 23, 24, 25, 26, 27, 28, 29,
+                                     32, 33, 34, 35, 36, 37, 38, 39,
+                                     42, 43, 44, 45, 46, 47, 48, 49,
+                                     52, 53, 54, 55, 56, 57, 58, 59,
+                                     62, 63, 64, 65, 66, 67, 68, 69,
+                                     72, 73, 74, 75, 76, 77, 78, 79,
+                                     82, 83, 84, 85, 86, 87, 88, 89,
+                                     92, 93, 94, 95, 96, 97, 98, 99};
+                                     
 enum GameResult{ONGOING = 1, WHITE_WIN = 10000, DRAW = 0, BLACK_WIN = -10000};
 class Move;
 class MoveGenerator;
 
 class Position{
     private:
-        int squares[121] = {7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-                             7, 2, 3, 4, 5, 6, 4, 3, 2, 7,
-                             7, 1, 1, 1, 1, 1, 1, 1, 1, 7,
-                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-                             7, -1, -1, -1, -1, -1, -1, -1, -1, 7,
-                             7, -2, -3, -4, -5, -6, -4, -3, -2, 7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+        std::array<int, 121> squares = {7,//A,B, C, D, E, F, G, H
+                                        7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                                        7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                            /*  1 */    7, 2, 3, 4, 5, 6, 4, 3, 2, 7,
+                            /*  2 */    7, 1, 1, 1, 1, 1, 1, 1, 1, 7,
+                            /*  3 */    7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                            /*  4 */    7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                            /*  5 */    7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                            /*  6 */    7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                            /*  7 */    7, -1, -1, -1, -1, -1, -1, -1, -1, 7,
+                            /*  8 */    7, -2, -3, -4, -5, -6, -4, -3, -2, 7,
+                                        7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                                        7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
         int toMove;
         int whcstl;
         int blcstl;
-        int enPassant;
+        int enPassantPosition;
         bool underCheck;
         Position *prev;
         GameResult result;
@@ -39,15 +49,16 @@ class Position{
         int fullMoveCounter;
         int whiteKingPos;
         int blackKingPos;
+
     public:
-        //construcotrs, destructor
         Position();
         Position(Position& prev, Move *m, int promo = 0);
         Position(std::stringstream& issfen);
-        ~Position();
-
         Position(const Position& position) = delete;
         Position operator=(const Position& position) = delete;
+
+        ~Position();
+
         
         // move making/checking
         Position* MakeMove(Move* checkedmove);
@@ -60,7 +71,7 @@ class Position{
         void ShowBoard(std::ostream& out) const;
         std::ostream& ShowTinyBoard(std::ostream& out) const;
         void CheckCheck();
-        std::list<Move>* GenerateAllLegalMoves(bool searchAtLeastOne = false);
+        std::list<Move> GenerateAllLegalMoves(bool searchAtLeastOne = false);
         void CheckEndings();
         void CalculatePositionHash();
 
@@ -76,7 +87,7 @@ class Position{
         int BlackCstl() const { return blcstl; }
         int GetWhiteKingPos() const { return whiteKingPos; }
         int GetBlackKingPos() const { return blackKingPos; }
-        int EnPassantPos() const { return enPassant; }
+        int EnPassantPos() const { return enPassantPosition; }
         int ToMove() const { return toMove; }
         GameResult GetGameResult() const { return result; }
         long long GetPositionHash() const { return positionHash; }
@@ -85,7 +96,6 @@ class Position{
 #endif
 
 /*
-
 0
 1    2  3  4  5  6  7  8  9    10   
 11   12 13 14 15 16 17 18 19   20

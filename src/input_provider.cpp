@@ -8,6 +8,13 @@
 InputProvider *InputProvider::instance = nullptr;
 extern Logger logger;
 
+void InputProvider::Init(std::optional<std::string> file_path){
+    if(file_path.has_value() == false) // input from stdin will be read
+        InputProvider::SetInstance();
+    else
+        InputProvider::SetInstance(true, file_path.value());
+}
+
 InputProvider* InputProvider::GetInstance(){
     if(!instance){
         SetInstance();

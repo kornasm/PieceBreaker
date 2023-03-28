@@ -44,6 +44,7 @@ class Logger{
         Logger(int level = 1);
 
         int GetLevel() { return logging_level ;}
+        void AddLevel(int l) { logging_level |= l; }
         void SetLevel(int l) { logging_level = l; }
 
         // even though this implementation covers most case, some additional function are needed

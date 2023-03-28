@@ -9,9 +9,11 @@ class Move{
         int to;
         int type;
         int promo;
+    
     public:
         Move(){}
         Move(int f, int t, int tp, int pr = 0);
+        
         ~Move(){}
 
         static Move* String2Move(std::string);
