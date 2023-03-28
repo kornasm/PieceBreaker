@@ -20,7 +20,7 @@ class Logger;
 class NodePtr{
     public:
         const Node* ptr;
-        int status; // 0 - not searched, 1 - searched, 2 - deleted
+        int status;
 };
 
 class SearchTree{

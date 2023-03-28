@@ -11,7 +11,7 @@ const int BishopMoveGenerator::BishopUpRightSquares[] = {11, 22, 33, 44, 55, 66,
 const int BishopMoveGenerator::BishopUpLeftSquares[] = {9, 18, 27, 36, 45, 54, 63};
 const int KnightMoveGenerator::KnightSquares[] = {-21, -19, -8, 12, 21, 19, 8, -12};
 
-MoveGenerator* MoveGeneratorHandler::generators[] = {};
+std::array<MoveGenerator*, NO_PIECES + 1> MoveGeneratorHandler::generators = {};
 void MoveGeneratorHandler::Init(){
     generators[0] = new KingMoveGenerator();
     generators[1] = new QueenMoveGenerator();

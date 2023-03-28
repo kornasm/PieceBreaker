@@ -6,6 +6,7 @@
 #include <string>
 #include <list>
 #include <iostream>
+#include <array>
 
 enum GameResult{ONGOING = 1, WHITE_WIN = 10000, DRAW = 0, BLACK_WIN = -10000};
 class Move;
@@ -13,23 +14,23 @@ class MoveGenerator;
 
 class Position{
     private:
-        int squares[121] = {7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-                             7, 2, 3, 4, 5, 6, 4, 3, 2, 7,
-                             7, 1, 1, 1, 1, 1, 1, 1, 1, 7,
-                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-                             7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-                             7, -1, -1, -1, -1, -1, -1, -1, -1, 7,
-                             7, -2, -3, -4, -5, -6, -4, -3, -2, 7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-                             7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+        std::array<int, 121> squares = {7,//A,B, C, D, E, F, G, H
+                                        7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                                        7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                            /*  1 */    7, 2, 3, 4, 5, 6, 4, 3, 2, 7,
+                            /*  2 */    7, 1, 1, 1, 1, 1, 1, 1, 1, 7,
+                            /*  3 */    7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                            /*  4 */    7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                            /*  5 */    7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                            /*  6 */    7, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+                            /*  7 */    7, -1, -1, -1, -1, -1, -1, -1, -1, 7,
+                            /*  8 */    7, -2, -3, -4, -5, -6, -4, -3, -2, 7,
+                                        7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                                        7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
         int toMove;
         int whcstl;
         int blcstl;
-        int enPassant;
+        int enPassantPosition;
         bool underCheck;
         Position *prev;
         GameResult result;
@@ -49,7 +50,6 @@ class Position{
 
         ~Position();
 
-        
         
         // move making/checking
         Position* MakeMove(Move* checkedmove);
@@ -78,7 +78,7 @@ class Position{
         int BlackCstl() const { return blcstl; }
         int GetWhiteKingPos() const { return whiteKingPos; }
         int GetBlackKingPos() const { return blackKingPos; }
-        int EnPassantPos() const { return enPassant; }
+        int EnPassantPos() const { return enPassantPosition; }
         int ToMove() const { return toMove; }
         GameResult GetGameResult() const { return result; }
         long long GetPositionHash() const { return positionHash; }
@@ -87,7 +87,6 @@ class Position{
 #endif
 
 /*
-
 0
 1    2  3  4  5  6  7  8  9    10   
 11   12 13 14 15 16 17 18 19   20

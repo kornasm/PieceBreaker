@@ -4,6 +4,7 @@
 #include "logger.h"
 
 #include <list>
+#include <array>
 
 class Position;
 class Move;
@@ -13,7 +14,7 @@ class Evaluator{
         const Position *position;
         std::list<Move> moves;
         std::list<Move> oppMoves;
-        int heatmap[121] = {};
+        std::array<int, 121> heatmap = {};
 
     public:
 

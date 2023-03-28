@@ -5,6 +5,7 @@
 
 #include <list>
 #include <iostream>
+#include <array>
 
 class Position;
 class Move;
@@ -82,7 +83,7 @@ void AddPromoMoves(std::list<Move>& list, Move baseMove, int color);
 
 class MoveGeneratorHandler{
     private:
-        static MoveGenerator* generators[NO_PIECES + 1];
+        static std::array<MoveGenerator*, NO_PIECES + 1> generators;
     public:
         static void Init();
         static void Cleanup();

@@ -11,7 +11,12 @@ const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_B
 
 extern Logger logger;
 
-Move::Move(int f, int t, int tp, int pr) :from(f), to(t), type(tp), promo(pr){}
+Move::Move(int f, int t, int tp, int pr)
+   :from(f),
+    to(t),
+    type(tp),
+    promo(pr)
+{}
 
 Move* Move::String2Move(std::string notation){
     if(notation.length() < 4 || notation.length() > 5){

@@ -9,39 +9,40 @@
 #include <cmath>
 #include <sstream>
 
-const int mailbox[64] = {22, 23, 24, 25, 26, 27, 28, 29,
-                         32, 33, 34, 35, 36, 37, 38, 39,
-                         42, 43, 44, 45, 46, 47, 48, 49,
-                         52, 53, 54, 55, 56, 57, 58, 59,
-                         62, 63, 64, 65, 66, 67, 68, 69,
-                         72, 73, 74, 75, 76, 77, 78, 79,
-                         82, 83, 84, 85, 86, 87, 88, 89,
-                         92, 93, 94, 95, 96, 97, 98, 99};
+const std::array<int, 64> mailbox = {22, 23, 24, 25, 26, 27, 28, 29,
+                                     32, 33, 34, 35, 36, 37, 38, 39,
+                                     42, 43, 44, 45, 46, 47, 48, 49,
+                                     52, 53, 54, 55, 56, 57, 58, 59,
+                                     62, 63, 64, 65, 66, 67, 68, 69,
+                                     72, 73, 74, 75, 76, 77, 78, 79,
+                                     82, 83, 84, 85, 86, 87, 88, 89,
+                                     92, 93, 94, 95, 96, 97, 98, 99};
 
-const int drawMaterial[NO_PIECES] = {0, 10, 1, 1, 10, 10, 0, 10, 10, 1, 1, 10, 0};
+const std::array<int, NO_PIECES> drawMaterial = {0, 10, 1, 1, 10, 10, 0, 10, 10, 1, 1, 10, 0};
 
 extern Logger logger;
 
-Position::Position(){
-    toMove = WHITE;
-    whiteKingPos = Board::Not2Ind("e1");
-    blackKingPos = Board::Not2Ind("e8");
-    whcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
-    blcstl = SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE;
-    enPassant = -1;
-    prev = nullptr;
-    result = ONGOING;
-    underCheck = false;
-    halfMoveClock = 0;
-    fullMoveCounter = 1;
-    searchBackRepetitions = false;
+Position::Position()
+   :toMove(WHITE),
+    whiteKingPos(Board::Not2Ind("e1")),
+    blackKingPos(Board::Not2Ind("e8")),
+    whcstl(SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE),
+    blcstl(SHORT_CASTLE_MOVE | LONG_CASTLE_MOVE),
+    enPassantPosition(NULL),
+    prev(nullptr),
+    result(ONGOING),
+    underCheck(false),
+    halfMoveClock(0),
+    fullMoveCounter(1),
+    searchBackRepetitions(false)
+{
     CalculatePositionHash();
 }
 
-Position::Position(Position& pr, Move *m, int promo){
-    prev = &pr;
-
-    std::copy(prev->squares, prev->squares + 122, squares);
+Position::Position(Position& pr, Move *m, int promo)
+   :prev(&pr)
+{
+    std::copy(prev->squares.begin(), prev->squares.end(), squares);
     whiteKingPos = pr.whiteKingPos;
     blackKingPos = pr.blackKingPos;
     toMove = prev->toMove * (-1);
@@ -75,41 +76,36 @@ Position::Position(Position& pr, Move *m, int promo){
         }
     }
 
-    if(whcstl & SHORT_CASTLE_MOVE){
-        if(m->From() == Board::Not2Ind("e1") || GetSquareValue(Board::Not2Ind("h1")) != WHITE_ROOK){
+    if(whcstl & SHORT_CASTLE_MOVE)
+        if(m->From() == Board::Not2Ind("e1") || GetSquareValue(Board::Not2Ind("h1")) != WHITE_ROOK)
             whcstl -= SHORT_CASTLE_MOVE;
-        }
-    }
-    if(whcstl & LONG_CASTLE_MOVE){
-        if(m->From() == Board::Not2Ind("e1") || GetSquareValue(Board::Not2Ind("a1")) != WHITE_ROOK){
+
+    if(whcstl & LONG_CASTLE_MOVE)
+        if(m->From() == Board::Not2Ind("e1") || GetSquareValue(Board::Not2Ind("a1")) != WHITE_ROOK)
             whcstl -= LONG_CASTLE_MOVE;
-        }
-    }
-    if(blcstl & SHORT_CASTLE_MOVE){
-        if(m->From() == Board::Not2Ind("e8") || GetSquareValue(Board::Not2Ind("h8")) != BLACK_ROOK){
+
+    if(blcstl & SHORT_CASTLE_MOVE)
+        if(m->From() == Board::Not2Ind("e8") || GetSquareValue(Board::Not2Ind("h8")) != BLACK_ROOK)
             blcstl -= SHORT_CASTLE_MOVE;
-        }
-    }
-    if(blcstl & LONG_CASTLE_MOVE){
-        if(m->From() == Board::Not2Ind("e8") || GetSquareValue(Board::Not2Ind("a8")) != BLACK_ROOK){
+
+    if(blcstl & LONG_CASTLE_MOVE)
+        if(m->From() == Board::Not2Ind("e8") || GetSquareValue(Board::Not2Ind("a8")) != BLACK_ROOK)
             blcstl -= LONG_CASTLE_MOVE;
-        }
-    }
 
     if(m->Type() & PAWN_DOUBLE_MOVE)
-        enPassant = (m->From() + m->To()) / 2;
+        enPassantPosition = (m->From() + m->To()) / 2;
     else
-        enPassant = -1;
-    if(m->From() == whiteKingPos){
+        enPassantPosition = -1;
+
+    if(m->From() == whiteKingPos)
         whiteKingPos = m->To();
-    }
-    if(m->From() == blackKingPos){
+    if(m->From() == blackKingPos)
         blackKingPos = m->To();
-    }
+
     fullMoveCounter = prev->fullMoveCounter;
-    if(toMove == WHITE){
+    if(toMove == WHITE)
         fullMoveCounter++;
-    }
+
     if(m->Type() < PAWN_MOVE){ // only regular moves and castles (no captures)
         halfMoveClock = prev->halfMoveClock + 1;
         searchBackRepetitions = true;
@@ -126,7 +122,6 @@ Position::Position(Position& pr, Move *m, int promo){
 Position::Position(std::stringstream& strFen){
     std::string fen;
 
-    // pieces
     strFen >> fen;
     unsigned int index = 0;
     for(int i = 7; i >= 0; i--){
@@ -207,7 +202,7 @@ Position::Position(std::stringstream& strFen){
 
     // en passant position
     strFen >> fen;
-    fen[0] == '-' ? enPassant = -1 : enPassant = Board::Not2Ind(fen.substr(0, 2));
+    fen[0] == '-' ? enPassantPosition = -1 : enPassantPosition = Board::Not2Ind(fen.substr(0, 2));
 
     // half move clock
     strFen >> fen;
@@ -310,7 +305,7 @@ std::string Position::GetFen() const{
     }
     // en passant position
     fen << " ";
-    enPassant == -1 ? fen << "-" : fen << Board::Ind2Not(enPassant);
+    enPassantPosition == -1 ? fen << "-" : fen << Board::Ind2Not(enPassantPosition);
 
     // half move clock
     fen << " ";
@@ -367,10 +362,10 @@ int Position::MakeSoftMove(Move *toExecute){
     squares[toExecute->From()] = EMPTY_SQUARE;
     if(toExecute->Type() & EN_PASSANT_MOVE){
         if(toMove == WHITE){
-            squares[enPassant - 10] = EMPTY_SQUARE;
+            squares[enPassantPosition - 10] = EMPTY_SQUARE;
         }
         else{
-            squares[enPassant + 10] = EMPTY_SQUARE;
+            squares[enPassantPosition + 10] = EMPTY_SQUARE;
         }
     }
     if(toExecute->From() == whiteKingPos){
@@ -387,10 +382,10 @@ void Position::MakeSoftBack(Move *toExecute, int takenPiece){
     squares[toExecute->To()] = takenPiece;
     if(toExecute->Type() & EN_PASSANT_MOVE){
         if(toMove == WHITE){
-            squares[enPassant - 10] = BLACK_PAWN;
+            squares[enPassantPosition - 10] = BLACK_PAWN;
         }
         else{
-            squares[enPassant + 10] = WHITE_PAWN;
+            squares[enPassantPosition + 10] = WHITE_PAWN;
         }
     }
     if(toExecute->To() == whiteKingPos){

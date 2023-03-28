@@ -8,7 +8,7 @@
 
 #include <cmath>
 
-MoveChecker* MoveCheckHandler::checkers[] = {};
+std::array<MoveChecker*, NO_PIECES + 1> MoveCheckHandler::checkers = {};
 
 extern Logger logger;
 

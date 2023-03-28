@@ -3,6 +3,8 @@
 
 #include "declarations.h"
 
+#include <array>
+
 class Position;
 class Move;
 
@@ -57,7 +59,7 @@ class EmptyMoveChecker: public MoveChecker{
 };
 
 class MoveCheckHandler{
-    static MoveChecker* checkers[NO_PIECES + 1];
+    static std::array<MoveChecker*, NO_PIECES + 1> checkers;
     public:
         static void Init();
         static void Cleanup();
