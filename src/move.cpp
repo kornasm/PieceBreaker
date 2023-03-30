@@ -5,6 +5,7 @@
 #include "logger.h"
 
 #include <iostream>
+#include <cassert>
 
 const char PromotionSymbols[4] = {'q', 'r', 'n', 'b'};
 const int  PromotionAnswers[4] = {WHITE_QUEEN, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP};
@@ -20,6 +21,7 @@ Move::Move(int f, int t, int tp, int pr)
 
 Move* Move::String2Move(std::string notation){
     if(notation.length() < 4 || notation.length() > 5){
+        logger << LogDest(LOG_BAD_INPUT) << "notation must be 4 or 5 (when promoting pawn) kchars long\n";
         return nullptr;
     }
     int from = Board::Not2Ind(notation.substr(0, 2));
@@ -47,9 +49,7 @@ bool Move::operator ==(Move o) const{
 }
 
 void Move::IncreaseType(int i){
-    if((type & i) == 0){
-        type |= i;
-    }
+    type |= i;
 }
 
 std::ostream& Move::ShowMove(std::ostream& out) const{
@@ -62,14 +62,20 @@ std::ostream& Move::ShowMove(std::ostream& out) const{
     return out;
 }
 
-std::ostream& operator <<(std::ostream& out, const Move& move){
-    out << Board::Ind2Not(move.From()) << Board::Ind2Not(move.To());
-    if(move.Promo() != EMPTY_SQUARE){
-        char c = Board::GetPieceSymbol(move.Promo());
+std::string Move::ToString() const{
+    std::string ret;
+    ret += Board::Ind2Not(this->From());
+    ret += Board::Ind2Not(this->To());
+    if(this->Promo() != EMPTY_SQUARE){
+        char c = Board::GetPieceSymbol(this->Promo());
         if(c <= 'Z'){
             c = static_cast<char>(c + 32);
         }
-        out << c;
+        ret += c;
     }
-    return out;
+    return ret;
+}
+
+std::ostream& operator <<(std::ostream& out, const Move& move){
+    return out << move.ToString();
 }
