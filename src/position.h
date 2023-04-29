@@ -70,10 +70,10 @@ class Position{
         
         void ShowBoard(std::ostream& out) const;
         std::ostream& ShowTinyBoard(std::ostream& out) const;
-        void CheckCheck();
+        bool CheckCheck();
         std::list<Move> GenerateAllLegalMoves(bool searchAtLeastOne = false);
-        void CheckEndings();
-        void CalculatePositionHash();
+        GameResult CheckEndings();
+        long long CalculatePositionHash();
 
         //getters
         std::string GetFen() const;
@@ -87,6 +87,7 @@ class Position{
         int BlackCstl() const { return blcstl; }
         int GetWhiteKingPos() const { return whiteKingPos; }
         int GetBlackKingPos() const { return blackKingPos; }
+        bool IsUnderCheck() const { return underCheck; }
         int EnPassantPos() const { return enPassantPosition; }
         int ToMove() const { return toMove; }
         GameResult GetGameResult() const { return result; }
