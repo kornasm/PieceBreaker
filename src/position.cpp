@@ -27,7 +27,7 @@ Position::Position()
     whiteKingPos(Board::Not2Ind("e1")),
     blackKingPos(Board::Not2Ind("e8"))
 {
-    CalculatePositionHash();
+    positionHash = CalculatePositionHash();
 }
 
 Position::Position(Position& pr, Move *m, int promo)
@@ -105,15 +105,21 @@ Position::Position(Position& pr, Move *m, int promo)
         halfMoveClock = 0;
         searchBackRepetitions = false;
     }
-    CheckCheck();
-    CalculatePositionHash();
-    CheckEndings();
+    underCheck = CheckCheck();
+    positionHash = CalculatePositionHash();
+    result = CheckEndings();
 }
 
 Position::Position(std::stringstream& strFen){
     std::string fen;
-
     strFen >> fen;
+
+#ifdef DEBUG
+    // very basic fen checking for more convinient messages during testing
+    long int noSlashes = std::count(fen.begin(), fen.end(), '/');
+    assert(noSlashes == 7 && "Invalid fen");
+#endif  
+
     unsigned int index = 0;
     for(int i = 7; i >= 0; i--){
         int j = 0;
@@ -205,9 +211,9 @@ Position::Position(std::stringstream& strFen){
     fullMoveCounter = std::stoi(fen);
     searchBackRepetitions = false;
     prev = nullptr;
-    CalculatePositionHash();
-    CheckCheck();
-    CheckEndings();
+    positionHash = CalculatePositionHash();
+    underCheck = CheckCheck();
+    result = CheckEndings();
 }
 
 std::string Position::GetFen() const{
@@ -435,21 +441,22 @@ Move* Position::CheckIfMovePseudoLegal(int from, int to) const{
     return expected;
 }
 
-void Position::CheckCheck(){
+bool Position::CheckCheck(){
     if(toMove == WHITE){
+        // when white player is moving the white king safety need to be checked
         if(IsPlaceAttacked(whiteKingPos, -toMove)){
-            underCheck = true;
+            return true;
         }
         else{
-            underCheck = false;
+            return false;
         }
     }
     else{
         if(IsPlaceAttacked(blackKingPos, -toMove)){
-            underCheck = true;
+            return true;
         }
         else{
-            underCheck = false;
+            return false;
         }
     }
 }
@@ -474,13 +481,12 @@ std::list<Move> Position::GenerateAllLegalMoves(bool searchAtLeastOne){
     return results;
 }
 
-void Position::CheckEndings(){
+GameResult Position::CheckEndings(){
     // 50-move rule
     if(halfMoveClock >= 100){
-        result = GameResult::DRAW;
-        return;
+        return GameResult::DRAW;
     }
-    result = GameResult::ONGOING;
+
 
     // Repetition draw
     int count = 0;
@@ -489,9 +495,8 @@ void Position::CheckEndings(){
         if(current->positionHash == this->positionHash){
             count++;
             if(count>= 3){
-                result = GameResult::DRAW;
                 logger << LogDest(LOG_ANALYSIS) << "draw (repetition)\n";
-                return;
+                return GameResult::DRAW;
             }
         }
         if(current->searchBackRepetitions == false){
@@ -508,24 +513,20 @@ void Position::CheckEndings(){
     if(possiblemoves.size() == 0){
         if(underCheck){ // Checkmate
             if(toMove == WHITE){
-                result = GameResult::BLACK_WIN;
                 logger << LogDest(LOG_ANALYSIS) << "black win (checkmate)\n";
+                return GameResult::BLACK_WIN;
             }
             else{
-                result = GameResult::WHITE_WIN;
                 logger << LogDest(LOG_ANALYSIS) << "white win (checkmate)\n";
+                return GameResult::WHITE_WIN;
             }
         }
         else{ // Stalemate
-            result = GameResult::DRAW;
             logger << LogDest(LOG_ANALYSIS) << "draw (stalemate)\n";
+            return GameResult::DRAW;
         }
     }
-    if(result != GameResult::ONGOING){
-        return;
-    }
 
-    //
     int sqmaterial[2] = {0, 0}; // on white and black squares
     int colmaterial[3] = {0, 0, 0};
     int col = 0;
@@ -538,9 +539,8 @@ void Position::CheckEndings(){
         colmaterial[GetSquareColor(ind) + 1] += drawMaterial[LookUpTableIndex(squares[ind])];
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] < 2){
-        result = DRAW;
         logger << LogDest(LOG_ANALYSIS) << "draw (material)\n";
-        return;
+        return DRAW;
     }
     if(colmaterial[BLACK + 1] + colmaterial[WHITE + 1] == 2 && colmaterial[BLACK + 1] == colmaterial[WHITE + 1]){
         if(sqmaterial[0] != sqmaterial[1]){
@@ -552,21 +552,22 @@ void Position::CheckEndings(){
                 }
             }
             if(isknight == false){
-                result = DRAW;
+                return DRAW;
                 logger << LogDest(LOG_ANALYSIS) << "draw (material)\n";
             }
         }
     }
+    return GameResult::ONGOING;
 } 
 
-void Position::CalculatePositionHash(){
+long long Position::CalculatePositionHash(){
     long long value = toMove + 313;
     for(int i = 0; i < 64; i++){
         value *= 313;
         value += GetSquareValue(mailbox[i]) + NO_PIECES;
         value %= 1000000009 + 7;
     }
-    positionHash = value;
+    return value;
 }
 
 char Position::GetPiece(int column, int row) const{

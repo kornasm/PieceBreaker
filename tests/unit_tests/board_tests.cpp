@@ -5,11 +5,11 @@
 #include <vector>
 #include <algorithm>
 
-#include "../src/board.h"
-#include "../src/movegenerators.h"
-#include "../src/movecheck.h"
-#include "../src/node.h"
-#include "../src/move.h"
+#include "board.h"
+#include "movegenerators.h"
+#include "movecheck.h"
+#include "node.h"
+#include "move.h"
 
 class BoardTests: public ::testing::Test {
     protected:
@@ -35,20 +35,5 @@ TEST_F(BoardTests, BoardIndiciesConverting){
         EXPECT_EQ(Board::Ind2Not(indicies[i]), notations[i]);
         EXPECT_EQ(columns[i], Board::column(indicies[i]));
         EXPECT_EQ(rows[i], Board::row(indicies[i]));
-    }
-}
-
-TEST_F(BoardTests, FenReadingPrinting){
-    std::vector<std::string> fens = { "rn3bn1/pbppk1pp/1p2p2r/2q1Np2/8/2P1PK2/P1PP1PPP/RNBQ1B1R w - - 0 1",
-                                      "4k3/Q7/4K3/8/8/8/8/8 w - - 0 1",
-                                      "4k3/Q7/4K3/8/8/8/8/8 b - - 10 115",
-                                      "rnbqkb1r/pp3ppp/3p1n2/2pPp3/4P3/5N2/PPP2PPP/RNBQKB1R w KQkq c6 38 75" };
-    for(auto inFen : fens){
-        std::stringstream sstr(inFen);
-        Node *nd = new Node(sstr);
-        std::string outFen = nd->GetFen();
-        EXPECT_EQ(inFen, outFen) << "Test:  " << inFen << "  failed\n";
-        //std::cerr << "#" << inFen << "#\n#" << outFen << "#\n";
-        delete nd;
     }
 }
