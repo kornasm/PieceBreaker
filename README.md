@@ -1,6 +1,6 @@
 # Overview
 
-PieceBreaker is simple chess engine. It does not provide GUI. Full support for the [the UCI protocol](https://www.shredderchess.com/download/div/uci.zip) will be implemented soon.
+PieceBreaker is a terminal based simple chess engine. Communication with GUI will be possible via [the UCI protocol](https://www.shredderchess.com/download/div/uci.zip). Full support will be implemented soon.
 
 
 ## Compiling
@@ -9,14 +9,18 @@ Best to use with g++ (other compilers not tested). CMake required.
 ```
     cmake -B build/
     cmake --build build/
-    build/PieceBreaker
+```
+
+## Running
+```
+    ./build/PieceBreaker
 ```
 
 ## Usage
-Some commands from UCI protocol are available. Most important are listed below:
+Some commands from UCI protocol are already available. Most important are listed below:
 
   * #### position [fen <fenstring> | startpos] moves \<move 1\> ... \<move n\>
-    Set position to be analyzed. Fen string can be obtained [here](https://lichess.org/editor).
+    Set position to be analyzed. "Moves" part is optional. You can obtain fen string on [lichess board editor](https://lichess.org/editor).
 
   * #### go \<number\>
     Start searching to the depth passed to \<number\>.
